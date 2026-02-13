@@ -292,46 +292,46 @@ export function ResonantBreathing() {
     <div>
       {/* Pattern Selection */}
       {!isActive && (
-        <div className="mb-8">
-          <h3 className="font-bold text-lg mb-4 text-gray-800">
-            Kies een adempatroon / Choose Pattern
+        <div className="mb-8 px-4">
+          <h3 className="font-bold text-base sm:text-lg mb-4 text-gray-800">
+            Kies een adempatroon
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             {patterns.map((pattern) => (
               <button
                 key={pattern.name}
                 onClick={() => setSelectedPattern(pattern)}
-                className={`p-4 rounded-lg border-2 transition-all text-left ${
+                className={`p-3 sm:p-4 rounded-lg border-2 transition-all text-left ${
                   selectedPattern.name === pattern.name
                     ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300 bg-white'
+                    : 'border-gray-200 hover:border-gray-300 bg-white active:bg-gray-50'
                 }`}
               >
-                <div className="font-bold text-gray-800 mb-1">{pattern.name}</div>
-                <div className="text-sm text-gray-600 mb-2">{pattern.description}</div>
-                <div className="flex gap-2 text-sm font-mono">
+                <div className="font-bold text-sm sm:text-base text-gray-800 mb-1 break-words">{pattern.name}</div>
+                <div className="text-xs sm:text-sm text-gray-600 mb-2 break-words">{pattern.description}</div>
+                <div className="flex flex-wrap gap-2 text-xs sm:text-sm font-mono">
                   {/* Inhale */}
-                  <span className="px-2 py-1 bg-green-100 text-green-700 rounded">
+                  <span className="px-2 py-1 bg-green-100 text-green-700 rounded whitespace-nowrap">
                     ↑ {pattern.name === 'Coherent Breathing' ? coherentDuration : pattern.inhale}s
                   </span>
 
                   {/* For Buteyko: exhale comes before hold */}
                   {pattern.name === 'Buteyko - Extended Breath Hold' && (
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">
+                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded whitespace-nowrap">
                       ↓ {pattern.exhale}s
                     </span>
                   )}
 
                   {/* Hold (after exhale for Buteyko, after inhale for others) */}
                   {pattern.name === 'Buteyko - Extended Breath Hold' && (
-                    <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded">
+                    <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded whitespace-nowrap">
                       ⊙ {customHoldDuration}s
                     </span>
                   )}
 
                   {/* For non-Buteyko: normal order */}
                   {pattern.name !== 'Buteyko - Extended Breath Hold' && (
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">
+                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded whitespace-nowrap">
                       ↓ {pattern.name === 'Coherent Breathing' ? coherentDuration : pattern.exhale}s
                     </span>
                   )}
@@ -342,12 +342,12 @@ export function ResonantBreathing() {
 
           {/* Coherent Breathing Duration Slider */}
           {selectedPattern.name === 'Coherent Breathing' && (
-            <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <div className="flex items-center justify-between mb-3">
-                <label className="font-semibold text-gray-800">
-                  Ademhalingstijd / Breath Duration
+            <div className="mt-6 p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                <label className="font-semibold text-sm sm:text-base text-gray-800">
+                  Ademhalingstijd
                 </label>
-                <span className="text-2xl font-bold text-blue-600">
+                <span className="text-xl sm:text-2xl font-bold text-blue-600">
                   {coherentDuration}s in/uit
                 </span>
               </div>
@@ -475,35 +475,40 @@ export function ResonantBreathing() {
       )}
 
       {/* Breathing Circle */}
-      <div className="flex flex-col items-center justify-center mb-8">
-        {/* Circle wrapper - Responsive sizing */}
-        <div className="w-full max-w-[280px] sm:max-w-sm md:max-w-md lg:max-w-lg aspect-square flex items-center justify-center p-8 sm:p-12">
-          <div
-            className={`w-full h-full rounded-full bg-gradient-to-br ${
-              colorClasses[selectedPattern.color as keyof typeof colorClasses]
-            } flex items-center justify-center shadow-2xl transition-transform ease-in-out`}
-            style={{
-              transitionDuration: `${
-                phase === 'inhale'
-                  ? getEffectivePattern().inhale
-                  : phase === 'exhale'
-                  ? getEffectivePattern().exhale
-                  : 1
-              }s`,
-              transform:
-                phase === 'inhale'
-                  ? 'scale(1.5)'
-                  : phase === 'exhale'
-                  ? 'scale(0.75)'
-                  : 'scale(1)',
-            }}
-          >
-            <div className="text-center text-white">
-              <div className="text-5xl sm:text-6xl md:text-7xl font-bold mb-2">
-                {timeLeft ? Math.ceil(timeLeft) : '—'}
-              </div>
-              <div className="text-sm sm:text-base md:text-lg font-semibold px-2">
-                {getPhaseText()}
+      <div className="flex flex-col items-center justify-center mb-8 px-4 overflow-hidden">
+        {/* Circle container - Perfect square for perfect circle */}
+        <div className="w-full max-w-[280px] sm:max-w-sm md:max-w-md lg:max-w-lg relative">
+          {/* Padding trick for perfect square */}
+          <div className="w-full" style={{ paddingBottom: '100%' }}>
+            <div className="absolute inset-0 p-12 sm:p-16 md:p-20">
+              <div
+                className={`w-full h-full rounded-full bg-gradient-to-br ${
+                  colorClasses[selectedPattern.color as keyof typeof colorClasses]
+                } flex items-center justify-center shadow-2xl transition-transform ease-in-out will-change-transform`}
+                style={{
+                  transitionDuration: `${
+                    phase === 'inhale'
+                      ? getEffectivePattern().inhale
+                      : phase === 'exhale'
+                      ? getEffectivePattern().exhale
+                      : 1
+                  }s`,
+                  transform:
+                    phase === 'inhale'
+                      ? 'scale(1.5)'
+                      : phase === 'exhale'
+                      ? 'scale(0.75)'
+                      : 'scale(1)',
+                }}
+              >
+                <div className="text-center text-white px-2">
+                  <div className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-1">
+                    {timeLeft ? Math.ceil(timeLeft) : '—'}
+                  </div>
+                  <div className="text-xs sm:text-sm md:text-base font-semibold whitespace-nowrap">
+                    {getPhaseText()}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -511,18 +516,18 @@ export function ResonantBreathing() {
 
         {/* Stats - Responsive Grid */}
         {isActive && (
-          <div className="mt-6 grid grid-cols-3 gap-4 sm:gap-8 w-full max-w-md text-center">
-            <div>
-              <div className="text-xs sm:text-sm text-gray-600">Cycli</div>
-              <div className="text-xl sm:text-2xl font-bold text-gray-800">{cycles}</div>
+          <div className="mt-8 grid grid-cols-3 gap-3 sm:gap-6 w-full max-w-md px-2">
+            <div className="text-center">
+              <div className="text-xs sm:text-sm text-gray-600 mb-1">Cycli</div>
+              <div className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">{cycles}</div>
             </div>
-            <div>
-              <div className="text-xs sm:text-sm text-gray-600">Verstreken</div>
-              <div className="text-xl sm:text-2xl font-bold text-gray-800">{formatTime(totalSeconds)}</div>
+            <div className="text-center">
+              <div className="text-xs sm:text-sm text-gray-600 mb-1">Verstreken</div>
+              <div className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">{formatTime(totalSeconds)}</div>
             </div>
-            <div>
-              <div className="text-xs sm:text-sm text-gray-600">Resterend</div>
-              <div className="text-xl sm:text-2xl font-bold text-green-600">
+            <div className="text-center">
+              <div className="text-xs sm:text-sm text-gray-600 mb-1">Resterend</div>
+              <div className="text-lg sm:text-xl md:text-2xl font-bold text-green-600">
                 {formatTime(Math.max(0, sessionDuration * 60 - totalSeconds))}
               </div>
             </div>
