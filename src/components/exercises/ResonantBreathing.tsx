@@ -266,13 +266,13 @@ export function ResonantBreathing() {
   const getPhaseText = () => {
     switch (phase) {
       case 'inhale':
-        return 'Inademen / Inhale';
+        return 'Inademen';
       case 'hold':
-        return 'Vasthouden / Hold';
+        return 'Vasthouden';
       case 'exhale':
-        return 'Uitademen / Exhale';
+        return 'Uitademen';
       default:
-        return 'Klaar om te starten';
+        return 'Klaar';
     }
   };
 

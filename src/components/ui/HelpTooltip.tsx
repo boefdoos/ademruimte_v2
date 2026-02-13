@@ -31,26 +31,26 @@ export function HelpTooltip({ title, content, size = 'md' }: HelpTooltipProps) {
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-[60]"
+            className="fixed inset-0 z-[60] bg-black bg-opacity-25"
             onClick={() => setIsOpen(false)}
           ></div>
 
-          {/* Tooltip Modal */}
-          <div className="absolute right-0 top-full mt-2 z-[70] w-72 max-w-[90vw] bg-white rounded-lg shadow-2xl border-2 border-blue-200 p-4 max-h-96 overflow-y-auto">
-            <div className="flex items-start justify-between mb-2">
-              <h4 className="font-bold text-gray-800 flex items-center">
-                <i className="fas fa-info-circle text-blue-600 mr-2"></i>
-                {title}
+          {/* Tooltip Modal - Responsive */}
+          <div className="fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-20 sm:top-full sm:mt-2 z-[70] w-auto sm:w-80 md:w-96 max-w-[calc(100vw-2rem)] bg-white rounded-lg shadow-2xl border-2 border-blue-200 p-4 max-h-[70vh] sm:max-h-96 overflow-y-auto">
+            <div className="flex items-start justify-between mb-3 gap-2">
+              <h4 className="font-bold text-sm sm:text-base text-gray-800 flex items-center flex-1 break-words">
+                <i className="fas fa-info-circle text-blue-600 mr-2 flex-shrink-0"></i>
+                <span className="break-words">{title}</span>
               </h4>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 flex-shrink-0 p-1"
               >
                 <i className="fas fa-times"></i>
               </button>
             </div>
-            <div className="text-sm text-gray-700">
-              {typeof content === 'string' ? <p>{content}</p> : content}
+            <div className="text-xs sm:text-sm text-gray-700 break-words overflow-wrap-anywhere">
+              {typeof content === 'string' ? <p className="break-words">{content}</p> : content}
             </div>
           </div>
         </>

@@ -94,4 +94,12 @@ button,
     min-width: 44px;
     min-height: 44px;
   }
+
+  /* Better word wrapping for long words */
+  .overflow-wrap-anywhere {
+    overflow-wrap: anywhere;
+    word-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+  }
 }

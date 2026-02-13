@@ -287,34 +287,34 @@ export function HRVChart() {
   const chartMin = Math.max(0, Math.min(minHRV, baselineValue || minHRV, autoBaseline || minHRV) - 10);
 
   return (
-    <div className="space-y-6">
-      {/* Summary Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4">
-          <div className="text-sm text-purple-600 font-semibold mb-1">Laatste</div>
-          <div className="text-3xl font-bold text-purple-900">{latestHRV}</div>
+    <div className="space-y-6 px-4">
+      {/* Summary Stats - Responsive Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-3 sm:p-4">
+          <div className="text-xs sm:text-sm text-purple-600 font-semibold mb-1">Laatste</div>
+          <div className="text-2xl sm:text-3xl font-bold text-purple-900">{latestHRV}</div>
           <div className="text-xs text-purple-600 mt-1">ms</div>
         </div>
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4">
-          <div className="text-sm text-blue-600 font-semibold mb-1">Gemiddeld</div>
-          <div className="text-3xl font-bold text-blue-900">{avgHRV}</div>
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 sm:p-4">
+          <div className="text-xs sm:text-sm text-blue-600 font-semibold mb-1">Gemiddeld</div>
+          <div className="text-2xl sm:text-3xl font-bold text-blue-900">{avgHRV}</div>
           <div className="text-xs text-blue-600 mt-1">ms</div>
         </div>
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4">
-          <div className="text-sm text-green-600 font-semibold mb-1">
-            {autoBaseline ? 'Baseline (30d)' : 'Maximum'}
+        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-3 sm:p-4">
+          <div className="text-xs sm:text-sm text-green-600 font-semibold mb-1 break-words">
+            {autoBaseline ? 'Baseline' : 'Max'}
           </div>
-          <div className="text-3xl font-bold text-green-900">
+          <div className="text-2xl sm:text-3xl font-bold text-green-900">
             {autoBaseline || maxHRV}
           </div>
-          <div className="text-xs text-green-600 mt-1">{autoBaseline ? 'mediaan' : 'ms'}</div>
+          <div className="text-xs text-green-600 mt-1">{autoBaseline ? '30d' : 'ms'}</div>
         </div>
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4">
-          <div className="text-sm text-gray-600 font-semibold mb-1">Trend</div>
-          <div className="text-2xl font-bold text-gray-900">
-            {trend === 'up' && <><i className="fas fa-arrow-up text-green-600"></i> <span className="text-lg">Stijgend</span></>}
-            {trend === 'down' && <><i className="fas fa-arrow-down text-red-600"></i> <span className="text-lg">Dalend</span></>}
-            {trend === 'stable' && <><i className="fas fa-minus text-gray-600"></i> <span className="text-lg">Stabiel</span></>}
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-3 sm:p-4">
+          <div className="text-xs sm:text-sm text-gray-600 font-semibold mb-1">Trend</div>
+          <div className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-1">
+            {trend === 'up' && <><i className="fas fa-arrow-up text-green-600 text-sm"></i> <span className="text-base sm:text-lg">↑</span></>}
+            {trend === 'down' && <><i className="fas fa-arrow-down text-red-600 text-sm"></i> <span className="text-base sm:text-lg">↓</span></>}
+            {trend === 'stable' && <><i className="fas fa-minus text-gray-600 text-sm"></i> <span className="text-base sm:text-lg">→</span></>}
           </div>
         </div>
       </div>
