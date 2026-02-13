@@ -1,0 +1,373 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { db } from '@/lib/firebase/config';
+import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
+
+interface JournalEntry {
+  id: string;
+  techniekGebruikt: string;
+  triggers: string[];
+  intensiteit: number | null;
+  sensaties: string[];
+  timestamp: Date;
+}
+
+export function IntensityStats() {
+  const { currentUser } = useAuth();
+  const [entries, setEntries] = useState<JournalEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [timeRange, setTimeRange] = useState<'week' | 'month' | 'all'>('month');
+
+  useEffect(() => {
+    const loadEntries = async () => {
+      if (!currentUser) return;
+
+      try {
+        const entriesRef = collection(db, 'dagboekEntries');
+        const q = query(
+          entriesRef,
+          where('userId', '==', currentUser.uid),
+          orderBy('timestamp', 'desc')
+        );
+
+        const snapshot = await getDocs(q);
+        const data = snapshot.docs.map(doc => {
+          const docData = doc.data();
+          return {
+            id: doc.id,
+            techniekGebruikt: docData.techniekGebruikt || docData.techniqueUsed || 'Unknown',
+            triggers: Array.isArray(docData.triggers)
+              ? docData.triggers
+              : docData.trigger
+              ? [docData.trigger]
+              : [],
+            intensiteit: docData.intensiteit || null,
+            sensaties: Array.isArray(docData.sensaties) ? docData.sensaties : [],
+            timestamp: docData.timestamp.toDate(),
+          };
+        }) as JournalEntry[];
+
+        // Filter by time range
+        const now = new Date();
+        const filteredData = data.filter(entry => {
+          const daysDiff = (now.getTime() - entry.timestamp.getTime()) / (1000 * 60 * 60 * 24);
+          if (timeRange === 'week') return daysDiff <= 7;
+          if (timeRange === 'month') return daysDiff <= 30;
+          return true;
+        });
+
+        setEntries(filteredData);
+      } catch (error) {
+        console.error('Error loading intensity data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadEntries();
+  }, [currentUser, timeRange]);
+
+  if (loading) {
+    return (
+      <div className="animate-pulse space-y-4">
+        <div className="h-32 bg-gray-200 rounded"></div>
+        <div className="h-64 bg-gray-200 rounded"></div>
+      </div>
+    );
+  }
+
+  if (entries.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-6xl mb-4">📊</div>
+        <h3 className="text-xl font-bold text-gray-800 mb-2">
+          Nog geen intensiteit data
+        </h3>
+        <p className="text-gray-600 mb-6">
+          Begin met dagboek entries om je intensiteit trends te volgen
+        </p>
+        <a
+          href="/tracking"
+          className="inline-block px-6 py-3 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-700"
+        >
+          <i className="fas fa-book mr-2"></i>
+          Ga naar Dagboek
+        </a>
+      </div>
+    );
+  }
+
+  // Filter entries with intensity data
+  const entriesWithIntensity = entries.filter(e => e.intensiteit !== null);
+
+  if (entriesWithIntensity.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-6xl mb-4">📈</div>
+        <h3 className="text-xl font-bold text-gray-800 mb-2">
+          Geen intensiteit metingen
+        </h3>
+        <p className="text-gray-600">
+          Je dagboek entries bevatten geen intensiteit scores
+        </p>
+      </div>
+    );
+  }
+
+  // Calculate statistics
+  const intensities = entriesWithIntensity.map(e => e.intensiteit!);
+  const avgIntensity = Math.round(
+    intensities.reduce((sum, val) => sum + val, 0) / intensities.length
+  );
+  const maxIntensity = Math.max(...intensities);
+  const minIntensity = Math.min(...intensities);
+
+  // Trend analysis (compare first half vs second half)
+  const midPoint = Math.floor(entriesWithIntensity.length / 2);
+  const recentEntries = entriesWithIntensity.slice(0, midPoint);
+  const olderEntries = entriesWithIntensity.slice(midPoint);
+
+  const recentAvg = recentEntries.length
+    ? Math.round(
+        recentEntries.reduce((sum, e) => sum + e.intensiteit!, 0) / recentEntries.length
+      )
+    : 0;
+  const olderAvg = olderEntries.length
+    ? Math.round(
+        olderEntries.reduce((sum, e) => sum + e.intensiteit!, 0) / olderEntries.length
+      )
+    : 0;
+
+  const trendDirection = recentAvg < olderAvg ? 'down' : recentAvg > olderAvg ? 'up' : 'stable';
+
+  // Group by technique
+  const byTechnique = entriesWithIntensity.reduce((acc, entry) => {
+    const tech = entry.techniekGebruikt;
+    if (!acc[tech]) acc[tech] = [];
+    acc[tech].push(entry.intensiteit!);
+    return acc;
+  }, {} as Record<string, number[]>);
+
+  const techniqueStats = Object.entries(byTechnique).map(([tech, values]) => ({
+    technique: tech,
+    avg: Math.round(values.reduce((sum, val) => sum + val, 0) / values.length),
+    count: values.length,
+  })).sort((a, b) => a.avg - b.avg);
+
+  // Group by trigger
+  const byTrigger: Record<string, number[]> = {};
+  entriesWithIntensity.forEach(entry => {
+    entry.triggers.forEach(trigger => {
+      if (!byTrigger[trigger]) byTrigger[trigger] = [];
+      byTrigger[trigger].push(entry.intensiteit!);
+    });
+  });
+
+  const triggerStats = Object.entries(byTrigger)
+    .map(([trigger, values]) => ({
+      trigger,
+      avg: Math.round((values.reduce((sum, val) => sum + val, 0) / values.length) * 10) / 10,
+      count: values.length,
+    }))
+    .sort((a, b) => b.avg - a.avg)
+    .slice(0, 5);
+
+  const getIntensityColor = (intensity: number) => {
+    if (intensity <= 3) return 'from-green-400 to-green-600';
+    if (intensity <= 5) return 'from-yellow-400 to-yellow-600';
+    if (intensity <= 7) return 'from-orange-400 to-orange-600';
+    return 'from-red-400 to-red-600';
+  };
+
+  const getIntensityLabel = (intensity: number) => {
+    if (intensity <= 3) return 'Mild';
+    if (intensity <= 5) return 'Gemiddeld';
+    if (intensity <= 7) return 'Matig';
+    return 'Ernstig';
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Time Range Selector */}
+      <div className="flex gap-2 justify-end">
+        <button
+          onClick={() => setTimeRange('week')}
+          className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+            timeRange === 'week'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          Week
+        </button>
+        <button
+          onClick={() => setTimeRange('month')}
+          className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+            timeRange === 'month'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          Maand
+        </button>
+        <button
+          onClick={() => setTimeRange('all')}
+          className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+            timeRange === 'all'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          Alles
+        </button>
+      </div>
+
+      {/* Summary Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl text-center">
+          <div className="text-sm font-semibold text-gray-600 mb-1">Gemiddelde Intensiteit</div>
+          <div className="text-4xl font-bold text-blue-700">{avgIntensity}/10</div>
+          <div className="text-sm text-gray-600 mt-1">{getIntensityLabel(avgIntensity)}</div>
+        </div>
+        <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl text-center">
+          <div className="text-sm font-semibold text-gray-600 mb-1">Laagste</div>
+          <div className="text-4xl font-bold text-green-700">{minIntensity}/10</div>
+        </div>
+        <div className="bg-gradient-to-br from-red-50 to-red-100 p-6 rounded-xl text-center">
+          <div className="text-sm font-semibold text-gray-600 mb-1">Hoogste</div>
+          <div className="text-4xl font-bold text-red-700">{maxIntensity}/10</div>
+        </div>
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl text-center">
+          <div className="text-sm font-semibold text-gray-600 mb-1">Trend</div>
+          <div className="text-3xl font-bold text-purple-700">
+            {trendDirection === 'down' && (
+              <>
+                <i className="fas fa-arrow-down mr-2 text-green-600"></i>
+                Beter
+              </>
+            )}
+            {trendDirection === 'up' && (
+              <>
+                <i className="fas fa-arrow-up mr-2 text-red-600"></i>
+                Hoger
+              </>
+            )}
+            {trendDirection === 'stable' && (
+              <>
+                <i className="fas fa-minus mr-2 text-gray-600"></i>
+                Stabiel
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Timeline Chart */}
+      <div className="bg-white rounded-xl p-6">
+        <h3 className="font-bold text-lg mb-6 text-gray-800">Intensiteit Trend</h3>
+        <div className="relative h-64">
+          <div className="absolute inset-0 flex items-end justify-between gap-2">
+            {entriesWithIntensity.slice().reverse().slice(-20).map((entry, index) => {
+              const height = (entry.intensiteit! / 10) * 100;
+              return (
+                <div key={index} className="flex-1 flex flex-col items-center justify-end h-full group relative">
+                  <div
+                    className={`w-full bg-gradient-to-t ${getIntensityColor(entry.intensiteit!)} rounded-t-lg transition-all hover:opacity-80 cursor-pointer`}
+                    style={{ height: `${height}%` }}
+                  >
+                    {/* Tooltip */}
+                    <div className="opacity-0 group-hover:opacity-100 absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-2 px-3 whitespace-nowrap transition-opacity pointer-events-none z-10">
+                      <div className="font-bold">{entry.intensiteit}/10</div>
+                      <div>{entry.timestamp.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}</div>
+                      <div className="text-gray-300">{entry.techniekGebruikt}</div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Technique Effectiveness */}
+      <div className="bg-white rounded-xl p-6">
+        <h3 className="font-bold text-lg mb-4 text-gray-800">
+          Effectiviteit per Techniek
+        </h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Technieken gesorteerd op gemiddelde intensiteit (lager is beter)
+        </p>
+        <div className="space-y-3">
+          {techniqueStats.map(stat => (
+            <div key={stat.technique} className="flex items-center gap-4">
+              <div className="flex-1">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="font-semibold text-gray-800">{stat.technique}</span>
+                  <span className="text-sm text-gray-600">
+                    {stat.avg}/10 • {stat.count}x gebruikt
+                  </span>
+                </div>
+                <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full bg-gradient-to-r ${getIntensityColor(stat.avg)}`}
+                    style={{ width: `${(stat.avg / 10) * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Trigger Analysis */}
+      {triggerStats.length > 0 && (
+        <div className="bg-white rounded-xl p-6">
+          <h3 className="font-bold text-lg mb-4 text-gray-800">
+            Triggers met Hoogste Intensiteit
+          </h3>
+          <div className="space-y-3">
+            {triggerStats.map(stat => (
+              <div key={stat.trigger} className="flex items-center justify-between p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-lg">
+                <div>
+                  <div className="font-semibold text-gray-800">{stat.trigger}</div>
+                  <div className="text-sm text-gray-600">{stat.count} keer voorgekomen</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-red-600">{stat.avg}/10</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Insights */}
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6">
+        <h4 className="font-bold text-gray-800 mb-3">
+          <i className="fas fa-lightbulb mr-2 text-yellow-500"></i>
+          Inzichten
+        </h4>
+        <ul className="space-y-2 text-sm text-gray-700">
+          {trendDirection === 'down' && (
+            <li>✅ Positieve trend! Je gemiddelde intensiteit daalt</li>
+          )}
+          {trendDirection === 'up' && (
+            <li>⚠️ Let op: Je intensiteit neemt toe. Overweeg meer oefeningen of professionele hulp</li>
+          )}
+          {avgIntensity <= 5 && (
+            <li>👍 Je gemiddelde intensiteit is goed onder controle</li>
+          )}
+          {techniqueStats.length > 0 && (
+            <li>
+              🏆 <strong>{techniqueStats[0].technique}</strong> is jouw meest effectieve techniek
+              (gem. {techniqueStats[0].avg}/10)
+            </li>
+          )}
+          <li>📊 {entriesWithIntensity.length} entries geanalyseerd</li>
+        </ul>
+      </div>
+    </div>
+  );
+}

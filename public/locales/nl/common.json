@@ -1,0 +1,60 @@
+{
+  "app_title": "Ademruimte",
+  "app_subtitle": "Evidence-based hulp bij hyperventilatie en gerelateerde klachten",
+  "nav_today": "Vandaag",
+  "nav_exercises": "Oefeningen",
+  "nav_tracking": "Tracking",
+  "login": "Inloggen",
+  "register": "Registreren",
+  "logout": "Uitloggen",
+  "email": "E-mail",
+  "password": "Wachtwoord",
+  "forgot_password": "Wachtwoord vergeten?",
+  "reset_password": "Wachtwoord resetten",
+  "sign_in": "Inloggen",
+  "sign_up": "Registreren",
+  "no_account": "Nog geen account?",
+  "have_account": "Al een account?",
+  "create_account": "Account aanmaken",
+  "send_reset_link": "Verstuur reset link",
+  "back_to_login": "Terug naar inloggen",
+  "email_verification_sent": "Verificatie e-mail verstuurd! Controleer je inbox.",
+  "password_reset_sent": "Wachtwoord reset link verstuurd! Controleer je inbox.",
+  "error_occurred": "Er is een fout opgetreden",
+  "dashboard": {
+    "welcome": "Welkom terug",
+    "streak": "dagen streak",
+    "todays_goals": "Doelen vandaag",
+    "log_cp": "Log Control Pause",
+    "log_hrv": "Log HRV",
+    "log_journal": "Log dagboek",
+    "buteyko_exercise": "Buteyko oefening",
+    "resonant_breathing": "Resonant Breathing"
+  },
+  "exercises": {
+    "title": "Oefeningen",
+    "buteyko": {
+      "title": "Buteyko Methode",
+      "description": "Leer je ademhaling te normaliseren",
+      "start_exercise": "Start oefening",
+      "control_pause": "Control Pause",
+      "measure_cp": "Meet je CP"
+    },
+    "resonant_breathing": {
+      "title": "Resonant Breathing",
+      "description": "Verbeter je HRV met geleide ademhaling",
+      "duration": "Duur",
+      "minutes": "minuten",
+      "start": "Start"
+    }
+  },
+  "tracking": {
+    "title": "Tracking",
+    "hrv": "HRV Metingen",
+    "intensity": "Intensiteit Trends",
+    "triggers": "Triggers",
+    "consistency": "Consistentie",
+    "log_measurement": "Log meting",
+    "view_charts": "Bekijk grafieken"
+  }
+}

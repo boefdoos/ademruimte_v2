@@ -1,0 +1,60 @@
+{
+  "app_title": "Breathing Space",
+  "app_subtitle": "Evidence-based help for hyperventilation and related complaints",
+  "nav_today": "Today",
+  "nav_exercises": "Exercises",
+  "nav_tracking": "Tracking",
+  "login": "Login",
+  "register": "Register",
+  "logout": "Logout",
+  "email": "Email",
+  "password": "Password",
+  "forgot_password": "Forgot password?",
+  "reset_password": "Reset password",
+  "sign_in": "Sign in",
+  "sign_up": "Sign up",
+  "no_account": "Don't have an account?",
+  "have_account": "Already have an account?",
+  "create_account": "Create account",
+  "send_reset_link": "Send reset link",
+  "back_to_login": "Back to login",
+  "email_verification_sent": "Verification email sent! Check your inbox.",
+  "password_reset_sent": "Password reset link sent! Check your inbox.",
+  "error_occurred": "An error occurred",
+  "dashboard": {
+    "welcome": "Welcome back",
+    "streak": "day streak",
+    "todays_goals": "Today's goals",
+    "log_cp": "Log Control Pause",
+    "log_hrv": "Log HRV",
+    "log_journal": "Log journal",
+    "buteyko_exercise": "Buteyko exercise",
+    "resonant_breathing": "Resonant Breathing"
+  },
+  "exercises": {
+    "title": "Exercises",
+    "buteyko": {
+      "title": "Buteyko Method",
+      "description": "Learn to normalize your breathing",
+      "start_exercise": "Start exercise",
+      "control_pause": "Control Pause",
+      "measure_cp": "Measure your CP"
+    },
+    "resonant_breathing": {
+      "title": "Resonant Breathing",
+      "description": "Improve your HRV with guided breathing",
+      "duration": "Duration",
+      "minutes": "minutes",
+      "start": "Start"
+    }
+  },
+  "tracking": {
+    "title": "Tracking",
+    "hrv": "HRV Measurements",
+    "intensity": "Intensity Trends",
+    "triggers": "Triggers",
+    "consistency": "Consistency",
+    "log_measurement": "Log measurement",
+    "view_charts": "View charts"
+  }
+}
