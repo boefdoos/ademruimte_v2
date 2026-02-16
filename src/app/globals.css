@@ -15,6 +15,11 @@ body {
   padding: 0;
 }
 
+/* Dark mode gradient for body */
+.dark body {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
 /* Mobile: Add bottom padding for fixed navigation */
 @media (max-width: 768px) {
   body {
@@ -31,6 +36,16 @@ textarea {
   background-color: white !important;
   color: #1f2937 !important;
   font-size: 16px !important; /* Prevents zoom on iOS */
+}
+
+/* Dark mode input styling */
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="text"],
+.dark input[type="number"],
+.dark textarea {
+  background-color: #334155 !important;
+  color: #f1f5f9 !important;
 }
 
 /* Touch-friendly range sliders */
