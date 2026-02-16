@@ -133,15 +133,15 @@ export default function DashboardPage() {
         onClose={() => setShowOnboarding(false)}
       />
       <Navigation />
-      <div className="min-h-screen p-8 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 transition-colors">
+      <div className="min-h-screen p-4 sm:p-6 md:p-8 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 transition-colors">
         <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-8 mb-6 transition-colors">
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 transition-colors">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-4 sm:p-6 md:p-8 mb-4 sm:mb-6 transition-colors">
+          <div className="mb-4 sm:mb-6">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 transition-colors">
               Welkom terug!
             </h1>
-            <p className="text-gray-600 dark:text-gray-300 mt-2">{currentUser?.email}</p>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mt-2">{currentUser?.email}</p>
           </div>
 
           {/* Quick Stats */}
@@ -171,20 +171,20 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
           <a
             href="/exercises"
-            className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-all text-left cursor-pointer block"
+            className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-4 sm:p-6 hover:shadow-lg transition-all text-left cursor-pointer block"
           >
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-2xl">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xl sm:text-2xl">
                 <i className="fas fa-wind"></i>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">
+                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">
                   Oefeningen
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm">
+                <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
                   Buteyko & Breathing
                 </p>
               </div>
@@ -193,17 +193,17 @@ export default function DashboardPage() {
 
           <a
             href="/insights"
-            className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-all text-left cursor-pointer block"
+            className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-4 sm:p-6 hover:shadow-lg transition-all text-left cursor-pointer block"
           >
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white text-2xl">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white text-xl sm:text-2xl">
                 <i className="fas fa-chart-line"></i>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">
+                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">
                   Inzichten
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm">
+                <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
                   Metingen & Analytics
                 </p>
               </div>
@@ -212,17 +212,17 @@ export default function DashboardPage() {
 
           <a
             href="/journal"
-            className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-all text-left cursor-pointer block"
+            className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-4 sm:p-6 hover:shadow-lg transition-all text-left cursor-pointer block"
           >
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-2xl">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-xl sm:text-2xl">
                 <i className="fas fa-book"></i>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">
+                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">
                   Dagboek
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300 text-sm">
+                <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
                   Reflecties & Symptomen
                 </p>
               </div>
