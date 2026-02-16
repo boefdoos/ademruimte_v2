@@ -23,7 +23,7 @@ body {
 /* Mobile: Add bottom padding for fixed navigation */
 @media (max-width: 768px) {
   body {
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
   }
 }
 
