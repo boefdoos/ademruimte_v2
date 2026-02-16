@@ -12,11 +12,12 @@ import { db } from '@/lib/firebase/config';
 import { doc, getDoc, setDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 
 export default function DashboardPage() {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, loading: authLoading } = useAuth();
   const router = useRouter();
   const [streak, setStreak] = useState(0);
   const [lastCP, setLastCP] = useState<number | null>(null);
   const [lastHRV, setLastHRV] = useState<number | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -110,19 +111,37 @@ export default function DashboardPage() {
     router.push('/auth');
   };
 
+  // Show loading state while auth is initializing
+  if (authLoading) {
+    return (
+      <>
+        <Navigation />
+        <div className="min-h-screen p-8 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center transition-colors">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 dark:border-blue-400 mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-300">Laden...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
-      <OnboardingModal />
+      <OnboardingModal
+        forceOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+      />
       <Navigation />
-      <div className="min-h-screen p-8 bg-gradient-to-br from-blue-50 to-purple-50">
+      <div className="min-h-screen p-8 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 transition-colors">
         <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
+        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-8 mb-6 transition-colors">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Welkom terug! / Welcome back!
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 transition-colors">
+              Welkom terug!
             </h1>
-            <p className="text-gray-600 mt-2">{currentUser?.email}</p>
+            <p className="text-gray-600 dark:text-gray-300 mt-2">{currentUser?.email}</p>
           </div>
 
           {/* Quick Stats */}
@@ -155,17 +174,17 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <a
             href="/exercises"
-            className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow text-left cursor-pointer block"
+            className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-all text-left cursor-pointer block"
           >
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-2xl">
                 <i className="fas fa-wind"></i>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-800 mb-1">
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">
                   Oefeningen
                 </h3>
-                <p className="text-gray-600 text-sm">
+                <p className="text-gray-600 dark:text-gray-300 text-sm">
                   Buteyko & Breathing
                 </p>
               </div>
@@ -174,17 +193,17 @@ export default function DashboardPage() {
 
           <a
             href="/insights"
-            className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow text-left cursor-pointer block"
+            className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-all text-left cursor-pointer block"
           >
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white text-2xl">
                 <i className="fas fa-chart-line"></i>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-800 mb-1">
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">
                   Inzichten
                 </h3>
-                <p className="text-gray-600 text-sm">
+                <p className="text-gray-600 dark:text-gray-300 text-sm">
                   Metingen & Analytics
                 </p>
               </div>
@@ -193,17 +212,17 @@ export default function DashboardPage() {
 
           <a
             href="/journal"
-            className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow text-left cursor-pointer block"
+            className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-all text-left cursor-pointer block"
           >
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-2xl">
                 <i className="fas fa-book"></i>
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-800 mb-1">
+                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">
                   Dagboek
                 </h3>
-                <p className="text-gray-600 text-sm">
+                <p className="text-gray-600 dark:text-gray-300 text-sm">
                   Reflecties & Symptomen
                 </p>
               </div>
@@ -213,6 +232,17 @@ export default function DashboardPage() {
 
         {/* Today's Goals */}
         <TodayGoals />
+
+        {/* Onboarding herbekijken */}
+        <div className="mt-8 text-center">
+          <button
+            onClick={() => setShowOnboarding(true)}
+            className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors inline-flex items-center gap-2"
+          >
+            <i className="fas fa-info-circle"></i>
+            Bekijk de introductie opnieuw
+          </button>
+        </div>
         </div>
       </div>
     </>

@@ -24,6 +24,7 @@ export function BreathingSessionsChart() {
     const loadSessions = async () => {
       if (!currentUser) return;
 
+      setLoading(true);
       try {
         // Read from V1 collection structure
         const sessionsRef = collection(db, 'resonant_sessions');
@@ -87,7 +88,7 @@ export function BreathingSessionsChart() {
   if (loading) {
     return (
       <div className="animate-pulse">
-        <div className="h-64 bg-gray-200 rounded"></div>
+        <div className="h-64 bg-gray-200 dark:bg-slate-700 rounded transition-colors"></div>
       </div>
     );
   }
@@ -96,15 +97,15 @@ export function BreathingSessionsChart() {
     return (
       <div className="text-center py-12">
         <div className="text-6xl mb-4">🌊</div>
-        <h3 className="text-xl font-bold text-gray-800 mb-2">
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2 transition-colors">
           Nog geen ademsessies
         </h3>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-400 mb-6 transition-colors">
           Start met Resonant Breathing om je sessies te volgen
         </p>
         <a
           href="/exercises"
-          className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
+          className="inline-block px-6 py-3 bg-blue-600 dark:bg-blue-700 text-white rounded-lg font-semibold hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
         >
           <i className="fas fa-wind mr-2"></i>
           Start Resonant Breathing
@@ -152,7 +153,7 @@ export function BreathingSessionsChart() {
           className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
             timeRange === 'week'
               ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
           }`}
         >
           Week
@@ -162,7 +163,7 @@ export function BreathingSessionsChart() {
           className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
             timeRange === 'month'
               ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
           }`}
         >
           Maand
@@ -172,7 +173,7 @@ export function BreathingSessionsChart() {
           className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
             timeRange === 'all'
               ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
           }`}
         >
           Alles
@@ -181,27 +182,27 @@ export function BreathingSessionsChart() {
 
       {/* Stats Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-blue-50 p-4 rounded-xl text-center">
-          <div className="text-sm font-semibold text-gray-600 mb-1">Totaal Sessies</div>
-          <div className="text-3xl font-bold text-blue-700">{sessions.length}</div>
+        <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-xl text-center transition-colors">
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">Totaal Sessies</div>
+          <div className="text-3xl font-bold text-blue-700 dark:text-blue-300 transition-colors">{sessions.length}</div>
         </div>
-        <div className="bg-green-50 p-4 rounded-xl text-center">
-          <div className="text-sm font-semibold text-gray-600 mb-1">Totale Tijd</div>
-          <div className="text-3xl font-bold text-green-700">{totalMinutes}m</div>
+        <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-xl text-center transition-colors">
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">Totale Tijd</div>
+          <div className="text-3xl font-bold text-green-700 dark:text-green-300 transition-colors">{totalMinutes}m</div>
         </div>
-        <div className="bg-purple-50 p-4 rounded-xl text-center">
-          <div className="text-sm font-semibold text-gray-600 mb-1">Totaal Cycli</div>
-          <div className="text-3xl font-bold text-purple-700">{totalCycles}</div>
+        <div className="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-xl text-center transition-colors">
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">Totaal Cycli</div>
+          <div className="text-3xl font-bold text-purple-700 dark:text-purple-300 transition-colors">{totalCycles}</div>
         </div>
-        <div className="bg-orange-50 p-4 rounded-xl text-center">
-          <div className="text-sm font-semibold text-gray-600 mb-1">Gem. Sessie</div>
-          <div className="text-3xl font-bold text-orange-700">{avgDuration}m</div>
+        <div className="bg-orange-50 dark:bg-orange-900/30 p-4 rounded-xl text-center transition-colors">
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">Gem. Sessie</div>
+          <div className="text-3xl font-bold text-orange-700 dark:text-orange-300 transition-colors">{avgDuration}m</div>
         </div>
       </div>
 
       {/* Pattern Distribution */}
-      <div className="bg-white rounded-xl p-6">
-        <h3 className="font-bold text-lg mb-4 text-gray-800">Patronen Verdeling</h3>
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-6 transition-colors">
+        <h3 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-100 transition-colors">Patronen Verdeling</h3>
         <div className="space-y-3">
           {Object.entries(patternCounts)
             .sort((a, b) => b[1] - a[1])
@@ -210,12 +211,12 @@ export function BreathingSessionsChart() {
               return (
                 <div key={pattern}>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm font-semibold text-gray-700">{pattern}</span>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 transition-colors">{pattern}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400 transition-colors">
                       {count} {count === 1 ? 'sessie' : 'sessies'} ({percentage}%)
                     </span>
                   </div>
-                  <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="h-3 bg-gray-200 dark:bg-slate-600 rounded-full overflow-hidden transition-colors">
                     <div
                       className={`h-full bg-gradient-to-r ${patternColors[pattern] || 'from-gray-400 to-gray-600'} transition-all`}
                       style={{ width: `${percentage}%` }}
@@ -228,11 +229,11 @@ export function BreathingSessionsChart() {
       </div>
 
       {/* Recent Sessions */}
-      <div className="bg-white rounded-xl p-6">
-        <h3 className="font-bold text-lg mb-4 text-gray-800">Recente Sessies</h3>
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-6 transition-colors">
+        <h3 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-100 transition-colors">Recente Sessies</h3>
         <div className="space-y-3">
           {sessions.slice().reverse().slice(0, 10).map((session) => (
-            <div key={session.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+            <div key={session.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-700 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
               <div className="flex items-center gap-4">
                 <div
                   className={`w-12 h-12 rounded-full bg-gradient-to-br ${patternColors[session.pattern] || 'from-gray-400 to-gray-600'} flex items-center justify-center text-white`}
@@ -240,8 +241,8 @@ export function BreathingSessionsChart() {
                   <i className="fas fa-wind"></i>
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-800">{session.pattern}</div>
-                  <div className="text-sm text-gray-600">
+                  <div className="font-semibold text-gray-800 dark:text-gray-100 transition-colors">{session.pattern}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">
                     {session.timestamp.toLocaleDateString('nl-NL', {
                       weekday: 'short',
                       day: 'numeric',
@@ -254,13 +255,13 @@ export function BreathingSessionsChart() {
               </div>
               <div className="flex items-center gap-3">
                 <div className="text-right">
-                  <div className="font-bold text-gray-800">{formatDuration(session.durationSeconds)}</div>
-                  <div className="text-sm text-gray-600">{session.cycles} cycli</div>
+                  <div className="font-bold text-gray-800 dark:text-gray-100 transition-colors">{formatDuration(session.durationSeconds)}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">{session.cycles} cycli</div>
                 </div>
                 <button
                   onClick={() => handleDelete(session.id)}
                   disabled={deletingId === session.id}
-                  className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                  className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors disabled:opacity-50"
                   title="Verwijder sessie"
                 >
                   {deletingId === session.id ? (
@@ -276,12 +277,12 @@ export function BreathingSessionsChart() {
       </div>
 
       {/* Insights */}
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6">
-        <h4 className="font-bold text-gray-800 mb-3">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-xl p-6 transition-colors">
+        <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-3 transition-colors">
           <i className="fas fa-lightbulb mr-2 text-yellow-500"></i>
           Inzichten
         </h4>
-        <ul className="space-y-2 text-sm text-gray-700">
+        <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300 transition-colors">
           <li>
             🏆 Je favoriete patroon is <strong>{mostUsedPattern[0]}</strong> ({mostUsedPattern[1]}x gebruikt)
           </li>

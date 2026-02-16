@@ -21,7 +21,7 @@ export function Navigation() {
   return (
     <>
       {/* Desktop & Tablet Top Navigation */}
-      <nav className="bg-white shadow-md sticky top-0 z-50 hidden md:block">
+      <nav className="bg-white dark:bg-slate-900 shadow-md dark:shadow-slate-950/50 sticky top-0 z-50 hidden md:block transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo/Brand */}
@@ -44,8 +44,8 @@ export function Navigation() {
                   href={item.href}
                   className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
                     pathname === item.href
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-blue-600 dark:bg-blue-700 text-white'
+                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-800'
                   }`}
                 >
                   <i className={`fas ${item.icon} mr-2`}></i>
@@ -58,7 +58,7 @@ export function Navigation() {
       </nav>
 
       {/* Mobile Header - Logo Only */}
-      <div className="md:hidden bg-white shadow-sm sticky top-0 z-50 px-4 py-3">
+      <div className="md:hidden bg-white dark:bg-slate-900 shadow-sm dark:shadow-slate-950/30 sticky top-0 z-50 px-4 py-3 transition-colors">
         <a href="/dashboard" className="flex items-center">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
             A
@@ -70,7 +70,7 @@ export function Navigation() {
       </div>
 
       {/* Mobile Bottom Navigation Bar - Fixed */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 safe-area-inset-bottom">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-700 shadow-lg dark:shadow-slate-950/50 z-50 safe-area-inset-bottom transition-colors">
         <div className="flex items-center justify-around px-2 py-2">
           {navItems.map((item) => (
             <a
@@ -78,8 +78,8 @@ export function Navigation() {
               href={item.href}
               className={`flex flex-col items-center justify-center min-w-[64px] min-h-[56px] rounded-lg transition-all ${
                 pathname === item.href
-                  ? 'text-blue-600 bg-blue-50'
-                  : 'text-gray-600 active:bg-gray-100'
+                  ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30'
+                  : 'text-gray-600 dark:text-gray-300 active:bg-gray-100 dark:active:bg-slate-800'
               }`}
             >
               <i className={`fas ${item.icon} text-xl mb-1`}></i>

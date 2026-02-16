@@ -24,6 +24,7 @@ export function IntensityStats() {
     const loadEntries = async () => {
       if (!currentUser) return;
 
+      setLoading(true);
       try {
         const entriesRef = collection(db, 'dagboekEntries');
         const q = query(
@@ -72,8 +73,8 @@ export function IntensityStats() {
   if (loading) {
     return (
       <div className="animate-pulse space-y-4">
-        <div className="h-32 bg-gray-200 rounded"></div>
-        <div className="h-64 bg-gray-200 rounded"></div>
+        <div className="h-32 bg-gray-200 dark:bg-slate-700 rounded"></div>
+        <div className="h-64 bg-gray-200 dark:bg-slate-700 rounded"></div>
       </div>
     );
   }
@@ -82,15 +83,15 @@ export function IntensityStats() {
     return (
       <div className="text-center py-12">
         <div className="text-6xl mb-4">📊</div>
-        <h3 className="text-xl font-bold text-gray-800 mb-2">
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">
           Nog geen intensiteit data
         </h3>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
           Begin met dagboek entries om je intensiteit trends te volgen
         </p>
         <a
           href="/tracking"
-          className="inline-block px-6 py-3 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-700"
+          className="inline-block px-6 py-3 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-700 transition-colors"
         >
           <i className="fas fa-book mr-2"></i>
           Ga naar Dagboek
@@ -106,10 +107,10 @@ export function IntensityStats() {
     return (
       <div className="text-center py-12">
         <div className="text-6xl mb-4">📈</div>
-        <h3 className="text-xl font-bold text-gray-800 mb-2">
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">
           Geen intensiteit metingen
         </h3>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-400">
           Je dagboek entries bevatten geen intensiteit scores
         </p>
       </div>
@@ -197,7 +198,7 @@ export function IntensityStats() {
           className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
             timeRange === 'week'
               ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
           }`}
         >
           Week
@@ -207,7 +208,7 @@ export function IntensityStats() {
           className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
             timeRange === 'month'
               ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
           }`}
         >
           Maand
@@ -217,7 +218,7 @@ export function IntensityStats() {
           className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
             timeRange === 'all'
               ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
           }`}
         >
           Alles
@@ -226,22 +227,22 @@ export function IntensityStats() {
 
       {/* Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl text-center">
-          <div className="text-sm font-semibold text-gray-600 mb-1">Gemiddelde Intensiteit</div>
-          <div className="text-4xl font-bold text-blue-700">{avgIntensity}/10</div>
-          <div className="text-sm text-gray-600 mt-1">{getIntensityLabel(avgIntensity)}</div>
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-900/20 p-6 rounded-xl text-center transition-colors">
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">Gemiddelde Intensiteit</div>
+          <div className="text-4xl font-bold text-blue-700 dark:text-blue-300">{avgIntensity}/10</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">{getIntensityLabel(avgIntensity)}</div>
         </div>
-        <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl text-center">
-          <div className="text-sm font-semibold text-gray-600 mb-1">Laagste</div>
-          <div className="text-4xl font-bold text-green-700">{minIntensity}/10</div>
+        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-900/20 p-6 rounded-xl text-center transition-colors">
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">Laagste</div>
+          <div className="text-4xl font-bold text-green-700 dark:text-green-300">{minIntensity}/10</div>
         </div>
-        <div className="bg-gradient-to-br from-red-50 to-red-100 p-6 rounded-xl text-center">
-          <div className="text-sm font-semibold text-gray-600 mb-1">Hoogste</div>
-          <div className="text-4xl font-bold text-red-700">{maxIntensity}/10</div>
+        <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-900/20 p-6 rounded-xl text-center transition-colors">
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">Hoogste</div>
+          <div className="text-4xl font-bold text-red-700 dark:text-red-300">{maxIntensity}/10</div>
         </div>
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl text-center">
-          <div className="text-sm font-semibold text-gray-600 mb-1">Trend</div>
-          <div className="text-3xl font-bold text-purple-700">
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-900/20 p-6 rounded-xl text-center transition-colors">
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">Trend</div>
+          <div className="text-3xl font-bold text-purple-700 dark:text-purple-300">
             {trendDirection === 'down' && (
               <>
                 <i className="fas fa-arrow-down mr-2 text-green-600"></i>
@@ -256,7 +257,7 @@ export function IntensityStats() {
             )}
             {trendDirection === 'stable' && (
               <>
-                <i className="fas fa-minus mr-2 text-gray-600"></i>
+                <i className="fas fa-minus mr-2 text-gray-600 dark:text-gray-400"></i>
                 Stabiel
               </>
             )}
@@ -265,8 +266,8 @@ export function IntensityStats() {
       </div>
 
       {/* Timeline Chart */}
-      <div className="bg-white rounded-xl p-6">
-        <h3 className="font-bold text-lg mb-6 text-gray-800">Intensiteit Trend</h3>
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-6 transition-colors">
+        <h3 className="font-bold text-lg mb-6 text-gray-800 dark:text-gray-100">Intensiteit Trend</h3>
         <div className="relative h-64">
           <div className="absolute inset-0 flex items-end justify-between gap-2">
             {entriesWithIntensity.slice().reverse().slice(-20).map((entry, index) => {
@@ -278,10 +279,10 @@ export function IntensityStats() {
                     style={{ height: `${height}%` }}
                   >
                     {/* Tooltip */}
-                    <div className="opacity-0 group-hover:opacity-100 absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-2 px-3 whitespace-nowrap transition-opacity pointer-events-none z-10">
+                    <div className="opacity-0 group-hover:opacity-100 absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-slate-900 text-white text-xs rounded py-2 px-3 whitespace-nowrap transition-opacity pointer-events-none z-10">
                       <div className="font-bold">{entry.intensiteit}/10</div>
                       <div>{entry.timestamp.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}</div>
-                      <div className="text-gray-300">{entry.techniekGebruikt}</div>
+                      <div className="text-gray-300 dark:text-gray-400">{entry.techniekGebruikt}</div>
                     </div>
                   </div>
                 </div>
@@ -291,51 +292,21 @@ export function IntensityStats() {
         </div>
       </div>
 
-      {/* Technique Effectiveness */}
-      <div className="bg-white rounded-xl p-6">
-        <h3 className="font-bold text-lg mb-4 text-gray-800">
-          Effectiviteit per Techniek
-        </h3>
-        <p className="text-sm text-gray-600 mb-4">
-          Technieken gesorteerd op gemiddelde intensiteit (lager is beter)
-        </p>
-        <div className="space-y-3">
-          {techniqueStats.map(stat => (
-            <div key={stat.technique} className="flex items-center gap-4">
-              <div className="flex-1">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="font-semibold text-gray-800">{stat.technique}</span>
-                  <span className="text-sm text-gray-600">
-                    {stat.avg}/10 • {stat.count}x gebruikt
-                  </span>
-                </div>
-                <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full bg-gradient-to-r ${getIntensityColor(stat.avg)}`}
-                    style={{ width: `${(stat.avg / 10) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Trigger Analysis */}
       {triggerStats.length > 0 && (
-        <div className="bg-white rounded-xl p-6">
-          <h3 className="font-bold text-lg mb-4 text-gray-800">
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 transition-colors">
+          <h3 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-100">
             Triggers met Hoogste Intensiteit
           </h3>
           <div className="space-y-3">
             {triggerStats.map(stat => (
-              <div key={stat.trigger} className="flex items-center justify-between p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-lg">
+              <div key={stat.trigger} className="flex items-center justify-between p-4 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/30 dark:to-orange-900/30 rounded-lg transition-colors">
                 <div>
-                  <div className="font-semibold text-gray-800">{stat.trigger}</div>
-                  <div className="text-sm text-gray-600">{stat.count} keer voorgekomen</div>
+                  <div className="font-semibold text-gray-800 dark:text-gray-100">{stat.trigger}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{stat.count} keer voorgekomen</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-red-600">{stat.avg}/10</div>
+                  <div className="text-2xl font-bold text-red-600 dark:text-red-400">{stat.avg}/10</div>
                 </div>
               </div>
             ))}
@@ -344,12 +315,12 @@ export function IntensityStats() {
       )}
 
       {/* Insights */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6">
-        <h4 className="font-bold text-gray-800 mb-3">
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-xl p-6 transition-colors">
+        <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-3">
           <i className="fas fa-lightbulb mr-2 text-yellow-500"></i>
           Inzichten
         </h4>
-        <ul className="space-y-2 text-sm text-gray-700">
+        <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
           {trendDirection === 'down' && (
             <li>✅ Positieve trend! Je gemiddelde intensiteit daalt</li>
           )}

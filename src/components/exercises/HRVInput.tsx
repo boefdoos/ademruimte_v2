@@ -118,16 +118,16 @@ export function HRVInput() {
   return (
     <div className="space-y-6">
       {/* Instructions */}
-      <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
-        <h3 className="font-bold text-lg mb-3 text-gray-800">
-          <i className="fas fa-heart-pulse mr-2 text-blue-600"></i>
-          HRV Meting / HRV Measurement
+      <div className="bg-blue-50 dark:bg-blue-900/30 rounded-xl p-6 border border-blue-200 dark:border-blue-700 transition-colors">
+        <h3 className="font-bold text-lg mb-3 text-gray-800 dark:text-gray-100 transition-colors">
+          <i className="fas fa-heart-pulse mr-2 text-blue-600 dark:text-blue-400 transition-colors"></i>
+          HRV Meting
         </h3>
-        <p className="text-gray-700 mb-4">
+        <p className="text-gray-700 dark:text-gray-300 mb-4 transition-colors">
           Heart Rate Variability (HRV) meet je variatie tussen hartslagen. Een hogere HRV duidt op een beter
           functionerend autonoom zenuwstelsel en betere stressbestendigheid.
         </p>
-        <ul className="text-sm text-gray-600 space-y-1">
+        <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1 transition-colors">
           <li>• Meet HRV met een smartwatch, hartslagmeter of app</li>
           <li>• Meet bij voorkeur 's ochtends na het wakker worden</li>
           <li>• Normale waarden liggen tussen 30-100 ms</li>
@@ -136,22 +136,22 @@ export function HRVInput() {
 
       {/* Last Measurement */}
       {lastHRV && (
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 text-center border border-purple-200">
-          <div className="text-sm font-semibold text-gray-600 mb-2">Laatste meting / Last</div>
-          <div className="text-5xl font-bold text-purple-600">
-            {lastHRV} <span className="text-2xl text-gray-500">ms</span>
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/30 rounded-xl p-6 text-center border border-purple-200 dark:border-purple-700 transition-colors">
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2 transition-colors">Laatste meting</div>
+          <div className="text-5xl font-bold text-purple-600 dark:text-purple-400 transition-colors">
+            {lastHRV} <span className="text-2xl text-gray-500 dark:text-gray-400 transition-colors">ms</span>
           </div>
         </div>
       )}
 
       {/* Input Form */}
-      <div className="bg-white rounded-xl p-6 shadow-md">
-        <h4 className="font-bold text-lg mb-4 text-gray-800">Nieuwe HRV Meting</h4>
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-md transition-colors">
+        <h4 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-100 transition-colors">Nieuwe HRV Meting</h4>
 
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
                 HRV Waarde (ms) *
               </label>
               <input
@@ -161,12 +161,12 @@ export function HRVInput() {
                 placeholder="bijv. 65"
                 min="10"
                 max="200"
-                className="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-3 text-lg border-2 border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Hartslag (bpm) <span className="text-gray-400 font-normal">optioneel</span>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
+                Hartslag (bpm) <span className="text-gray-400 dark:text-gray-500 font-normal transition-colors">optioneel</span>
               </label>
               <input
                 type="number"
@@ -175,7 +175,7 @@ export function HRVInput() {
                 placeholder="bijv. 72"
                 min="30"
                 max="220"
-                className="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-4 py-3 text-lg border-2 border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors"
               />
             </div>
           </div>
@@ -201,16 +201,16 @@ export function HRVInput() {
 
       {/* History */}
       {history.length > 0 && (
-        <div className="bg-white rounded-xl p-6 shadow-md">
-          <h4 className="font-bold text-lg mb-4 text-gray-800">
-            Recente metingen / Recent Measurements
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-md transition-colors">
+          <h4 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-100 transition-colors">
+            Recente metingen
           </h4>
           <div className="space-y-3">
             {history.map((record, index) => {
               return (
-                <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div key={index} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-700 rounded-lg transition-colors">
                   <div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 dark:text-gray-300 transition-colors">
                       {record.timestamp.toLocaleDateString('nl-NL', {
                         day: 'numeric',
                         month: 'short',
@@ -219,14 +219,14 @@ export function HRVInput() {
                       })}
                     </div>
                     {record.heartRate && (
-                      <div className="text-xs text-gray-500 mt-1">
-                        <i className="fas fa-heart text-red-500 mr-1"></i>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 transition-colors">
+                        <i className="fas fa-heart text-red-500 dark:text-red-400 mr-1 transition-colors"></i>
                         {record.heartRate} bpm
                       </div>
                     )}
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-purple-600">{record.value} ms</div>
+                    <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 transition-colors">{record.value} ms</div>
                   </div>
                 </div>
               );

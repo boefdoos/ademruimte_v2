@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ademruimte - Dark Mode Preview</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Light Mode (Default) */
+    .light-mode {
+      background: linear-gradient(135deg, #EFF6FF 0%, #F3E8FF 100%);
+      color: #1F2937;
+    }
+
+    /* Dark Mode */
+    .dark-mode {
+      background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%);
+      color: #E5E7EB;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Toggle Switch */
+    .mode-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 12px 20px;
+      border-radius: 50px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .dark-mode .mode-toggle {
+      background: rgba(30, 41, 59, 0.9);
+      border: 1px solid #475569;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 26px;
+      background: #CBD5E1;
+      border-radius: 13px;
+      transition: background 0.3s ease;
+    }
+
+    .dark-mode .toggle-switch {
+      background: #3B82F6;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .dark-mode .toggle-slider {
+      transform: translateX(24px);
+    }
+
+    .mode-label {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .light-mode .mode-label {
+      color: #1F2937;
+    }
+
+    .dark-mode .mode-label {
+      color: #E5E7EB;
+    }
+
+    /* Header */
+    .header {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+    }
+
+    .dark-mode .header {
+      background: #1E293B;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      background: linear-gradient(to right, #3B82F6, #8B5CF6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      color: #6B7280;
+    }
+
+    .dark-mode .header p {
+      color: #9CA3AF;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+    }
+
+    .dark-mode .stat-card {
+      background: #1E293B;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    .dark-mode .stat-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat-icon.fire {
+      background: linear-gradient(135deg, #F97316, #FB923C);
+    }
+
+    .stat-icon.heart {
+      background: linear-gradient(135deg, #8B5CF6, #A78BFA);
+    }
+
+    .stat-icon.stopwatch {
+      background: linear-gradient(135deg, #10B981, #34D399);
+    }
+
+    .stat-title {
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+      color: #6B7280;
+    }
+
+    .dark-mode .stat-title {
+      color: #9CA3AF;
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #1F2937;
+    }
+
+    .dark-mode .stat-value {
+      color: #F3F4F6;
+    }
+
+    .stat-subtitle {
+      font-size: 0.875rem;
+      color: #9CA3AF;
+      margin-top: 0.25rem;
+    }
+
+    .dark-mode .stat-subtitle {
+      color: #6B7280;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .action-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .dark-mode .action-card {
+      background: #1E293B;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .action-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    .dark-mode .action-card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+
+    .action-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .action-icon.blue {
+      background: linear-gradient(135deg, #60A5FA, #3B82F6);
+    }
+
+    .action-icon.purple {
+      background: linear-gradient(135deg, #A78BFA, #8B5CF6);
+    }
+
+    .action-icon.orange {
+      background: linear-gradient(135deg, #FB923C, #F97316);
+    }
+
+    .action-content h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.25rem;
+      color: #1F2937;
+    }
+
+    .dark-mode .action-content h3 {
+      color: #F3F4F6;
+    }
+
+    .action-content p {
+      font-size: 0.875rem;
+      color: #6B7280;
+    }
+
+    .dark-mode .action-content p {
+      color: #9CA3AF;
+    }
+
+    /* Goals Section */
+    .goals-section {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+    }
+
+    .dark-mode .goals-section {
+      background: #1E293B;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .goals-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .goals-header h2 {
+      font-size: 1.5rem;
+      color: #1F2937;
+    }
+
+    .dark-mode .goals-header h2 {
+      color: #F3F4F6;
+    }
+
+    .streak-badge {
+      background: linear-gradient(135deg, #F97316, #FB923C);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .goal-item {
+      background: #F9FAFB;
+      border: 2px solid #E5E7EB;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .dark-mode .goal-item {
+      background: #0F172A;
+      border-color: #334155;
+    }
+
+    .goal-item.completed {
+      background: #ECFDF5;
+      border-color: #6EE7B7;
+    }
+
+    .dark-mode .goal-item.completed {
+      background: #064E3B;
+      border-color: #059669;
+    }
+
+    .goal-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .goal-icon.green {
+      background: linear-gradient(135deg, #10B981, #34D399);
+      color: white;
+    }
+
+    .goal-icon.purple {
+      background: linear-gradient(135deg, #8B5CF6, #A78BFA);
+      color: white;
+    }
+
+    .goal-icon.orange {
+      background: linear-gradient(135deg, #F97316, #FB923C);
+      color: white;
+    }
+
+    .goal-content h4 {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      color: #1F2937;
+    }
+
+    .dark-mode .goal-content h4 {
+      color: #F3F4F6;
+    }
+
+    .goal-content p {
+      font-size: 0.875rem;
+      color: #6B7280;
+    }
+
+    .dark-mode .goal-content p {
+      color: #9CA3AF;
+    }
+
+    .check-icon {
+      color: #10B981;
+      font-size: 1.5rem;
+      margin-left: auto;
+    }
+
+    .dark-mode .check-icon {
+      color: #34D399;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 2rem;
+      text-align: center;
+      color: #6B7280;
+      font-size: 0.875rem;
+    }
+
+    .dark-mode .footer {
+      color: #9CA3AF;
+    }
+  </style>
+</head>
+<body class="light-mode">
+  <!-- Mode Toggle -->
+  <div class="mode-toggle" onclick="toggleMode()">
+    <span class="mode-label">
+      <i class="fas fa-sun"></i>
+      <span id="mode-text">Light Mode</span>
+    </span>
+    <div class="toggle-switch">
+      <div class="toggle-slider"></div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>
+        <i class="fas fa-wind"></i>
+        Welkom terug!
+      </h1>
+      <p>troostberg@gmail.com</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon fire">
+          <i class="fas fa-fire"></i>
+        </div>
+        <div class="stat-title">Streak</div>
+        <div class="stat-value">12 dagen</div>
+        <div class="stat-subtitle">Blijf doorgaan!</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon heart">
+          <i class="fas fa-heart-pulse"></i>
+        </div>
+        <div class="stat-title">HRV Laatste</div>
+        <div class="stat-value">68ms</div>
+        <div class="stat-subtitle">Laatste meting</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon stopwatch">
+          <i class="fas fa-stopwatch"></i>
+        </div>
+        <div class="stat-title">Control Pause</div>
+        <div class="stat-value">32s</div>
+        <div class="stat-subtitle">Laatste meting</div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <div class="action-card">
+        <div class="action-icon blue">
+          <i class="fas fa-wind"></i>
+        </div>
+        <div class="action-content">
+          <h3>Oefeningen</h3>
+          <p>Buteyko & Breathing</p>
+        </div>
+      </div>
+
+      <div class="action-card">
+        <div class="action-icon purple">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="action-content">
+          <h3>Inzichten</h3>
+          <p>Metingen & Analytics</p>
+        </div>
+      </div>
+
+      <div class="action-card">
+        <div class="action-icon orange">
+          <i class="fas fa-book"></i>
+        </div>
+        <div class="action-content">
+          <h3>Dagboek</h3>
+          <p>Reflecties & Symptomen</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Goals Section -->
+    <div class="goals-section">
+      <div class="goals-header">
+        <h2>
+          <i class="fas fa-bullseye"></i>
+          Doelen vandaag
+        </h2>
+        <div class="streak-badge">
+          <i class="fas fa-fire"></i>
+          12 dagen streak
+        </div>
+      </div>
+
+      <div class="goal-item completed">
+        <div class="goal-icon green">
+          <i class="fas fa-stopwatch"></i>
+        </div>
+        <div class="goal-content">
+          <h4>Control Pause meting</h4>
+          <p>Meet je ademhalingscore</p>
+        </div>
+        <i class="fas fa-check-circle check-icon"></i>
+      </div>
+
+      <div class="goal-item">
+        <div class="goal-icon purple">
+          <i class="fas fa-wind"></i>
+        </div>
+        <div class="goal-content">
+          <h4>Ademhalingsoefening</h4>
+          <p>Doe een ademsessie van 10 minuten</p>
+        </div>
+      </div>
+
+      <div class="goal-item">
+        <div class="goal-icon orange">
+          <i class="fas fa-book"></i>
+        </div>
+        <div class="goal-content">
+          <h4>Dagboek entry</h4>
+          <p>Reflecteer op je dag</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>
+        <i class="fas fa-info-circle"></i>
+        Bekijk de introductie opnieuw
+      </p>
+    </div>
+  </div>
+
+  <script>
+    function toggleMode() {
+      const body = document.body;
+      const modeText = document.getElementById('mode-text');
+      const icon = document.querySelector('.mode-toggle i');
+
+      if (body.classList.contains('light-mode')) {
+        body.classList.remove('light-mode');
+        body.classList.add('dark-mode');
+        modeText.textContent = 'Dark Mode';
+        icon.className = 'fas fa-moon';
+      } else {
+        body.classList.remove('dark-mode');
+        body.classList.add('light-mode');
+        modeText.textContent = 'Light Mode';
+        icon.className = 'fas fa-sun';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -17,7 +17,7 @@ export function TodayGoals() {
   const [goals, setGoals] = useState<Goal[]>([
     { id: 'cp', label: 'Log Control Pause', icon: 'fa-stopwatch', completed: false },
     { id: 'hrv', label: 'Log HRV', icon: 'fa-heart-pulse', completed: false },
-    { id: 'journal', label: 'Log Dagboek / Journal', icon: 'fa-book', completed: false },
+    { id: 'journal', label: 'Log Dagboek', icon: 'fa-book', completed: false },
   ]);
   const [loading, setLoading] = useState(true);
 
@@ -59,65 +59,84 @@ export function TodayGoals() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-md p-6">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 transition-colors">
         <div className="animate-pulse">
-          <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
+          <div className="h-6 bg-gray-200 dark:bg-slate-700 rounded w-1/3 mb-4"></div>
           <div className="space-y-3">
-            <div className="h-12 bg-gray-200 rounded"></div>
-            <div className="h-12 bg-gray-200 rounded"></div>
-            <div className="h-12 bg-gray-200 rounded"></div>
+            <div className="h-12 bg-gray-200 dark:bg-slate-700 rounded"></div>
+            <div className="h-12 bg-gray-200 dark:bg-slate-700 rounded"></div>
+            <div className="h-12 bg-gray-200 dark:bg-slate-700 rounded"></div>
           </div>
         </div>
       </div>
     );
   }
 
+  const getGoalLink = (goalId: string) => {
+    switch (goalId) {
+      case 'cp':
+        return '/exercises?tab=buteyko';
+      case 'hrv':
+        return '/exercises?tab=hrv';
+      case 'journal':
+        return '/journal';
+      default:
+        return '/exercises';
+    }
+  };
+
   return (
-    <div className="bg-white rounded-xl shadow-md p-6">
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 transition-colors">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-gray-800">
-          Doelen vandaag / Today's Goals
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+          Doelen vandaag
         </h2>
-        <div className="text-sm font-semibold text-gray-600">
+        <div className="text-sm font-semibold text-gray-600 dark:text-gray-300">
           {completedCount} / {totalCount}
         </div>
       </div>
 
       <div className="space-y-3">
         {goals.map((goal) => (
-          <div
+          <a
             key={goal.id}
-            className={`w-full flex items-center gap-4 p-4 rounded-lg border-2 transition-all ${
+            href={getGoalLink(goal.id)}
+            className={`w-full flex items-center gap-4 p-4 rounded-lg border-2 transition-all cursor-pointer ${
               goal.completed
-                ? 'bg-green-50 border-green-300'
-                : 'bg-gray-50 border-gray-200'
+                ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700 hover:bg-green-100 dark:hover:bg-green-900/30'
+                : 'bg-gray-50 dark:bg-slate-700 border-gray-200 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20'
             }`}
           >
             <div className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center ${
               goal.completed
-                ? 'bg-green-500 border-green-500'
-                : 'border-gray-300'
+                ? 'bg-green-500 dark:bg-green-600 border-green-500 dark:border-green-600'
+                : 'border-gray-300 dark:border-slate-500'
             }`}>
               {goal.completed && (
                 <i className="fas fa-check text-white text-xs"></i>
               )}
             </div>
-            <div className={`text-lg ${goal.completed ? 'text-gray-400 line-through' : 'text-gray-700'}`}>
+            <div className={`text-lg ${goal.completed ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-700 dark:text-gray-200'}`}>
               <i className={`fas ${goal.icon} mr-2`}></i>
               {goal.label}
             </div>
-            <div className="ml-auto text-xs text-gray-500 italic">
-              {goal.completed ? 'Voltooid!' : 'Auto-voltooid na oefening'}
+            <div className="ml-auto flex items-center gap-2">
+              <div className="text-xs text-gray-500 dark:text-gray-400 italic">
+                {goal.completed ? 'Voltooid!' : 'Auto-voltooid na oefening'}
+              </div>
+              {!goal.completed && (
+                <i className="fas fa-arrow-right text-blue-500 dark:text-blue-400"></i>
+              )}
             </div>
-          </div>
+          </a>
         ))}
       </div>
 
       {completedCount === totalCount && (
-        <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg text-center">
+        <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 rounded-lg text-center transition-colors">
           <div className="text-2xl mb-1">🎉</div>
-          <p className="text-green-800 font-semibold">
-            Alle doelen bereikt! / All goals completed!
+          <p className="text-green-800 dark:text-green-300 font-semibold">
+            Alle doelen bereikt!
           </p>
         </div>
       )}

@@ -4,9 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/firebase/config';
 import { collection, addDoc, query, where, orderBy, limit, getDocs, doc, setDoc } from 'firebase/firestore';
+import { useWakeLock } from '@/hooks/useWakeLock';
 
 export function ButeykoExercise() {
   const { currentUser } = useAuth();
+  const { requestWakeLock, releaseWakeLock } = useWakeLock();
   const [isRunning, setIsRunning] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [lastCP, setLastCP] = useState<number | null>(null);
@@ -65,14 +67,16 @@ export function ButeykoExercise() {
     };
   }, [isRunning]);
 
-  const startTimer = () => {
+  const startTimer = async () => {
     setSeconds(0);
     setIsRunning(true);
     setShowInstructions(false);
+    await requestWakeLock();
   };
 
   const stopTimer = async () => {
     setIsRunning(false);
+    await releaseWakeLock();
 
     // Save to Firebase
     if (currentUser && seconds > 0) {
@@ -92,6 +96,13 @@ export function ButeykoExercise() {
         const today = new Date().toISOString().split('T')[0];
         const goalsRef = doc(db, 'users', currentUser.uid, 'goals', today);
         await setDoc(goalsRef, { cp: true }, { merge: true });
+
+        // Store CP measurement in localStorage for use in exercise journal entries
+        localStorage.setItem('lastCPMeasurement', JSON.stringify({
+          seconds,
+          timestamp: new Date().toISOString(),
+          level: getCPLevel(seconds).text,
+        }));
       } catch (error) {
         console.error('Error saving CP:', error);
       }
@@ -121,12 +132,12 @@ export function ButeykoExercise() {
     <div>
       {/* Instructions */}
       {showInstructions && (
-        <div className="mb-6 p-6 bg-blue-50 rounded-lg border border-blue-200">
-          <h3 className="font-bold text-lg mb-3 text-blue-900">
+        <div className="mb-6 p-6 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-700 transition-colors">
+          <h3 className="font-bold text-lg mb-3 text-blue-900 dark:text-blue-200 transition-colors">
             <i className="fas fa-info-circle mr-2"></i>
             Hoe meet je je Control Pause?
           </h3>
-          <ol className="space-y-2 text-gray-700">
+          <ol className="space-y-2 text-gray-700 dark:text-gray-300 transition-colors">
             <li>1. Zit rechtop en ontspan</li>
             <li>2. Adem normaal in en uit door je neus</li>
             <li>3. Na een normale uitademing, knijp je neus dicht</li>
@@ -172,23 +183,13 @@ export function ButeykoExercise() {
             </>
           )}
         </div>
-
-        {!showInstructions && !isRunning && (
-          <button
-            onClick={() => setShowInstructions(true)}
-            className="mt-4 text-blue-600 hover:text-blue-700 text-sm"
-          >
-            <i className="fas fa-question-circle mr-1"></i>
-            Toon instructies
-          </button>
-        )}
       </div>
 
       {/* Last Result */}
       {lastCP !== null && !isRunning && (
-        <div className="mb-6 p-6 rounded-lg bg-blue-50 border border-blue-200">
+        <div className="mb-6 p-6 rounded-lg bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 transition-colors">
           <div className="text-center">
-            <div className="text-sm text-gray-600 mb-1">Laatste meting</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1 transition-colors">Laatste meting</div>
             <div className="text-4xl font-bold text-blue-600">
               {lastCP}s
             </div>
@@ -199,16 +200,16 @@ export function ButeykoExercise() {
       {/* History */}
       {history.length > 0 && (
         <div className="mt-8">
-          <h3 className="font-bold text-lg mb-4 text-gray-800">
-            Recente metingen / Recent Measurements
+          <h3 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-100 transition-colors">
+            Recente metingen
           </h3>
           <div className="space-y-2">
             {history.map((record, index) => (
               <div
                 key={index}
-                className="flex justify-between items-center p-4 bg-gray-50 rounded-lg"
+                className="flex justify-between items-center p-4 bg-gray-50 dark:bg-slate-700 rounded-lg transition-colors"
               >
-                <div className="text-gray-600 text-sm">
+                <div className="text-gray-600 dark:text-gray-300 text-sm transition-colors">
                   {record.timestamp.toLocaleDateString('nl-NL', {
                     day: 'numeric',
                     month: 'short',
@@ -217,7 +218,7 @@ export function ButeykoExercise() {
                   })}
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl font-bold text-gray-800">
+                  <span className="text-2xl font-bold text-gray-800 dark:text-gray-100 transition-colors">
                     {record.seconds}s
                   </span>
                 </div>
@@ -226,6 +227,7 @@ export function ButeykoExercise() {
           </div>
         </div>
       )}
+
     </div>
   );
 }

@@ -313,8 +313,8 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
   if (loading) {
     return (
       <div className="animate-pulse space-y-4">
-        <div className="h-32 bg-gray-200 rounded"></div>
-        <div className="h-64 bg-gray-200 rounded"></div>
+        <div className="h-32 bg-gray-200 dark:bg-slate-700 rounded"></div>
+        <div className="h-64 bg-gray-200 dark:bg-slate-700 rounded"></div>
       </div>
     );
   }
@@ -325,7 +325,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
       <div className="flex justify-end">
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors dark:bg-blue-700 dark:hover:bg-blue-600"
         >
           <i className={`fas fa-${showForm ? 'times' : 'plus'} mr-2`}></i>
           {showForm ? 'Annuleren' : 'Nieuwe Entry'}
@@ -334,12 +334,12 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
 
       {/* Add Entry Form */}
       {showForm && (
-        <div className="bg-white rounded-xl p-6 shadow-md">
-          <h4 className="font-bold text-lg mb-4 text-gray-800">Nieuwe Dagboek Entry</h4>
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-md dark:shadow-lg dark:shadow-black/30 transition-colors">
+          <h4 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-100">Nieuwe Dagboek Entry</h4>
 
           {/* Triggers */}
           <div className="mb-4">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 transition-colors">
               Triggers (wat veroorzaakte ademhalingsproblemen?)
             </label>
             <div className="flex flex-wrap gap-2">
@@ -349,8 +349,8 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                   onClick={() => toggleTrigger(trigger)}
                   className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                     selectedTriggers.includes(trigger)
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-blue-600 text-white dark:bg-blue-700'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-slate-700 dark:text-gray-200 dark:hover:bg-slate-600'
                   }`}
                 >
                   {trigger}
@@ -362,8 +362,8 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                   onClick={() => toggleTrigger(trigger)}
                   className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                     selectedTriggers.includes(trigger)
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200'
+                      ? 'bg-blue-600 text-white dark:bg-blue-700'
+                      : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50 dark:border-blue-800'
                   }`}
                 >
                   {trigger}
@@ -372,7 +372,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
               {!showAddTrigger ? (
                 <button
                   onClick={() => setShowAddTrigger(true)}
-                  className="px-3 py-1 rounded-full text-sm font-medium bg-white text-blue-600 border-2 border-dashed border-blue-300 hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                  className="px-3 py-1 rounded-full text-sm font-medium bg-white text-blue-600 border-2 border-dashed border-blue-300 hover:border-blue-500 hover:bg-blue-50 transition-colors dark:bg-slate-700 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-slate-600 dark:hover:border-blue-700"
                 >
                   <i className="fas fa-plus mr-1"></i>
                   Eigen trigger
@@ -385,12 +385,12 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                     onChange={(e) => setNewTrigger(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && addCustomTrigger()}
                     placeholder="Nieuwe trigger..."
-                    className="px-3 py-1 text-sm border border-blue-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="px-3 py-1 text-sm border border-blue-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-700 dark:border-blue-800 dark:text-gray-100 dark:placeholder-gray-400"
                     autoFocus
                   />
                   <button
                     onClick={addCustomTrigger}
-                    className="px-3 py-1 bg-blue-600 text-white rounded-full text-sm font-medium hover:bg-blue-700"
+                    className="px-3 py-1 bg-blue-600 text-white rounded-full text-sm font-medium hover:bg-blue-700 transition-colors dark:bg-blue-700 dark:hover:bg-blue-600"
                   >
                     <i className="fas fa-check"></i>
                   </button>
@@ -399,7 +399,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                       setShowAddTrigger(false);
                       setNewTrigger('');
                     }}
-                    className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-300"
+                    className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-300 transition-colors dark:bg-slate-700 dark:text-gray-300 dark:hover:bg-slate-600"
                   >
                     <i className="fas fa-times"></i>
                   </button>
@@ -408,30 +408,128 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
             </div>
           </div>
 
-          {/* Intensity */}
+          {/* Intensity Slider with Gradient */}
           <div className="mb-4">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Intensiteit (1-10)
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 transition-colors">
+              Intensiteit
             </label>
-            <input
-              type="range"
-              min="1"
-              max="10"
-              value={intensity || 5}
-              onChange={(e) => setIntensity(parseInt(e.target.value))}
-              className="w-full"
-            />
-            <div className="flex justify-between text-xs text-gray-600 mt-1">
-              <span>1 (Mild)</span>
-              <span className="font-bold text-blue-600">{intensity || 5}</span>
-              <span>10 (Ernstig)</span>
+
+            {/* Visual intensity indicator */}
+            <div className="flex items-center gap-4 mb-3">
+              <div
+                className="flex-1 h-3 rounded-full bg-gradient-to-r from-green-400 via-yellow-400 via-orange-400 to-red-500"
+                style={{ opacity: 0.3 }}
+              ></div>
+              <div
+                className={`px-4 py-2 rounded-lg font-bold text-lg min-w-[80px] text-center transition-all ${
+                  (intensity || 5) <= 3 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                  (intensity || 5) <= 5 ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                  (intensity || 5) <= 7 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
+                  'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                }`}
+              >
+                {intensity || 5}
+              </div>
+            </div>
+
+            {/* Custom styled range input */}
+            <div className="relative">
+              <style jsx>{`
+                .intensity-slider {
+                  -webkit-appearance: none;
+                  appearance: none;
+                  width: 100%;
+                  height: 12px;
+                  border-radius: 6px;
+                  background: linear-gradient(to right,
+                    #4ade80 0%,
+                    #a3e635 20%,
+                    #facc15 40%,
+                    #fb923c 60%,
+                    #f87171 80%,
+                    #ef4444 100%
+                  );
+                  outline: none;
+                  cursor: pointer;
+                  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+                }
+
+                .intensity-slider::-webkit-slider-thumb {
+                  -webkit-appearance: none;
+                  appearance: none;
+                  width: 28px;
+                  height: 28px;
+                  border-radius: 50%;
+                  background: white;
+                  cursor: pointer;
+                  border: 3px solid ${
+                    (intensity || 5) <= 3 ? '#22c55e' :
+                    (intensity || 5) <= 5 ? '#eab308' :
+                    (intensity || 5) <= 7 ? '#f97316' :
+                    '#ef4444'
+                  };
+                  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                  transition: all 0.2s ease;
+                }
+
+                .intensity-slider::-webkit-slider-thumb:hover {
+                  transform: scale(1.15);
+                  box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+                }
+
+                .intensity-slider::-webkit-slider-thumb:active {
+                  transform: scale(1.05);
+                }
+
+                .intensity-slider::-moz-range-thumb {
+                  width: 28px;
+                  height: 28px;
+                  border-radius: 50%;
+                  background: white;
+                  cursor: pointer;
+                  border: 3px solid ${
+                    (intensity || 5) <= 3 ? '#22c55e' :
+                    (intensity || 5) <= 5 ? '#eab308' :
+                    (intensity || 5) <= 7 ? '#f97316' :
+                    '#ef4444'
+                  };
+                  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                  transition: all 0.2s ease;
+                }
+
+                .intensity-slider::-moz-range-thumb:hover {
+                  transform: scale(1.15);
+                  box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+                }
+              `}</style>
+              <input
+                type="range"
+                min="1"
+                max="10"
+                value={intensity || 5}
+                onChange={(e) => setIntensity(parseInt(e.target.value))}
+                className="intensity-slider"
+              />
+            </div>
+
+            {/* Labels */}
+            <div className="flex justify-between text-xs font-medium mt-2 transition-colors">
+              <span className="text-green-600 dark:text-green-400 flex items-center gap-1 transition-colors">
+                <i className="fas fa-smile"></i>
+                Mild
+              </span>
+              <span className="text-gray-400 dark:text-gray-500 transition-colors">Matig</span>
+              <span className="text-red-600 dark:text-red-400 flex items-center gap-1 transition-colors">
+                Ernstig
+                <i className="fas fa-frown"></i>
+              </span>
             </div>
           </div>
 
           {/* Sensations */}
           <div className="mb-4">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Sensaties / Symptomen
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 transition-colors">
+              Sensaties
             </label>
             <div className="flex flex-wrap gap-2">
               {COMMON_SENSATIONS.map(sensation => (
@@ -440,8 +538,8 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                   onClick={() => toggleSensation(sensation)}
                   className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                     selectedSensations.includes(sensation)
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-purple-600 text-white dark:bg-purple-700'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-slate-700 dark:text-gray-200 dark:hover:bg-slate-600'
                   }`}
                 >
                   {sensation}
@@ -453,8 +551,8 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                   onClick={() => toggleSensation(sensation)}
                   className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                     selectedSensations.includes(sensation)
-                      ? 'bg-purple-600 text-white'
-                      : 'bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200'
+                      ? 'bg-purple-600 text-white dark:bg-purple-700'
+                      : 'bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50 dark:border-purple-800'
                   }`}
                 >
                   {sensation}
@@ -463,7 +561,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
               {!showAddSensation ? (
                 <button
                   onClick={() => setShowAddSensation(true)}
-                  className="px-3 py-1 rounded-full text-sm font-medium bg-white text-purple-600 border-2 border-dashed border-purple-300 hover:border-purple-500 hover:bg-purple-50 transition-colors"
+                  className="px-3 py-1 rounded-full text-sm font-medium bg-white text-purple-600 border-2 border-dashed border-purple-300 hover:border-purple-500 hover:bg-purple-50 transition-colors dark:bg-slate-700 dark:text-purple-400 dark:border-purple-800 dark:hover:bg-slate-600 dark:hover:border-purple-700"
                 >
                   <i className="fas fa-plus mr-1"></i>
                   Eigen sensatie
@@ -476,12 +574,12 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                     onChange={(e) => setNewSensation(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && addCustomSensation()}
                     placeholder="Nieuwe sensatie..."
-                    className="px-3 py-1 text-sm border border-purple-300 rounded-full focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="px-3 py-1 text-sm border border-purple-300 rounded-full focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors bg-white dark:bg-slate-700 dark:border-purple-800 dark:text-gray-100 dark:placeholder-gray-400"
                     autoFocus
                   />
                   <button
                     onClick={addCustomSensation}
-                    className="px-3 py-1 bg-purple-600 text-white rounded-full text-sm font-medium hover:bg-purple-700"
+                    className="px-3 py-1 bg-purple-600 text-white rounded-full text-sm font-medium hover:bg-purple-700 transition-colors dark:bg-purple-700 dark:hover:bg-purple-600"
                   >
                     <i className="fas fa-check"></i>
                   </button>
@@ -490,7 +588,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                       setShowAddSensation(false);
                       setNewSensation('');
                     }}
-                    className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-300"
+                    className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-300 transition-colors dark:bg-slate-700 dark:text-gray-300 dark:hover:bg-slate-600"
                   >
                     <i className="fas fa-times"></i>
                   </button>
@@ -501,7 +599,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
 
           {/* CP Score (optional) */}
           <div className="mb-4">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 transition-colors">
               Control Pause Score (optioneel)
             </label>
             <input
@@ -509,13 +607,13 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
               value={cpScore}
               onChange={(e) => setCpScore(e.target.value)}
               placeholder="bijv. 25"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-gray-100 dark:placeholder-gray-400"
             />
           </div>
 
           {/* Notes */}
           <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 transition-colors">
               Notities
             </label>
             <textarea
@@ -523,14 +621,14 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
               onChange={(e) => setNotes(e.target.value)}
               rows={4}
               placeholder="Extra details over deze sessie..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-colors bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-gray-100 dark:placeholder-gray-400"
             />
           </div>
 
           {/* Save Button */}
           <button
             onClick={saveEntry}
-            className="w-full px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+            className="w-full px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors dark:bg-green-700 dark:hover:bg-green-600"
           >
             <i className="fas fa-save mr-2"></i>
             Opslaan
@@ -545,8 +643,8 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
             onClick={() => setFilter('week')}
             className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
               filter === 'week'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-blue-600 text-white dark:bg-blue-700'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-700 dark:text-gray-300 dark:hover:bg-slate-600'
             }`}
           >
             Week
@@ -555,8 +653,8 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
             onClick={() => setFilter('month')}
             className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
               filter === 'month'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-blue-600 text-white dark:bg-blue-700'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-700 dark:text-gray-300 dark:hover:bg-slate-600'
             }`}
           >
             Maand
@@ -565,8 +663,8 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
             onClick={() => setFilter('all')}
             className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
               filter === 'all'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-blue-600 text-white dark:bg-blue-700'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-700 dark:text-gray-300 dark:hover:bg-slate-600'
             }`}
           >
             Alles
@@ -576,12 +674,12 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
 
       {/* Entries List */}
       {filteredEntries.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-xl">
+        <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-xl transition-colors dark:shadow-lg dark:shadow-black/30">
           <div className="text-6xl mb-4">📖</div>
-          <h3 className="text-xl font-bold text-gray-800 mb-2">
+          <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2 transition-colors">
             Nog geen dagboek entries
           </h3>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400 transition-colors">
             Begin met je eerste entry om je vooruitgang te volgen
           </p>
         </div>
@@ -589,13 +687,13 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
         <>
           <div className="space-y-4">
             {filteredEntries.map((entry) => (
-              <div key={entry.id} className={`bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow ${limit ? 'p-4' : 'p-6'}`}>
+              <div key={entry.id} className={`bg-white dark:bg-slate-800 rounded-xl shadow-md hover:shadow-lg transition-all dark:hover:shadow-lg dark:hover:shadow-black/30 dark:shadow-black/20 ${limit ? 'p-4' : 'p-6'}`}>
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <h4 className={`font-bold text-gray-800 ${limit ? 'text-base' : 'text-lg'}`}>
+                    <h4 className={`font-bold text-gray-800 dark:text-gray-100 transition-colors ${limit ? 'text-base' : 'text-lg'}`}>
                       {entry.techniekGebruikt || 'Dagboek Entry'}
                     </h4>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">
                       {entry.timestamp.toLocaleDateString('nl-NL', {
                         weekday: 'short',
                         day: 'numeric',
@@ -608,7 +706,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                   <div className="flex items-center gap-3">
                     {entry.intensiteit && (
                       <div className="text-center">
-                        <div className="text-xl font-bold text-blue-600">
+                        <div className="text-xl font-bold text-blue-600 dark:text-blue-400 transition-colors">
                           {entry.intensiteit}/10
                         </div>
                       </div>
@@ -617,7 +715,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                       <button
                         onClick={() => handleDelete(entry.id!)}
                         disabled={deletingId === entry.id}
-                        className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                        className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
                         title="Verwijder entry"
                       >
                         {deletingId === entry.id ? (
@@ -636,7 +734,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                       {entry.triggers.map((trigger, i) => (
                         <span
                           key={i}
-                          className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs"
+                          className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs dark:bg-blue-900/30 dark:text-blue-300 transition-colors"
                         >
                           {trigger}
                         </span>
@@ -651,7 +749,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                       {entry.sensaties.map((sensation, i) => (
                         <span
                           key={i}
-                          className="px-2 py-0.5 bg-purple-50 text-purple-700 rounded text-xs"
+                          className="px-2 py-0.5 bg-purple-50 text-purple-700 rounded text-xs dark:bg-purple-900/30 dark:text-purple-300 transition-colors"
                         >
                           {sensation}
                         </span>
@@ -662,14 +760,14 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
 
                 {entry.cpScore && (
                   <div className="mb-2">
-                    <span className="text-sm font-semibold text-gray-700">CP: </span>
-                    <span className="text-sm text-gray-900 font-medium">{entry.cpScore}s</span>
+                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 transition-colors">CP: </span>
+                    <span className="text-sm text-gray-900 dark:text-gray-100 font-medium transition-colors">{entry.cpScore}s</span>
                   </div>
                 )}
 
                 {entry.notities && (
-                  <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                    <p className={`text-sm text-gray-700 ${limit ? 'line-clamp-2' : ''}`}>
+                  <div className="mt-3 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg transition-colors">
+                    <p className={`text-sm text-gray-700 dark:text-gray-300 transition-colors ${limit ? 'line-clamp-2' : ''}`}>
                       {entry.notities}
                     </p>
                   </div>
@@ -681,12 +779,12 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
           {/* Show more button if limited */}
           {hasMore && (
             <div className="text-center pt-4">
-              <p className="text-sm text-gray-600 mb-2">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 transition-colors">
                 Toont {limit} van {entries.length} entries
               </p>
               <a
                 href="/journal"
-                className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors dark:bg-blue-700 dark:hover:bg-blue-600"
               >
                 <i className="fas fa-book mr-2"></i>
                 Bekijk alle entries

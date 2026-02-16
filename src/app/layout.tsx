@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { I18nProvider } from "@/contexts/I18nContext";
+import { DarkModeProvider } from "@/contexts/DarkModeContext";
 import { GDPRBanner } from "@/components/layout/GDPRBanner";
 
 export const metadata: Metadata = {
@@ -23,12 +24,14 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans antialiased">
-        <I18nProvider>
-          <AuthProvider>
-            {children}
-            <GDPRBanner />
-          </AuthProvider>
-        </I18nProvider>
+        <DarkModeProvider>
+          <I18nProvider>
+            <AuthProvider>
+              {children}
+              <GDPRBanner />
+            </AuthProvider>
+          </I18nProvider>
+        </DarkModeProvider>
       </body>
     </html>
   );

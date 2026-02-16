@@ -57,7 +57,12 @@ const steps: OnboardingStep[] = [
   },
 ];
 
-export function OnboardingModal() {
+interface OnboardingModalProps {
+  forceOpen?: boolean;
+  onClose?: () => void;
+}
+
+export function OnboardingModal({ forceOpen = false, onClose }: OnboardingModalProps = {}) {
   const { currentUser } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -88,8 +93,22 @@ export function OnboardingModal() {
     checkOnboarding();
   }, [currentUser]);
 
+  // Handle force open
+  useEffect(() => {
+    if (forceOpen) {
+      setIsOpen(true);
+      setCurrentStep(0);
+      setLoading(false);
+    }
+  }, [forceOpen]);
+
   const completeOnboarding = async () => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      // If no user (force mode), just close
+      setIsOpen(false);
+      if (onClose) onClose();
+      return;
+    }
 
     try {
       const userRef = doc(db, 'users', currentUser.uid);
@@ -99,6 +118,7 @@ export function OnboardingModal() {
       }, { merge: true });
 
       setIsOpen(false);
+      if (onClose) onClose();
     } catch (error) {
       console.error('Error completing onboarding:', error);
     }

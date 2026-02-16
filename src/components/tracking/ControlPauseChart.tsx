@@ -22,6 +22,7 @@ export function ControlPauseChart() {
     const loadRecords = async () => {
       if (!currentUser) return;
 
+      setLoading(true);
       try {
         const cpRef = collection(db, 'cpMeasurements');
         let q = query(
@@ -80,7 +81,7 @@ export function ControlPauseChart() {
   if (loading) {
     return (
       <div className="animate-pulse">
-        <div className="h-64 bg-gray-200 rounded"></div>
+        <div className="h-64 bg-gray-200 dark:bg-slate-700 rounded transition-colors"></div>
       </div>
     );
   }
@@ -89,15 +90,15 @@ export function ControlPauseChart() {
     return (
       <div className="text-center py-12">
         <div className="text-6xl mb-4">📊</div>
-        <h3 className="text-xl font-bold text-gray-800 mb-2">
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2 transition-colors">
           Nog geen Control Pause metingen
         </h3>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-400 mb-6 transition-colors">
           Start met meten om je vooruitgang te volgen
         </p>
         <a
           href="/exercises"
-          className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
+          className="inline-block px-6 py-3 bg-blue-600 dark:bg-blue-700 text-white rounded-lg font-semibold hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
         >
           <i className="fas fa-stopwatch mr-2"></i>
           Start Control Pause
@@ -126,8 +127,8 @@ export function ControlPauseChart() {
           onClick={() => setTimeRange('week')}
           className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
             timeRange === 'week'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              ? 'bg-blue-600 dark:bg-blue-700 text-white'
+              : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
           }`}
         >
           Week
@@ -136,8 +137,8 @@ export function ControlPauseChart() {
           onClick={() => setTimeRange('month')}
           className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
             timeRange === 'month'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              ? 'bg-blue-600 dark:bg-blue-700 text-white'
+              : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
           }`}
         >
           Maand
@@ -146,8 +147,8 @@ export function ControlPauseChart() {
           onClick={() => setTimeRange('all')}
           className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
             timeRange === 'all'
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              ? 'bg-blue-600 dark:bg-blue-700 text-white'
+              : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
           }`}
         >
           Alles
@@ -156,125 +157,127 @@ export function ControlPauseChart() {
 
       {/* Stats Summary */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-green-50 p-4 rounded-xl text-center">
-          <div className="text-sm font-semibold text-gray-600 mb-1">Hoogste</div>
-          <div className="text-3xl font-bold text-green-700">{maxCP}s</div>
-          <div className="text-xs text-gray-600 mt-1">{getLevel(maxCP)}</div>
+        <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-xl text-center transition-colors">
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">Hoogste</div>
+          <div className="text-3xl font-bold text-green-700 dark:text-green-400 transition-colors">{maxCP}s</div>
+          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 transition-colors">{getLevel(maxCP)}</div>
         </div>
-        <div className="bg-blue-50 p-4 rounded-xl text-center">
-          <div className="text-sm font-semibold text-gray-600 mb-1">Gemiddeld</div>
-          <div className="text-3xl font-bold text-blue-700">{avgCP}s</div>
-          <div className="text-xs text-gray-600 mt-1">{getLevel(avgCP)}</div>
+        <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-xl text-center transition-colors">
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">Gemiddeld</div>
+          <div className="text-3xl font-bold text-blue-700 dark:text-blue-400 transition-colors">{avgCP}s</div>
+          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 transition-colors">{getLevel(avgCP)}</div>
         </div>
-        <div className="bg-orange-50 p-4 rounded-xl text-center">
-          <div className="text-sm font-semibold text-gray-600 mb-1">Laagste</div>
-          <div className="text-3xl font-bold text-orange-700">{minCP}s</div>
-          <div className="text-xs text-gray-600 mt-1">{getLevel(minCP)}</div>
+        <div className="bg-orange-50 dark:bg-orange-900/30 p-4 rounded-xl text-center transition-colors">
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">Laagste</div>
+          <div className="text-3xl font-bold text-orange-700 dark:text-orange-400 transition-colors">{minCP}s</div>
+          <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 transition-colors">{getLevel(minCP)}</div>
         </div>
       </div>
 
-      {/* Chart */}
-      <div className="bg-white rounded-xl p-6">
-        <h3 className="font-bold text-lg mb-6 text-gray-800">Trend Control Pause</h3>
+      {/* Bar Chart */}
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg dark:shadow-2xl transition-colors">
+        <h3 className="text-xl font-bold mb-6 flex items-center text-gray-900 dark:text-gray-100 transition-colors">
+          <i className="fas fa-chart-bar text-green-600 dark:text-green-500 mr-2 transition-colors"></i>
+          Control Pause Tijdlijn
+        </h3>
 
-        {/* Chart Container */}
-        <div className="relative h-80">
-          {/* Y-axis labels */}
-          <div className="absolute left-0 top-0 bottom-0 w-12 flex flex-col justify-between text-xs text-gray-500 pr-2">
-            <span>60s</span>
-            <span>50s</span>
-            <span className="font-semibold text-green-600">40s</span>
-            <span className="font-semibold text-yellow-600">30s</span>
-            <span className="font-semibold text-orange-600">20s</span>
-            <span className="font-semibold text-red-600">10s</span>
-            <span>0s</span>
-          </div>
+        {/* Chart Container with horizontal scroll on mobile */}
+        <div className="relative h-80 overflow-x-auto overflow-y-hidden touch-pan-x">
+          <div className="relative h-full" style={{ minWidth: records.length > 20 ? `${records.length * 24}px` : '100%' }}>
+            {/* Y-axis labels */}
+            <div className="absolute left-0 top-0 bottom-8 w-12 flex flex-col justify-between text-xs text-gray-500 dark:text-gray-400 pr-2 bg-white dark:bg-slate-800 z-10 transition-colors">
+              <span>60s</span>
+              <span>50s</span>
+              <span className="font-semibold text-green-600 dark:text-green-500 transition-colors">40s</span>
+              <span className="font-semibold text-yellow-600 dark:text-yellow-500 transition-colors">30s</span>
+              <span className="font-semibold text-orange-600 dark:text-orange-500 transition-colors">20s</span>
+              <span className="font-semibold text-red-600 dark:text-red-500 transition-colors">10s</span>
+              <span>0s</span>
+            </div>
 
-          {/* Chart area */}
-          <div className="absolute left-14 right-0 top-0 bottom-8 border-l-2 border-b-2 border-gray-300">
-            {/* Reference lines */}
-            <div className="absolute left-0 right-0 border-t-2 border-dashed border-green-200" style={{ bottom: '66.67%' }}></div>
-            <div className="absolute left-0 right-0 border-t-2 border-dashed border-yellow-200" style={{ bottom: '50%' }}></div>
-            <div className="absolute left-0 right-0 border-t-2 border-dashed border-orange-200" style={{ bottom: '33.33%' }}></div>
-            <div className="absolute left-0 right-0 border-t-2 border-dashed border-red-200" style={{ bottom: '16.67%' }}></div>
+            {/* Chart area with bars */}
+            <div className="absolute left-14 right-0 top-0 bottom-8 border-l-2 border-b-2 border-gray-300 dark:border-slate-600 transition-colors">
+              {/* Reference lines */}
+              <div className="absolute left-0 right-0 border-t-2 border-dashed border-green-200 dark:border-green-900/50 transition-colors" style={{ bottom: '66.67%' }}></div>
+              <div className="absolute left-0 right-0 border-t-2 border-dashed border-yellow-200 dark:border-yellow-900/50 transition-colors" style={{ bottom: '50%' }}></div>
+              <div className="absolute left-0 right-0 border-t-2 border-dashed border-orange-200 dark:border-orange-900/50 transition-colors" style={{ bottom: '33.33%' }}></div>
+              <div className="absolute left-0 right-0 border-t-2 border-dashed border-red-200 dark:border-red-900/50 transition-colors" style={{ bottom: '16.67%' }}></div>
 
-            {/* Data line */}
-            <svg className="absolute inset-0 w-full h-full">
-              {/* Line connecting points */}
-              <polyline
-                points={records
-                  .map((r, i) => {
-                    const x = (i / Math.max(1, records.length - 1)) * 100;
-                    const y = 100 - (r.seconds / 60) * 100;
-                    return `${x}%,${y}%`;
-                  })
-                  .join(' ')}
-                fill="none"
-                stroke="url(#cpGradient)"
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+              {/* Bars */}
+              <div className="absolute inset-0 flex items-end justify-between gap-1">
+                {records.map((record) => {
+                  const height = (record.seconds / 60) * 100;
+                  const colorClass = record.seconds >= 40
+                    ? 'from-green-400 to-emerald-500'
+                    : record.seconds >= 30
+                    ? 'from-yellow-400 to-green-500'
+                    : record.seconds >= 20
+                    ? 'from-orange-400 to-yellow-500'
+                    : 'from-red-400 to-orange-500';
 
-              {/* Gradient definition */}
-              <defs>
-                <linearGradient id="cpGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#10b981" />
-                  <stop offset="100%" stopColor="#3b82f6" />
-                </linearGradient>
-              </defs>
+                  return (
+                    <div
+                      key={record.id}
+                      className="flex-1 flex flex-col items-center justify-end h-full group relative"
+                      style={{ minWidth: '20px' }}
+                    >
+                      <div
+                        className={`w-full bg-gradient-to-t ${colorClass} rounded-t transition-all hover:opacity-80 cursor-pointer dark:opacity-90 dark:hover:opacity-100`}
+                        style={{ height: `${height}%` }}
+                      >
+                        {/* Tooltip */}
+                        <div className="opacity-0 group-hover:opacity-100 absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-slate-900 text-white text-xs rounded py-2 px-3 whitespace-nowrap transition-opacity pointer-events-none z-20">
+                          <div className="font-bold">{record.seconds}s</div>
+                          <div className="text-gray-300 dark:text-gray-400 transition-colors">
+                            {record.timestamp.toLocaleDateString('nl-NL', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
+                            })}
+                          </div>
+                          <div className="text-gray-300 dark:text-gray-400 transition-colors">{getLevel(record.seconds)}</div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
 
-              {/* Data points */}
-              {records.map((record, i) => {
-                const x = (i / Math.max(1, records.length - 1)) * 100;
-                const y = 100 - (record.seconds / 60) * 100;
-
-                return (
-                  <g key={record.id}>
-                    <circle
-                      cx={`${x}%`}
-                      cy={`${y}%`}
-                      r="5"
-                      fill="#10b981"
-                      stroke="white"
-                      strokeWidth="2"
-                      className="cursor-pointer hover:r-7 transition-all"
-                    />
-                    <title>
-                      {record.seconds}s - {record.timestamp.toLocaleDateString('nl-NL')}
-                    </title>
-                  </g>
-                );
-              })}
-            </svg>
-          </div>
-
-          {/* X-axis labels */}
-          <div className="absolute left-14 right-0 bottom-0 flex justify-between text-xs text-gray-500">
-            <span>{records[0]?.timestamp.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}</span>
-            <span>
-              {records[Math.floor(records.length / 2)]?.timestamp.toLocaleDateString('nl-NL', {
-                day: 'numeric',
-                month: 'short',
-              })}
-            </span>
-            <span>
-              {records[records.length - 1]?.timestamp.toLocaleDateString('nl-NL', {
-                day: 'numeric',
-                month: 'short',
-              })}
-            </span>
+            {/* X-axis labels */}
+            <div className="absolute left-14 right-0 bottom-0 flex justify-between text-xs text-gray-500 dark:text-gray-400 pt-2 transition-colors">
+              <span>
+                {records[0]?.timestamp.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}
+              </span>
+              <span className="text-gray-400 dark:text-gray-500 transition-colors">
+                {records.length} metingen
+              </span>
+              <span>
+                {records[records.length - 1]?.timestamp.toLocaleDateString('nl-NL', {
+                  day: 'numeric',
+                  month: 'short',
+                })}
+              </span>
+            </div>
           </div>
         </div>
+
+        {/* Mobile scroll hint */}
+        {records.length > 20 && (
+          <div className="text-center text-xs text-gray-500 dark:text-gray-400 mt-2 md:hidden transition-colors">
+            <i className="fas fa-hand-pointer mr-1"></i>
+            Veeg horizontaal om alle metingen te zien
+          </div>
+        )}
       </div>
 
       {/* Insights */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6">
-        <h4 className="font-bold text-gray-800 mb-3">
-          <i className="fas fa-lightbulb mr-2 text-yellow-500"></i>
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-xl p-6 transition-colors">
+        <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-3 transition-colors">
+          <i className="fas fa-lightbulb mr-2 text-yellow-500 dark:text-yellow-400 transition-colors"></i>
           Inzichten
         </h4>
-        <ul className="space-y-2 text-sm text-gray-700">
+        <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300 transition-colors">
           {maxCP >= 40 && (
             <li>✅ Uitstekend! Je hebt een CP van {maxCP}s bereikt</li>
           )}
@@ -298,22 +301,22 @@ export function ControlPauseChart() {
       </div>
 
       {/* Records List with Delete */}
-      <div className="bg-white rounded-xl p-6">
-        <h4 className="font-bold text-gray-800 mb-4 flex items-center">
-          <i className="fas fa-list mr-2 text-blue-600"></i>
+      <div className="bg-white dark:bg-slate-800 rounded-xl p-6 transition-colors">
+        <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center transition-colors">
+          <i className="fas fa-list mr-2 text-blue-600 dark:text-blue-400 transition-colors"></i>
           Alle metingen
         </h4>
         <div className="space-y-2">
           {records.slice().reverse().map((record) => (
             <div
               key={record.id}
-              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors"
             >
               <div className="flex items-center gap-4">
-                <div className="text-2xl font-bold text-blue-600">{record.seconds}s</div>
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 transition-colors">{record.seconds}s</div>
                 <div>
-                  <div className="text-sm font-semibold text-gray-700">{getLevel(record.seconds)}</div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 transition-colors">{getLevel(record.seconds)}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors">
                     {record.timestamp.toLocaleDateString('nl-NL', {
                       weekday: 'short',
                       day: 'numeric',
@@ -328,7 +331,7 @@ export function ControlPauseChart() {
               <button
                 onClick={() => handleDelete(record.id)}
                 disabled={deletingId === record.id}
-                className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
                 title="Verwijder meting"
               >
                 {deletingId === record.id ? (

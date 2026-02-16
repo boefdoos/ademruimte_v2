@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/firebase/config';
 import { collection, addDoc, doc, setDoc } from 'firebase/firestore';
+import { useWakeLock } from '@/hooks/useWakeLock';
 
 type BreathPhase = 'inhale' | 'hold' | 'exhale' | 'idle';
 
@@ -37,6 +38,7 @@ const patterns: BreathPattern[] = [
 
 export function ResonantBreathing() {
   const { currentUser } = useAuth();
+  const { requestWakeLock, releaseWakeLock } = useWakeLock();
   const [selectedPattern, setSelectedPattern] = useState(patterns[0]);
   const [customHoldDuration, setCustomHoldDuration] = useState(3);
   const [coherentDuration, setCoherentDuration] = useState(5); // 4-6 seconds range
@@ -194,7 +196,7 @@ export function ResonantBreathing() {
     oscillator.stop(audioContext.currentTime + 0.1);
   };
 
-  const startBreathing = () => {
+  const startBreathing = async () => {
     const effectivePattern = getEffectivePattern();
     setIsActive(true);
     setPhase('inhale');
@@ -202,12 +204,18 @@ export function ResonantBreathing() {
     setTotalSeconds(0);
     setCycles(0);
     playSound();
+
+    // Request wake lock to keep screen on
+    await requestWakeLock();
   };
 
   const stopBreathing = async () => {
     setIsActive(false);
     setPhase('idle');
     setTimeLeft(0);
+
+    // Release wake lock
+    await releaseWakeLock();
 
     // Save session to Firebase
     if (currentUser && totalSeconds > 0) {
@@ -226,6 +234,39 @@ export function ResonantBreathing() {
         const today = new Date().toISOString().split('T')[0];
         const goalsRef = doc(db, 'users', currentUser.uid, 'goals', today);
         await setDoc(goalsRef, { hrv: true }, { merge: true });
+
+        // Pre-fill journal notes with session info
+        const effectivePattern = getEffectivePattern();
+        let prefilledNotes = `Patroon: ${selectedPattern.name}\n`;
+        prefilledNotes += `Duur: ${formatTime(totalSeconds)}\n`;
+        prefilledNotes += `Cycli: ${cycles}\n`;
+
+        if (selectedPattern.name === 'Buteyko - Extended Breath Hold') {
+          prefilledNotes += `Adempauze: ${customHoldDuration}s\n`;
+        } else if (selectedPattern.name === 'Coherent Breathing') {
+          prefilledNotes += `Ademhalingstijd: ${coherentDuration}s in/uit\n`;
+        }
+
+        // Include recent CP measurement if available
+        const lastCPStr = localStorage.getItem('lastCPMeasurement');
+        if (lastCPStr) {
+          try {
+            const lastCP = JSON.parse(lastCPStr);
+            const cpDate = new Date(lastCP.timestamp);
+            const now = new Date();
+            const hoursSinceCP = (now.getTime() - cpDate.getTime()) / (1000 * 60 * 60);
+
+            // Only include if CP was measured within last 24 hours
+            if (hoursSinceCP < 24) {
+              prefilledNotes += `\nControl Pause: ${lastCP.seconds}s (${lastCP.level})\n`;
+            }
+          } catch (e) {
+            console.error('Error parsing CP measurement:', e);
+          }
+        }
+
+        prefilledNotes += `\n`;
+        setJournalNotes(prefilledNotes);
 
         // Open journal modal
         setShowJournalModal(true);
@@ -293,7 +334,7 @@ export function ResonantBreathing() {
       {/* Pattern Selection */}
       {!isActive && (
         <div className="mb-8 px-4">
-          <h3 className="font-bold text-base sm:text-lg mb-4 text-gray-800">
+          <h3 className="font-bold text-base sm:text-lg mb-4 text-gray-800 dark:text-gray-100 transition-colors">
             Kies een adempatroon
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
@@ -303,12 +344,12 @@ export function ResonantBreathing() {
                 onClick={() => setSelectedPattern(pattern)}
                 className={`p-3 sm:p-4 rounded-lg border-2 transition-all text-left ${
                   selectedPattern.name === pattern.name
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300 bg-white active:bg-gray-50'
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-600'
+                    : 'border-gray-200 dark:border-slate-600 hover:border-gray-300 dark:hover:border-slate-500 bg-white dark:bg-slate-700 active:bg-gray-50 dark:active:bg-slate-600'
                 }`}
               >
-                <div className="font-bold text-sm sm:text-base text-gray-800 mb-1 break-words">{pattern.name}</div>
-                <div className="text-xs sm:text-sm text-gray-600 mb-2 break-words">{pattern.description}</div>
+                <div className="font-bold text-sm sm:text-base text-gray-800 dark:text-gray-100 mb-1 break-words transition-colors">{pattern.name}</div>
+                <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-2 break-words transition-colors">{pattern.description}</div>
                 <div className="flex flex-wrap gap-2 text-xs sm:text-sm font-mono">
                   {/* Inhale */}
                   <span className="px-2 py-1 bg-green-100 text-green-700 rounded whitespace-nowrap">
@@ -342,9 +383,9 @@ export function ResonantBreathing() {
 
           {/* Coherent Breathing Duration Slider */}
           {selectedPattern.name === 'Coherent Breathing' && (
-            <div className="mt-6 p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="mt-6 p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-700 transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-                <label className="font-semibold text-sm sm:text-base text-gray-800">
+                <label className="font-semibold text-sm sm:text-base text-gray-800 dark:text-gray-100 transition-colors">
                   Ademhalingstijd
                 </label>
                 <span className="text-xl sm:text-2xl font-bold text-blue-600">
@@ -360,15 +401,15 @@ export function ResonantBreathing() {
                 onChange={(e) => setCoherentDuration(parseInt(e.target.value))}
                 className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
               />
-              <div className="flex justify-between text-xs text-gray-600 mt-2">
+              <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-2 transition-colors">
                 <span>4s (7.5 bpm)</span>
                 <span>5s (6 bpm)</span>
                 <span>6s (5 bpm)</span>
               </div>
-              <div className="mt-3 p-3 bg-white rounded border border-blue-100">
+              <div className="mt-3 p-3 bg-white dark:bg-slate-700 rounded border border-blue-100 dark:border-blue-800 transition-colors">
                 <div className="flex items-start gap-2">
-                  <i className="fas fa-heartbeat text-blue-500 mt-1"></i>
-                  <p className="text-sm text-gray-700">
+                  <i className="fas fa-heartbeat text-blue-500 dark:text-blue-400 mt-1 transition-colors"></i>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 transition-colors">
                     <strong>Wetenschap:</strong> 5-6 ademhalingen per minuut (5-6s in/uit) is optimaal voor HRV.
                     Dit synchroniseert je ademhaling met je hartslagvariabiliteit.
                   </p>
@@ -379,10 +420,10 @@ export function ResonantBreathing() {
 
           {/* Buteyko Hold Duration Slider */}
           {selectedPattern.name === 'Buteyko - Extended Breath Hold' && (
-            <div className="mt-6 p-4 bg-orange-50 rounded-lg border border-orange-200">
+            <div className="mt-6 p-4 bg-orange-50 dark:bg-orange-900/30 rounded-lg border border-orange-200 dark:border-orange-700 transition-colors">
               <div className="flex items-center justify-between mb-3">
-                <label className="font-semibold text-gray-800">
-                  Verlengde Adempauze / Extended Pause (na uitademing)
+                <label className="font-semibold text-gray-800 dark:text-gray-100 transition-colors">
+                  Verlengde Adempauze (na uitademing)
                 </label>
                 <span className="text-2xl font-bold text-orange-600">{customHoldDuration}s</span>
               </div>
@@ -394,15 +435,15 @@ export function ResonantBreathing() {
                 onChange={(e) => setCustomHoldDuration(parseInt(e.target.value))}
                 className="w-full h-2 bg-orange-200 rounded-lg appearance-none cursor-pointer accent-orange-600"
               />
-              <div className="flex justify-between text-xs text-gray-600 mt-2">
+              <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-2 transition-colors">
                 <span>3s (Begin)</span>
                 <span>9s (Gemiddeld)</span>
                 <span>15s (Gevorderd)</span>
               </div>
-              <div className="mt-3 p-3 bg-white rounded border border-orange-100">
+              <div className="mt-3 p-3 bg-white dark:bg-slate-700 rounded border border-orange-100 dark:border-orange-800 transition-colors">
                 <div className="flex items-start gap-2">
-                  <i className="fas fa-wind text-orange-500 mt-1"></i>
-                  <p className="text-sm text-gray-700">
+                  <i className="fas fa-wind text-orange-500 dark:text-orange-400 mt-1 transition-colors"></i>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 transition-colors">
                     <strong>Extended Breath Hold:</strong> In (3s) → Uit (3s) → Pauze na uitademing.
                     Deze verlengde adempauze verhoogt je CO2-tolerantie en reduceert hyperventilatie volgens de Buteyko methode.
                   </p>
@@ -412,11 +453,11 @@ export function ResonantBreathing() {
           )}
 
           {/* Session Duration Selector */}
-          <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border-2 border-green-200">
+          <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/30 dark:to-blue-900/30 rounded-lg border-2 border-green-200 dark:border-green-700 transition-colors">
             <div className="flex items-center justify-between mb-3">
-              <label className="font-semibold text-gray-800">
-                <i className="fas fa-clock mr-2 text-green-600"></i>
-                Sessieduur / Session Duration
+              <label className="font-semibold text-gray-800 dark:text-gray-100 transition-colors">
+                <i className="fas fa-clock mr-2 text-green-600 dark:text-green-400 transition-colors"></i>
+                Sessieduur
               </label>
               <span className="text-2xl font-bold text-green-600">
                 {sessionDuration} min
@@ -431,15 +472,15 @@ export function ResonantBreathing() {
               onChange={(e) => setSessionDuration(parseInt(e.target.value))}
               className="w-full h-2 bg-green-200 rounded-lg appearance-none cursor-pointer accent-green-600"
             />
-            <div className="flex justify-between text-xs text-gray-600 mt-2">
+            <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-2 transition-colors">
               <span>5 min</span>
               <span>15 min</span>
               <span>30 min</span>
             </div>
-            <div className="mt-3 p-3 bg-white rounded border border-green-100">
+            <div className="mt-3 p-3 bg-white dark:bg-slate-700 rounded border border-green-100 dark:border-green-800 transition-colors">
               <div className="flex items-start gap-2">
-                <i className="fas fa-info-circle text-green-500 mt-1"></i>
-                <p className="text-sm text-gray-700">
+                <i className="fas fa-info-circle text-green-500 dark:text-green-400 mt-1 transition-colors"></i>
+                <p className="text-sm text-gray-700 dark:text-gray-300 transition-colors">
                   De oefening stopt automatisch na {sessionDuration} minuten.
                   Kies 10-20 minuten voor optimale HRV training.
                 </p>
@@ -448,13 +489,13 @@ export function ResonantBreathing() {
           </div>
 
           {/* Sound Toggle */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="mt-6 p-4 bg-gray-50 dark:bg-slate-700 rounded-lg border border-gray-200 dark:border-slate-600 transition-colors">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <i className={`fas ${soundEnabled ? 'fa-volume-up' : 'fa-volume-mute'} text-gray-600 text-xl`}></i>
+                <i className={`fas ${soundEnabled ? 'fa-volume-up' : 'fa-volume-mute'} text-gray-600 dark:text-gray-300 text-xl transition-colors`}></i>
                 <div>
-                  <div className="font-semibold text-gray-800">Geluidssignalen</div>
-                  <div className="text-xs text-gray-600">Piep bij fase-overgangen</div>
+                  <div className="font-semibold text-gray-800 dark:text-gray-100 transition-colors">Geluidssignalen</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400 transition-colors">Piep bij fase-overgangen</div>
                 </div>
               </div>
               <button
@@ -518,15 +559,15 @@ export function ResonantBreathing() {
         {isActive && (
           <div className="mt-8 grid grid-cols-3 gap-3 sm:gap-6 w-full max-w-md px-2">
             <div className="text-center">
-              <div className="text-xs sm:text-sm text-gray-600 mb-1">Cycli</div>
-              <div className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">{cycles}</div>
+              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1 transition-colors">Cycli</div>
+              <div className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 transition-colors">{cycles}</div>
             </div>
             <div className="text-center">
-              <div className="text-xs sm:text-sm text-gray-600 mb-1">Verstreken</div>
-              <div className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">{formatTime(totalSeconds)}</div>
+              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1 transition-colors">Verstreken</div>
+              <div className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 transition-colors">{formatTime(totalSeconds)}</div>
             </div>
             <div className="text-center">
-              <div className="text-xs sm:text-sm text-gray-600 mb-1">Resterend</div>
+              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1 transition-colors">Resterend</div>
               <div className="text-lg sm:text-xl md:text-2xl font-bold text-green-600">
                 {formatTime(Math.max(0, sessionDuration * 60 - totalSeconds))}
               </div>
@@ -560,13 +601,13 @@ export function ResonantBreathing() {
 
       {/* Tips */}
       {!isActive && (
-        <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
-          <h4 className="font-bold text-gray-800 mb-3">
-            <i className="fas fa-lightbulb mr-2 text-yellow-500"></i>
+        <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-lg border border-blue-200 dark:border-blue-700 transition-colors">
+          <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-3 transition-colors">
+            <i className="fas fa-lightbulb mr-2 text-yellow-500 dark:text-yellow-400 transition-colors"></i>
             {selectedPattern.name === 'Coherent Breathing' ? 'Coherent Breathing Tips' : 'Extended Breath Hold Tips'}
           </h4>
           {selectedPattern.name === 'Coherent Breathing' ? (
-            <ul className="space-y-2 text-sm text-gray-700">
+            <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300 transition-colors">
               <li className="flex items-start gap-2">
                 <i className="fas fa-check text-green-600 mt-1"></i>
                 <span>Adem langzaam en diep door je neus</span>
@@ -589,7 +630,7 @@ export function ResonantBreathing() {
               </li>
             </ul>
           ) : (
-            <ul className="space-y-2 text-sm text-gray-700">
+            <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300 transition-colors">
               <li className="flex items-start gap-2">
                 <i className="fas fa-check text-orange-600 mt-1"></i>
                 <span>Adem LICHT en rustig door je neus - minder volume dan normaal</span>
@@ -618,31 +659,31 @@ export function ResonantBreathing() {
       {/* Journal Modal */}
       {showJournalModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 max-w-lg w-full shadow-2xl">
-            <h3 className="text-2xl font-bold text-gray-800 mb-4">
-              <i className="fas fa-book text-blue-600 mr-2"></i>
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 max-w-lg w-full shadow-2xl transition-colors">
+            <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4 transition-colors">
+              <i className="fas fa-book text-blue-600 dark:text-blue-400 mr-2 transition-colors"></i>
               Sessie voltooid! 🎉
             </h3>
 
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 mb-4 border border-blue-200">
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-lg p-4 mb-4 border border-blue-200 dark:border-blue-700 transition-colors">
               <div className="grid grid-cols-2 gap-4 text-center">
                 <div>
-                  <div className="text-sm text-gray-600">Cycli</div>
-                  <div className="text-2xl font-bold text-gray-800">{cycles}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">Cycli</div>
+                  <div className="text-2xl font-bold text-gray-800 dark:text-gray-100 transition-colors">{cycles}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600">Duur</div>
-                  <div className="text-2xl font-bold text-gray-800">{formatTime(totalSeconds)}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">Duur</div>
+                  <div className="text-2xl font-bold text-gray-800 dark:text-gray-100 transition-colors">{formatTime(totalSeconds)}</div>
                 </div>
               </div>
             </div>
 
-            <p className="text-gray-700 mb-4">
+            <p className="text-gray-700 dark:text-gray-300 mb-4 transition-colors">
               Wil je notities toevoegen over deze sessie?
             </p>
 
             <div className="mb-4">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
                 Notities (optioneel)
               </label>
               <textarea
@@ -650,7 +691,7 @@ export function ResonantBreathing() {
                 onChange={(e) => setJournalNotes(e.target.value)}
                 placeholder="bijv. Voelde me ontspannen, lichte duizeligheid aan het begin..."
                 rows={4}
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border-2 border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
               />
             </div>
 
