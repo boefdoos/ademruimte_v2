@@ -411,14 +411,14 @@ export function HRVChart() {
         <div className="relative h-80 overflow-x-auto overflow-y-hidden touch-pan-x">
           <div className="relative h-full" style={{ minWidth: chartData.length > 20 ? `${chartData.length * 24}px` : '100%' }}>
             {/* Y-axis labels */}
-            <div className="absolute left-0 top-0 bottom-8 w-12 flex flex-col justify-between text-xs text-gray-500 dark:text-gray-400 pr-2 bg-white dark:bg-slate-800 z-10 transition-colors">
-              <span>{chartMax}</span>
+            <div className="absolute left-0 top-0 bottom-8 w-10 sm:w-12 flex flex-col justify-between text-xs sm:text-sm text-gray-600 dark:text-gray-300 pr-1 sm:pr-2 bg-white dark:bg-slate-800 z-10 transition-colors font-medium">
+              <span>{chartMax} ms</span>
               <span>{Math.round((chartMax + chartMin) / 2)}</span>
-              <span>{chartMin}</span>
+              <span>{chartMin} ms</span>
             </div>
 
             {/* Chart area with bars */}
-            <div className="absolute left-14 right-0 top-0 bottom-8 border-l-2 border-b-2 border-gray-300 dark:border-slate-600 transition-colors">
+            <div className="absolute left-10 sm:left-12 md:left-14 right-0 top-0 bottom-8 border-l-2 border-b-2 border-gray-300 dark:border-slate-600 transition-colors">
             {/* Auto Baseline line (blue) */}
             {autoBaseline && (
               <div
@@ -486,11 +486,11 @@ export function HRVChart() {
             </div>
 
             {/* X-axis labels */}
-            <div className="absolute left-14 right-0 bottom-0 flex justify-between text-xs text-gray-500 dark:text-gray-400 pt-2 transition-colors">
+            <div className="absolute left-10 sm:left-12 md:left-14 right-0 bottom-0 flex justify-between text-xs sm:text-sm text-gray-600 dark:text-gray-300 pt-2 transition-colors font-medium">
               <span>
                 {chartData[0]?.timestamp.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}
               </span>
-              <span className="text-gray-400 dark:text-gray-500 transition-colors">
+              <span className="text-gray-500 dark:text-gray-400 transition-colors hidden sm:inline">
                 {chartData.length} metingen
               </span>
               <span>
