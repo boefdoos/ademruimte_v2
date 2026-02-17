@@ -300,14 +300,19 @@ export function ControlPauseChart() {
         </ul>
       </div>
 
-      {/* Records List with Delete */}
+      {/* Records List with Delete — max 15 most recent */}
       <div className="bg-white dark:bg-slate-800 rounded-xl p-6 transition-colors">
-        <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center transition-colors">
-          <i className="fas fa-list mr-2 text-blue-600 dark:text-blue-400 transition-colors"></i>
-          Alle metingen
-        </h4>
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="font-bold text-gray-800 dark:text-gray-100 flex items-center transition-colors">
+            <i className="fas fa-list mr-2 text-blue-600 dark:text-blue-400 transition-colors"></i>
+            Recente metingen
+          </h4>
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            Laatste {Math.min(records.length, 15)} van {records.length}
+          </span>
+        </div>
         <div className="space-y-2">
-          {records.slice().reverse().map((record) => (
+          {records.slice().reverse().slice(0, 15).map((record) => (
             <div
               key={record.id}
               className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors"
