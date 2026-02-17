@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/firebase/config';
 import { collection, addDoc, doc, setDoc } from 'firebase/firestore';
@@ -51,6 +52,12 @@ export function ResonantBreathing() {
   const [cycles, setCycles] = useState(0);
   const [showJournalModal, setShowJournalModal] = useState(false);
   const [journalNotes, setJournalNotes] = useState('');
+  const [intensiteitScore, setIntensiteitScore] = useState<number | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const colorClasses = {
@@ -285,7 +292,7 @@ export function ResonantBreathing() {
         userId: currentUser.uid,
         techniekGebruikt: selectedPattern.name,
         notities: journalNotes,
-        intensiteit: null,
+        intensiteit: intensiteitScore,
         triggers: [],
         sensaties: [],
         timestamp: new Date(),
@@ -293,6 +300,7 @@ export function ResonantBreathing() {
 
       setShowJournalModal(false);
       setJournalNotes('');
+      setIntensiteitScore(null);
     } catch (error) {
       console.error('Error saving journal entry:', error);
       alert('Fout bij opslaan dagboek entry');
@@ -302,6 +310,7 @@ export function ResonantBreathing() {
   const skipJournal = () => {
     setShowJournalModal(false);
     setJournalNotes('');
+    setIntensiteitScore(null);
   };
 
   const getPhaseText = () => {
@@ -656,11 +665,11 @@ export function ResonantBreathing() {
         </div>
       )}
 
-      {/* Journal Modal */}
-      {showJournalModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 max-w-lg w-full shadow-2xl transition-colors">
-            <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4 transition-colors">
+      {/* Journal Modal — rendered via Portal to avoid PWA overflow clipping */}
+      {showJournalModal && isMounted && createPortal(
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[9999]">
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-5 sm:p-6 max-w-lg w-full shadow-2xl transition-colors max-h-[90vh] overflow-y-auto">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4 transition-colors">
               <i className="fas fa-book text-blue-600 dark:text-blue-400 mr-2 transition-colors"></i>
               Sessie voltooid! 🎉
             </h3>
@@ -678,9 +687,45 @@ export function ResonantBreathing() {
               </div>
             </div>
 
-            <p className="text-gray-700 dark:text-gray-300 mb-4 transition-colors">
-              Wil je notities toevoegen over deze sessie?
-            </p>
+            {/* Intensiteit score */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
+                Hoe voelde je je vóór de sessie? (optioneel)
+              </label>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-green-600 dark:text-green-400 font-medium w-10">Rustig</span>
+                <input
+                  type="range"
+                  min={1}
+                  max={10}
+                  step={1}
+                  value={intensiteitScore ?? 5}
+                  onChange={(e) => setIntensiteitScore(Number(e.target.value))}
+                  className="flex-1 accent-blue-600"
+                />
+                <span className="text-xs text-red-600 dark:text-red-400 font-medium w-10 text-right">Ernstig</span>
+              </div>
+              {intensiteitScore !== null && (
+                <div className="text-center mt-1">
+                  <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{intensiteitScore}</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">/10</span>
+                  <button
+                    onClick={() => setIntensiteitScore(null)}
+                    className="ml-3 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 underline"
+                  >
+                    wis
+                  </button>
+                </div>
+              )}
+              {intensiteitScore === null && (
+                <button
+                  onClick={() => setIntensiteitScore(5)}
+                  className="mt-1 text-xs text-blue-500 hover:text-blue-700 dark:text-blue-400 underline"
+                >
+                  Score invullen
+                </button>
+              )}
+            </div>
 
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
@@ -690,7 +735,7 @@ export function ResonantBreathing() {
                 value={journalNotes}
                 onChange={(e) => setJournalNotes(e.target.value)}
                 placeholder="bijv. Voelde me ontspannen, lichte duizeligheid aan het begin..."
-                rows={4}
+                rows={3}
                 className="w-full px-4 py-2 border-2 border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
               />
             </div>
@@ -705,14 +750,15 @@ export function ResonantBreathing() {
               </button>
               <button
                 onClick={skipJournal}
-                className="flex-1 px-4 py-3 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400 transition-colors"
+                className="flex-1 px-4 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-gray-200 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors"
               >
                 <i className="fas fa-times mr-2"></i>
                 Overslaan
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

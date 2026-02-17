@@ -6,6 +6,16 @@
   --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
+/* Prevent white overscroll flash on iOS PWA */
+html {
+  background-color: #667eea;
+  overscroll-behavior: none;
+}
+
+.dark html {
+  background-color: #0f172a;
+}
+
 body {
   font-family: var(--font-inter);
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

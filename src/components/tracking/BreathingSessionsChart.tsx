@@ -228,11 +228,16 @@ export function BreathingSessionsChart() {
         </div>
       </div>
 
-      {/* Recent Sessions */}
+      {/* Recent Sessions — max 15 most recent */}
       <div className="bg-white dark:bg-slate-800 rounded-xl p-6 transition-colors">
-        <h3 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-100 transition-colors">Recente Sessies</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100 transition-colors">Recente Sessies</h3>
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            Laatste {Math.min(sessions.length, 15)} van {sessions.length}
+          </span>
+        </div>
         <div className="space-y-3">
-          {sessions.slice().reverse().slice(0, 10).map((session) => (
+          {sessions.slice().reverse().slice(0, 15).map((session) => (
             <div key={session.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-700 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
               <div className="flex items-center gap-4">
                 <div

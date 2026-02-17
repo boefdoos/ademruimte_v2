@@ -291,28 +291,70 @@ export function IntensityStats() {
             </div>
           </div>
         </div>
-        <div className="relative h-64">
-          <div className="absolute inset-0 flex items-end justify-between gap-2">
-            {entriesWithIntensity.slice().reverse().slice(-20).map((entry, index) => {
-              const height = (entry.intensiteit! / 10) * 100;
-              return (
-                <div key={index} className="flex-1 flex flex-col items-center justify-end h-full group relative">
-                  <div
-                    className={`w-full bg-gradient-to-t ${getIntensityColor(entry.intensiteit!)} rounded-t-lg transition-all hover:opacity-80 cursor-pointer`}
-                    style={{ height: `${height}%` }}
-                  >
-                    {/* Tooltip */}
-                    <div className="opacity-0 group-hover:opacity-100 absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-slate-900 text-white text-xs rounded py-2 px-3 whitespace-nowrap transition-opacity pointer-events-none z-10">
-                      <div className="font-bold">{entry.intensiteit}/10</div>
-                      <div>{entry.timestamp.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}</div>
-                      <div className="text-gray-300 dark:text-gray-400">{entry.techniekGebruikt}</div>
-                    </div>
+
+        {/* Chart with Y-axis and X-axis */}
+        {(() => {
+          const chartEntries = entriesWithIntensity.slice().reverse().slice(-20);
+          const firstDate = chartEntries[0]?.timestamp.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' });
+          const lastDate = chartEntries[chartEntries.length - 1]?.timestamp.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' });
+          return (
+            <div className="flex gap-2">
+              {/* Y-axis labels */}
+              <div className="flex flex-col justify-between text-xs font-medium text-gray-500 dark:text-gray-400 pb-6 w-6 shrink-0 text-right">
+                <span>10</span>
+                <span>7</span>
+                <span>5</span>
+                <span>3</span>
+                <span>0</span>
+              </div>
+
+              {/* Chart area */}
+              <div className="flex-1 min-w-0">
+                <div className="relative h-56">
+                  {/* Horizontal gridlines */}
+                  <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
+                    {[10, 7, 5, 3, 0].map((val) => (
+                      <div key={val} className="w-full border-t border-gray-100 dark:border-slate-700"></div>
+                    ))}
+                  </div>
+                  {/* Bars */}
+                  <div className="absolute inset-0 flex items-end justify-between gap-1 pb-0">
+                    {chartEntries.map((entry, index) => {
+                      const height = (entry.intensiteit! / 10) * 100;
+                      return (
+                        <div key={index} className="flex-1 flex flex-col items-center justify-end h-full group relative min-w-0">
+                          <div
+                            className={`w-full bg-gradient-to-t ${getIntensityColor(entry.intensiteit!)} rounded-t transition-all hover:opacity-80 cursor-pointer`}
+                            style={{ height: `${height}%` }}
+                          >
+                            {/* Tooltip */}
+                            <div className="opacity-0 group-hover:opacity-100 absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-slate-900 text-white text-xs rounded py-2 px-3 whitespace-nowrap transition-opacity pointer-events-none z-10">
+                              <div className="font-bold">{entry.intensiteit}/10</div>
+                              <div>{entry.timestamp.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}</div>
+                              <div className="text-gray-300 dark:text-gray-400">{entry.techniekGebruikt}</div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </div>
+                {/* X-axis */}
+                {chartEntries.length > 1 && (
+                  <div className="flex justify-between text-xs font-medium text-gray-500 dark:text-gray-400 mt-1 px-0">
+                    <span>{firstDate}</span>
+                    {chartEntries.length > 4 && (
+                      <span className="hidden sm:block text-gray-400 dark:text-gray-500">
+                        {chartEntries.length} metingen
+                      </span>
+                    )}
+                    <span>{lastDate}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Trigger Analysis */}
