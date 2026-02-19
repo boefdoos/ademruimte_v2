@@ -50,8 +50,8 @@ const steps: OnboardingStep[] = [
   {
     title: 'Dagelijkse Doelen 🎯',
     titleEn: 'Daily Goals',
-    description: 'Voltooi je dagelijkse doelen: log je Control Pause, doe een ademsessie, en schrijf in je dagboek. Bouw een streak op!',
-    descriptionEn: 'Complete your daily goals: log Control Pause, do a breathing session, and journal. Build your streak!',
+    description: 'Voltooi je dagelijkse doelen: meet je Control Pause, doe een ademsessie, en log je symptomen. Bouw een streak op!',
+    descriptionEn: 'Complete your daily goals: measure your Control Pause, do a breathing session, and log symptoms. Build your streak!',
     icon: 'fas fa-check-circle',
     color: 'from-blue-500 to-indigo-500',
   },

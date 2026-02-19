@@ -201,11 +201,11 @@ export function CPInput() {
           Wil je de begeleide Buteyko timer gebruiken?
         </p>
         <a
-          href="/exercises?tab=buteyko"
+          href="/journal?tab=cp"
           className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors"
         >
           <i className="fas fa-stopwatch mr-2"></i>
-          Ga naar Buteyko Oefening
+          Ga naar CP Meting
         </a>
       </div>
     </div>

@@ -312,7 +312,7 @@ export function ResonantBreathing() {
       setIntensiteitScore(null);
     } catch (error) {
       console.error('Error saving journal entry:', error);
-      alert('Fout bij opslaan dagboek entry');
+      alert('Fout bij opslaan sessie entry');
     }
   };
 
