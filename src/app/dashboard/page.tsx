@@ -216,11 +216,11 @@ export default function DashboardPage() {
           >
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-xl sm:text-2xl">
-                <i className="fas fa-book"></i>
+                <i className="fas fa-clipboard-list"></i>
               </div>
               <div>
                 <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">
-                  Dagboek
+                  Tracking
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
                   Reflecties & Symptomen

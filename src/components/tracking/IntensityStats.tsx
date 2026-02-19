@@ -87,14 +87,14 @@ export function IntensityStats() {
           Nog geen intensiteit data
         </h3>
         <p className="text-gray-600 dark:text-gray-400 mb-6">
-          Begin met dagboek entries om je intensiteit trends te volgen
+          Begin met symptoom entries om je intensiteit trends te volgen
         </p>
         <a
-          href="/tracking"
+          href="/journal"
           className="inline-block px-6 py-3 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-700 transition-colors"
         >
-          <i className="fas fa-book mr-2"></i>
-          Ga naar Dagboek
+          <i className="fas fa-clipboard-list mr-2"></i>
+          Ga naar Tracking
         </a>
       </div>
     );
@@ -111,7 +111,7 @@ export function IntensityStats() {
           Geen intensiteit metingen
         </h3>
         <p className="text-gray-600 dark:text-gray-400">
-          Je dagboek entries bevatten geen intensiteit scores
+          Je logboek entries bevatten geen intensiteit scores
         </p>
       </div>
     );

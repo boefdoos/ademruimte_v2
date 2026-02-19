@@ -21,7 +21,7 @@ export default function OfflinePage() {
         <div className="mt-6 pt-6 border-t border-gray-200 dark:border-slate-600 transition-colors">
           <p className="text-sm text-gray-500 dark:text-gray-400 transition-colors">
             <i className="fas fa-info-circle mr-1"></i>
-            Beschikbare offline: Dashboard, Oefeningen, Inzichten, Dagboek
+            Beschikbare offline: Dashboard, Oefeningen, Inzichten, Tracking
           </p>
         </div>
       </div>

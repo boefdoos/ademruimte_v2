@@ -17,7 +17,7 @@ export function TodayGoals() {
   const [goals, setGoals] = useState<Goal[]>([
     { id: 'cp', label: 'Log Control Pause', icon: 'fa-stopwatch', completed: false },
     { id: 'hrv', label: 'Log HRV', icon: 'fa-heart-pulse', completed: false },
-    { id: 'journal', label: 'Log Dagboek', icon: 'fa-book', completed: false },
+    { id: 'journal', label: 'Log Symptomen', icon: 'fa-notes-medical', completed: false },
   ]);
   const [loading, setLoading] = useState(true);
 
@@ -75,11 +75,11 @@ export function TodayGoals() {
   const getGoalLink = (goalId: string) => {
     switch (goalId) {
       case 'cp':
-        return '/exercises?tab=buteyko';
+        return '/journal?tab=cp';
       case 'hrv':
-        return '/exercises?tab=hrv';
+        return '/journal?tab=hrv';
       case 'journal':
-        return '/journal';
+        return '/journal?tab=symptomen';
       default:
         return '/exercises';
     }

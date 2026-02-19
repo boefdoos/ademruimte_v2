@@ -269,7 +269,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Weet je zeker dat je deze dagboek entry wilt verwijderen?')) return;
+    if (!confirm('Weet je zeker dat je dit wilt verwijderen?')) return;
 
     setDeletingId(id);
     try {
@@ -335,7 +335,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
       {/* Add Entry Form */}
       {showForm && (
         <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-md dark:shadow-lg dark:shadow-black/30 transition-colors">
-          <h4 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-100">Nieuwe Dagboek Entry</h4>
+          <h4 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-100">Nieuwe Symptomen Entry</h4>
 
           {/* Triggers */}
           <div className="mb-4">
@@ -677,7 +677,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
         <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-xl transition-colors dark:shadow-lg dark:shadow-black/30">
           <div className="text-6xl mb-4">📖</div>
           <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2 transition-colors">
-            Nog geen dagboek entries
+            Nog geen symptomen gelogd
           </h3>
           <p className="text-gray-600 dark:text-gray-400 transition-colors">
             Begin met je eerste entry om je vooruitgang te volgen
@@ -691,7 +691,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <h4 className={`font-bold text-gray-800 dark:text-gray-100 transition-colors ${limit ? 'text-base' : 'text-lg'}`}>
-                      {entry.techniekGebruikt || 'Dagboek Entry'}
+                      {entry.techniekGebruikt || 'Symptomen Entry'}
                     </h4>
                     <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">
                       {entry.timestamp.toLocaleDateString('nl-NL', {

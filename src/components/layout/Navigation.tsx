@@ -14,7 +14,7 @@ export function Navigation() {
     { href: '/dashboard', label: 'Dashboard', icon: 'fa-home' },
     { href: '/exercises', label: 'Oefeningen', icon: 'fa-wind' },
     { href: '/insights', label: 'Inzichten', icon: 'fa-chart-line' },
-    { href: '/journal', label: 'Dagboek', icon: 'fa-book' },
+    { href: '/journal', label: 'Tracking', icon: 'fa-clipboard-list' },
     { href: '/settings', label: 'Profiel', icon: 'fa-user' },
   ];
 
