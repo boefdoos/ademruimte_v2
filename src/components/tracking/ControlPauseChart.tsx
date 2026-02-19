@@ -17,6 +17,30 @@ export function ControlPauseChart() {
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'all'>('week');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [cpGoal, setCpGoal] = useState<number | null>(null);
+  const [goalInput, setGoalInput] = useState('');
+  const [editingGoal, setEditingGoal] = useState(false);
+
+  // Load/save personal goal from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('cpGoal');
+    if (stored) {
+      const val = parseInt(stored, 10);
+      if (!isNaN(val) && val > 0) {
+        setCpGoal(val);
+        setGoalInput(String(val));
+      }
+    }
+  }, []);
+
+  const saveGoal = () => {
+    const val = parseInt(goalInput, 10);
+    if (!isNaN(val) && val > 0 && val <= 120) {
+      setCpGoal(val);
+      localStorage.setItem('cpGoal', String(val));
+      setEditingGoal(false);
+    }
+  };
 
   useEffect(() => {
     const loadRecords = async () => {
@@ -174,6 +198,51 @@ export function ControlPauseChart() {
         </div>
       </div>
 
+      {/* Personal goal setting */}
+      <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800 transition-colors">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <i className="fas fa-bullseye text-blue-600 dark:text-blue-400"></i>
+            <span className="font-semibold text-sm text-gray-800 dark:text-gray-100">Persoonlijk doel:</span>
+            {cpGoal
+              ? <span className="text-blue-700 dark:text-blue-300 font-bold">{cpGoal}s</span>
+              : <span className="text-gray-500 dark:text-gray-400 text-sm italic">nog niet ingesteld</span>
+            }
+          </div>
+          {editingGoal ? (
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                value={goalInput}
+                onChange={e => setGoalInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && saveGoal()}
+                min={5} max={120}
+                placeholder="seconden"
+                className="w-24 px-3 py-1.5 border-2 border-blue-400 rounded-lg text-sm font-semibold text-center dark:bg-slate-700 dark:text-gray-100 dark:border-blue-500"
+              />
+              <button onClick={saveGoal} className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">
+                Opslaan
+              </button>
+              <button onClick={() => setEditingGoal(false)} className="px-3 py-1.5 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-gray-200 rounded-lg text-sm font-semibold hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors">
+                Annuleer
+              </button>
+            </div>
+          ) : (
+            <button onClick={() => setEditingGoal(true)} className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-semibold">
+              {cpGoal ? 'Wijzigen' : 'Instellen'}
+            </button>
+          )}
+        </div>
+        {cpGoal && records.length > 0 && (
+          <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            {maxCP >= cpGoal
+              ? `✅ Doel bereikt! Je beste meting (${maxCP}s) ligt boven je doel.`
+              : `Je bent ${cpGoal - maxCP}s verwijderd van je doel van ${cpGoal}s.`
+            }
+          </div>
+        )}
+      </div>
+
       {/* Bar Chart */}
       <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg dark:shadow-2xl transition-colors">
         <h3 className="text-xl font-bold mb-6 flex items-center text-gray-900 dark:text-gray-100 transition-colors">
@@ -202,6 +271,17 @@ export function ControlPauseChart() {
               <div className="absolute left-0 right-0 border-t-2 border-dashed border-yellow-200 dark:border-yellow-900/50 transition-colors" style={{ bottom: '50%' }}></div>
               <div className="absolute left-0 right-0 border-t-2 border-dashed border-orange-200 dark:border-orange-900/50 transition-colors" style={{ bottom: '33.33%' }}></div>
               <div className="absolute left-0 right-0 border-t-2 border-dashed border-red-200 dark:border-red-900/50 transition-colors" style={{ bottom: '16.67%' }}></div>
+              {/* Personal goal line */}
+              {cpGoal && (
+                <div
+                  className="absolute left-0 right-0 border-t-2 border-dashed border-blue-500 dark:border-blue-400 z-10 transition-colors"
+                  style={{ bottom: `${(cpGoal / 60) * 100}%` }}
+                >
+                  <span className="absolute right-0 -top-4 text-xs font-semibold text-blue-600 dark:text-blue-400 bg-white dark:bg-slate-800 px-1">
+                    Doel {cpGoal}s
+                  </span>
+                </div>
+              )}
 
               {/* Bars */}
               <div className="absolute inset-0 flex items-end justify-between gap-1">
@@ -271,34 +351,64 @@ export function ControlPauseChart() {
         )}
       </div>
 
-      {/* Insights */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-xl p-6 transition-colors">
-        <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-3 transition-colors">
-          <i className="fas fa-lightbulb mr-2 text-yellow-500 dark:text-yellow-400 transition-colors"></i>
-          Inzichten
-        </h4>
-        <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300 transition-colors">
-          {maxCP >= 40 && (
-            <li>✅ Uitstekend! Je hebt een CP van {maxCP}s bereikt</li>
-          )}
-          {avgCP >= 30 && avgCP < 40 && (
-            <li>👍 Goed bezig! Gemiddelde CP van {avgCP}s is gezond</li>
-          )}
-          {avgCP < 20 && (
-            <li>💪 Blijf oefenen! Elke verbetering telt</li>
-          )}
-          <li>
-            📈 {records.length} metingen in deze periode
-          </li>
-          {records.length >= 2 && (
-            <li>
-              {records[records.length - 1].seconds > records[0].seconds
-                ? '⬆️ Positieve trend! Je CP is verbeterd'
-                : '⬇️ Tijdelijke dip - normaal bij stress of slaaptekort'}
-            </li>
-          )}
-        </ul>
-      </div>
+      {/* Insights with proper baseline comparison */}
+      {(() => {
+        // Baseline = median of the older half; Recent = average of last 3
+        const sorted = [...records]; // already oldest-first
+        const recentN = Math.min(3, sorted.length);
+        const recentRecords = sorted.slice(-recentN);
+        const olderRecords = sorted.slice(0, Math.max(1, sorted.length - recentN));
+
+        const recentAvg = Math.round(recentRecords.reduce((s, r) => s + r.seconds, 0) / recentRecords.length);
+        const olderValues = olderRecords.map(r => r.seconds).sort((a, b) => a - b);
+        const mid = Math.floor(olderValues.length / 2);
+        const baseline = olderValues.length > 0
+          ? (olderValues.length % 2 === 0
+            ? Math.round((olderValues[mid - 1] + olderValues[mid]) / 2)
+            : olderValues[mid])
+          : recentAvg;
+
+        const diff = recentAvg - baseline;
+        const THRESHOLD = 2; // seconds
+
+        const trendUp = records.length >= 4 && diff >= THRESHOLD;
+        const trendDown = records.length >= 4 && diff <= -THRESHOLD;
+        const trendStable = records.length >= 4 && !trendUp && !trendDown;
+
+        return (
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-xl p-6 transition-colors">
+            <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-3 transition-colors">
+              <i className="fas fa-lightbulb mr-2 text-yellow-500 dark:text-yellow-400 transition-colors"></i>
+              Inzichten
+            </h4>
+            <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300 transition-colors">
+              <li>📈 {records.length} meting{records.length !== 1 ? 'en' : ''} in deze periode</li>
+
+              {/* Trend vs baseline — only show when enough data */}
+              {records.length >= 4 && (
+                <li>
+                  {trendUp && `⬆️ Positieve trend! Recente gem. ${recentAvg}s vs basislijn ${baseline}s (+${diff}s)`}
+                  {trendDown && `⬇️ Lichte daling: recente gem. ${recentAvg}s vs basislijn ${baseline}s (${diff}s). Normaal bij stress of slaaptekort.`}
+                  {trendStable && `➡️ Stabiel: recente gem. ${recentAvg}s — vergelijkbaar met je basislijn van ${baseline}s.`}
+                </li>
+              )}
+              {records.length < 4 && records.length >= 2 && (
+                <li>📊 Meet nog {4 - records.length}× meer voor een betrouwbare trendanalyse.</li>
+              )}
+
+              {/* Level feedback */}
+              {maxCP >= 40 && <li>✅ Uitstekend! Je beste meting ({maxCP}s) duidt op een gezonde ademhaling.</li>}
+              {avgCP >= 30 && avgCP < 40 && <li>👍 Goed bezig! Gemiddelde CP van {avgCP}s is een gezond niveau.</li>}
+              {avgCP < 20 && <li>💪 Blijf oefenen! Elke seconde verbetering telt — dat zal je merken in je klachten.</li>}
+
+              {/* Goal progress */}
+              {cpGoal && maxCP < cpGoal && (
+                <li>🎯 Doel van {cpGoal}s: je bent er al op {Math.round((maxCP / cpGoal) * 100)}%.</li>
+              )}
+            </ul>
+          </div>
+        );
+      })()}
 
       {/* Records List with Delete — max 15 most recent */}
       <div className="bg-white dark:bg-slate-800 rounded-xl p-6 transition-colors">

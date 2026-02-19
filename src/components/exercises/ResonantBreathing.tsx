@@ -20,7 +20,7 @@ interface BreathPattern {
 
 const patterns: BreathPattern[] = [
   {
-    name: 'Coherent Breathing',
+    name: 'Resonant Breathing',
     inhale: 5,
     hold: 0,
     exhale: 5,
@@ -54,6 +54,8 @@ export function ResonantBreathing() {
   const [journalNotes, setJournalNotes] = useState('');
   const [intensiteitScore, setIntensiteitScore] = useState<number | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  // Ref keeps totalSeconds always up-to-date inside async/callback closures
+  const totalSecondsRef = useRef(0);
 
   useEffect(() => {
     setIsMounted(true);
@@ -70,7 +72,7 @@ export function ResonantBreathing() {
 
   // Get effective pattern with custom durations
   const getEffectivePattern = () => {
-    if (selectedPattern.name === 'Coherent Breathing') {
+    if (selectedPattern.name === 'Resonant Breathing') {
       const bpm = Math.round(60 / (coherentDuration * 2) * 10) / 10;
       return {
         ...selectedPattern,
@@ -89,7 +91,7 @@ export function ResonantBreathing() {
     return selectedPattern;
   };
 
-  // Total session tracking with auto-stop
+  // Total session tracking — keep ref in sync so stopBreathing never reads stale state
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
 
@@ -97,10 +99,7 @@ export function ResonantBreathing() {
       interval = setInterval(() => {
         setTotalSeconds(s => {
           const newTotal = s + 1;
-          // Auto-stop when session duration is reached
-          if (newTotal >= sessionDuration * 60) {
-            stopBreathing();
-          }
+          totalSecondsRef.current = newTotal;
           return newTotal;
         });
       }, 1000);
@@ -109,7 +108,14 @@ export function ResonantBreathing() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isActive, sessionDuration]);
+  }, [isActive]);
+
+  // Auto-stop when session duration is reached — separate effect avoids stale closure
+  useEffect(() => {
+    if (isActive && totalSeconds >= sessionDuration * 60) {
+      stopBreathing();
+    }
+  }, [totalSeconds, isActive, sessionDuration]);
 
   // Breathing cycle logic
   useEffect(() => {
@@ -209,6 +215,7 @@ export function ResonantBreathing() {
     setPhase('inhale');
     setTimeLeft(effectivePattern.inhale);
     setTotalSeconds(0);
+    totalSecondsRef.current = 0;
     setCycles(0);
     playSound();
 
@@ -224,15 +231,18 @@ export function ResonantBreathing() {
     // Release wake lock
     await releaseWakeLock();
 
+    // Use ref to avoid stale closure — totalSeconds state may lag behind
+    const finalSeconds = totalSecondsRef.current;
+
     // Save session to Firebase
-    if (currentUser && totalSeconds > 0) {
+    if (currentUser && finalSeconds > 0) {
       try {
         // Save to V1 collection structure
         const sessionsRef = collection(db, 'resonant_sessions');
         await addDoc(sessionsRef, {
           userId: currentUser.uid,
           pattern: selectedPattern.name,
-          durationSeconds: totalSeconds,
+          durationSeconds: finalSeconds,
           cycles,
           timestamp: new Date(),
         });
@@ -243,14 +253,13 @@ export function ResonantBreathing() {
         await setDoc(goalsRef, { hrv: true }, { merge: true });
 
         // Pre-fill journal notes with session info
-        const effectivePattern = getEffectivePattern();
         let prefilledNotes = `Patroon: ${selectedPattern.name}\n`;
-        prefilledNotes += `Duur: ${formatTime(totalSeconds)}\n`;
+        prefilledNotes += `Duur: ${formatTime(finalSeconds)}\n`;
         prefilledNotes += `Cycli: ${cycles}\n`;
 
         if (selectedPattern.name === 'Buteyko - Extended Breath Hold') {
           prefilledNotes += `Adempauze: ${customHoldDuration}s\n`;
-        } else if (selectedPattern.name === 'Coherent Breathing') {
+        } else if (selectedPattern.name === 'Resonant Breathing') {
           prefilledNotes += `Ademhalingstijd: ${coherentDuration}s in/uit\n`;
         }
 
@@ -362,7 +371,7 @@ export function ResonantBreathing() {
                 <div className="flex flex-wrap gap-2 text-xs sm:text-sm font-mono">
                   {/* Inhale */}
                   <span className="px-2 py-1 bg-green-100 text-green-700 rounded whitespace-nowrap">
-                    ↑ {pattern.name === 'Coherent Breathing' ? coherentDuration : pattern.inhale}s
+                    ↑ {pattern.name === 'Resonant Breathing' ? coherentDuration : pattern.inhale}s
                   </span>
 
                   {/* For Buteyko: exhale comes before hold */}
@@ -382,7 +391,7 @@ export function ResonantBreathing() {
                   {/* For non-Buteyko: normal order */}
                   {pattern.name !== 'Buteyko - Extended Breath Hold' && (
                     <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded whitespace-nowrap">
-                      ↓ {pattern.name === 'Coherent Breathing' ? coherentDuration : pattern.exhale}s
+                      ↓ {pattern.name === 'Resonant Breathing' ? coherentDuration : pattern.exhale}s
                     </span>
                   )}
                 </div>
@@ -391,7 +400,7 @@ export function ResonantBreathing() {
           </div>
 
           {/* Coherent Breathing Duration Slider */}
-          {selectedPattern.name === 'Coherent Breathing' && (
+          {selectedPattern.name === 'Resonant Breathing' && (
             <div className="mt-6 p-3 sm:p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-700 transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                 <label className="font-semibold text-sm sm:text-base text-gray-800 dark:text-gray-100 transition-colors">
@@ -613,9 +622,9 @@ export function ResonantBreathing() {
         <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-lg border border-blue-200 dark:border-blue-700 transition-colors">
           <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-3 transition-colors">
             <i className="fas fa-lightbulb mr-2 text-yellow-500 dark:text-yellow-400 transition-colors"></i>
-            {selectedPattern.name === 'Coherent Breathing' ? 'Coherent Breathing Tips' : 'Extended Breath Hold Tips'}
+            {selectedPattern.name === 'Resonant Breathing' ? 'Resonant Breathing Tips' : 'Extended Breath Hold Tips'}
           </h4>
-          {selectedPattern.name === 'Coherent Breathing' ? (
+          {selectedPattern.name === 'Resonant Breathing' ? (
             <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300 transition-colors">
               <li className="flex items-start gap-2">
                 <i className="fas fa-check text-green-600 mt-1"></i>
