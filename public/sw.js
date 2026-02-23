@@ -1,7 +1,7 @@
 // Ademruimte Service Worker
-const CACHE_NAME = 'ademruimte-v1';
-const STATIC_CACHE = 'ademruimte-static-v1';
-const DYNAMIC_CACHE = 'ademruimte-dynamic-v1';
+const CACHE_NAME = 'ademruimte-v2';
+const STATIC_CACHE = 'ademruimte-static-v2';
+const DYNAMIC_CACHE = 'ademruimte-dynamic-v2';
 
 // Files to cache immediately
 const STATIC_ASSETS = [
