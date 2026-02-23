@@ -4,6 +4,7 @@ import { useState, lazy, Suspense, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Navigation } from '@/components/layout/Navigation';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { useI18n } from '@/contexts/I18nContext';
 
 // Lazy load components
 const JournalEntries = lazy(() => import('@/components/tracking/JournalEntries').then(mod => ({ default: mod.JournalEntries })));
@@ -23,6 +24,7 @@ const LoadingFallback = () => (
 
 export default function TrackingPage() {
   const searchParams = useSearchParams();
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<TrackingTab>('symptomen');
   const [visitedTabs, setVisitedTabs] = useState<Set<TrackingTab>>(new Set(['symptomen']));
 
@@ -47,10 +49,10 @@ export default function TrackingPage() {
           <div className="mb-4 sm:mb-6 md:mb-8">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100 mb-2 transition-colors">
               <i className="fas fa-clipboard-list text-orange-600 dark:text-orange-400 mr-2 sm:mr-3 transition-colors"></i>
-              Tracking
+              {t('tracking.title')}
             </h1>
             <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-300 transition-colors">
-              Meet je Control Pause, log HRV en registreer symptomen
+              {t('tracking.subtitle')}
             </p>
           </div>
 
@@ -66,7 +68,7 @@ export default function TrackingPage() {
                 }`}
               >
                 <i className="fas fa-notes-medical mr-1 sm:mr-2"></i>
-                Symptomen
+                {t('tracking.tab_symptoms')}
               </button>
               <button
                 onClick={() => handleTabChange('cp')}
@@ -77,7 +79,7 @@ export default function TrackingPage() {
                 }`}
               >
                 <i className="fas fa-stopwatch mr-1 sm:mr-2"></i>
-                <span className="hidden sm:inline">CP Meting</span>
+                <span className="hidden sm:inline">{t('tracking.tab_cp')}</span>
                 <span className="sm:hidden">CP</span>
               </button>
               <button
@@ -89,7 +91,7 @@ export default function TrackingPage() {
                 }`}
               >
                 <i className="fas fa-heart-pulse mr-1 sm:mr-2"></i>
-                <span className="hidden sm:inline">HRV Meting</span>
+                <span className="hidden sm:inline">{t('tracking.tab_hrv')}</span>
                 <span className="sm:hidden">HRV</span>
               </button>
             </div>

@@ -1,9 +1,14 @@
 {
   "app_title": "Ademruimte",
   "app_subtitle": "Evidence-based hulp bij hyperventilatie en gerelateerde klachten",
-  "nav_today": "Vandaag",
+  "loading": "Laden...",
+  "save": "Opslaan",
+  "cancel": "Annuleren",
+  "nav_dashboard": "Dashboard",
   "nav_exercises": "Oefeningen",
+  "nav_insights": "Inzichten",
   "nav_tracking": "Tracking",
+  "nav_profile": "Profiel",
   "login": "Inloggen",
   "register": "Registreren",
   "logout": "Uitloggen",
@@ -22,39 +27,70 @@
   "password_reset_sent": "Wachtwoord reset link verstuurd! Controleer je inbox.",
   "error_occurred": "Er is een fout opgetreden",
   "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Je persoonlijke ademhalingstrainer",
     "welcome": "Welkom terug",
     "streak": "dagen streak",
     "todays_goals": "Doelen vandaag",
     "log_cp": "Log Control Pause",
     "log_hrv": "Log HRV",
-    "log_journal": "Log dagboek",
-    "buteyko_exercise": "Buteyko oefening",
-    "resonant_breathing": "Resonant Breathing"
+    "log_symptoms": "Log Symptomen",
+    "exercises_section": "Oefeningen",
+    "exercises_desc": "Buteyko & resonant ademhaling",
+    "insights_section": "Inzichten",
+    "insights_desc": "Analytics & grafieken",
+    "tracking_section": "Tracking",
+    "tracking_desc": "Reflecties & Symptomen",
+    "restart_intro": "Bekijk introductie opnieuw",
+    "auto_completed": "Auto-voltooid na oefening",
+    "completed": "Voltooid!",
+    "all_goals_done": "Alle doelen bereikt!"
   },
   "exercises": {
     "title": "Oefeningen",
-    "buteyko": {
-      "title": "Buteyko Methode",
-      "description": "Leer je ademhaling te normaliseren",
-      "start_exercise": "Start oefening",
-      "control_pause": "Control Pause",
-      "measure_cp": "Meet je CP"
-    },
-    "resonant_breathing": {
-      "title": "Resonant Breathing",
-      "description": "Verbeter je HRV met geleide ademhaling",
-      "duration": "Duur",
-      "minutes": "minuten",
-      "start": "Start"
-    }
+    "subtitle": "Begeleide resonante ademhalingsoefeningen"
   },
   "tracking": {
     "title": "Tracking",
-    "hrv": "HRV Metingen",
-    "intensity": "Intensiteit Trends",
-    "triggers": "Triggers",
-    "consistency": "Consistentie",
-    "log_measurement": "Log meting",
-    "view_charts": "Bekijk grafieken"
+    "subtitle": "Meet je Control Pause, log HRV en registreer symptomen",
+    "tab_symptoms": "Symptomen",
+    "tab_cp": "CP Meting",
+    "tab_hrv": "HRV Meting"
+  },
+  "insights": {
+    "title": "Inzichten & Analytics",
+    "subtitle": "Je fysiologische vooruitgang en ademhalingspatronen",
+    "tab_overview": "Overzicht",
+    "tab_measurements": "Metingen",
+    "tab_sessions": "Sessies",
+    "intensity_title": "Symptoom Intensiteit Overzicht",
+    "intensity_subtitle": "Hoe evolueert de intensiteit van je symptomen over tijd?",
+    "hrv_title": "Heart Rate Variability (HRV)",
+    "cp_title": "Control Pause (CP)",
+    "sessions_title": "Ademhalingssessies"
+  },
+  "settings": {
+    "title": "Profiel",
+    "subtitle": "Beheer je account en voorkeuren",
+    "account_info": "Account informatie",
+    "member_since": "Lid sinds",
+    "preferences": "Voorkeuren",
+    "dark_mode": "Donkere modus",
+    "language": "Taal",
+    "language_label": "Taal / Language",
+    "logout_title": "Uitloggen",
+    "logout_button": "Uitloggen",
+    "privacy_title": "Privacy & GDPR",
+    "export_title": "Exporteer mijn data",
+    "export_desc": "Download al je gegevens in JSON formaat. Dit omvat alle metingen, sessies en logboek entries.",
+    "export_button": "Exporteer data",
+    "export_success": "✅ Data geëxporteerd!",
+    "danger_zone": "Gevaarlijke zone",
+    "delete_title": "Account verwijderen",
+    "delete_desc": "Dit verwijdert permanent je account en alle bijbehorende data. Deze actie kan niet ongedaan worden gemaakt.",
+    "delete_confirm_placeholder": "Typ VERWIJDER om te bevestigen",
+    "delete_confirm_word": "VERWIJDER",
+    "delete_button": "Account definitief verwijderen",
+    "deleting": "Verwijderen..."
   }
 }

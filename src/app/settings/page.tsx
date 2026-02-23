@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDarkMode } from '@/contexts/DarkModeContext';
+import { useI18n } from '@/contexts/I18nContext';
 import { Navigation } from '@/components/layout/Navigation';
 import { db } from '@/lib/firebase/config';
 import { collection, query, where, getDocs, deleteDoc, doc } from 'firebase/firestore';
@@ -12,6 +13,7 @@ import Link from 'next/link';
 export default function SettingsPage() {
   const { currentUser, logout } = useAuth();
   const { isDarkMode, toggleDarkMode } = useDarkMode();
+  const { locale, setLocale, t } = useI18n();
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -104,7 +106,7 @@ export default function SettingsPage() {
 
   // Delete all user data and account
   const handleDeleteAccount = async () => {
-    if (!currentUser || deleteConfirmText !== 'VERWIJDER') {
+    if (!currentUser || deleteConfirmText !== t('settings.delete_confirm_word')) {
       return;
     }
 
@@ -161,9 +163,9 @@ export default function SettingsPage() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-              Profiel
+              {t('settings.title')}
             </h1>
-            <p className="text-gray-600 dark:text-gray-300">Beheer je account en voorkeuren</p>
+            <p className="text-gray-600 dark:text-gray-300">{t('settings.subtitle')}</p>
           </div>
 
           {/* Account info */}
@@ -227,19 +229,15 @@ export default function SettingsPage() {
 
               {/* Language */}
               <div>
-                <label className="text-sm text-gray-500 dark:text-gray-400 block mb-2">Taal / Language</label>
+                <label className="text-sm text-gray-500 dark:text-gray-400 block mb-2">{t('settings.language_label')}</label>
                 <select
                   className="w-full px-4 py-3 border-2 border-gray-200 dark:border-slate-600 rounded-lg focus:border-purple-500 dark:focus:border-purple-400 focus:outline-none transition-colors bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
-                  defaultValue="nl"
+                  value={locale}
+                  onChange={(e) => setLocale(e.target.value as 'nl' | 'en')}
                 >
                   <option value="nl">🇳🇱 Nederlands</option>
                   <option value="en">🇬🇧 English</option>
-                  <option value="fr">🇫🇷 Français</option>
-                  <option value="de">🇩🇪 Deutsch</option>
                 </select>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Deze optie wordt binnenkort geactiveerd
-                </p>
               </div>
             </div>
           </div>
@@ -368,19 +366,19 @@ export default function SettingsPage() {
               ) : (
                 <div className="space-y-3">
                   <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    Type <span className="bg-red-100 dark:bg-red-900 px-2 py-1 rounded">VERWIJDER</span> om te bevestigen:
+                    Type <span className="bg-red-100 dark:bg-red-900 px-2 py-1 rounded">{t('settings.delete_confirm_word')}</span> om te bevestigen:
                   </p>
                   <input
                     type="text"
                     value={deleteConfirmText}
                     onChange={(e) => setDeleteConfirmText(e.target.value)}
                     className="w-full px-4 py-2 border-2 border-red-300 dark:border-red-700 rounded-lg focus:outline-none focus:border-red-500 dark:focus:border-red-500 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100"
-                    placeholder="Type VERWIJDER"
+                    placeholder={t('settings.delete_confirm_placeholder')}
                   />
                   <div className="flex gap-3">
                     <button
                       onClick={handleDeleteAccount}
-                      disabled={deleteConfirmText !== 'VERWIJDER' || isDeleting}
+                      disabled={deleteConfirmText !== t('settings.delete_confirm_word') || isDeleting}
                       className="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                     >
                       {isDeleting ? (

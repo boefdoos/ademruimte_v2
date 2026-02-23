@@ -3,6 +3,7 @@
 import { lazy, Suspense } from 'react';
 import { Navigation } from '@/components/layout/Navigation';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { useI18n } from '@/contexts/I18nContext';
 
 const ResonantBreathing = lazy(() => import('@/components/exercises/ResonantBreathing').then(mod => ({ default: mod.ResonantBreathing })));
 
@@ -16,6 +17,7 @@ const LoadingFallback = () => (
 );
 
 export default function ExercisesPage() {
+  const { t } = useI18n();
   return (
     <>
       <Navigation />
@@ -25,10 +27,10 @@ export default function ExercisesPage() {
           <div className="mb-4 sm:mb-6 md:mb-8">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100 mb-2 transition-colors">
               <i className="fas fa-wind text-purple-600 dark:text-purple-400 mr-2 sm:mr-3 transition-colors"></i>
-              Oefeningen
+              {t('exercises.title')}
             </h1>
             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 transition-colors">
-              Begeleide resonante ademhalingsoefeningen
+              {t('exercises.subtitle')}
             </p>
           </div>
 

@@ -3,6 +3,7 @@
 import { useState, lazy, Suspense } from 'react';
 import { Navigation } from '@/components/layout/Navigation';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { useI18n } from '@/contexts/I18nContext';
 
 // Lazy load heavy chart components
 const HRVChart = lazy(() => import('@/components/tracking/HRVChart').then(mod => ({ default: mod.HRVChart })));
@@ -22,6 +23,7 @@ const LoadingFallback = () => (
 );
 
 export default function InsightsPage() {
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<InsightTab>('overview');
   // Track which tabs have been visited so they stay mounted
   const [visitedTabs, setVisitedTabs] = useState<Set<InsightTab>>(new Set(['overview']));
@@ -40,10 +42,10 @@ export default function InsightsPage() {
           <div className="mb-4 sm:mb-6 md:mb-8">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-100 mb-2 transition-colors">
               <i className="fas fa-chart-line text-purple-600 dark:text-purple-400 mr-2 sm:mr-3 transition-colors"></i>
-              Inzichten & Analytics
+              {t('insights.title')}
             </h1>
             <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-300 transition-colors">
-              Je fysiologische vooruitgang en ademhalingspatronen
+              {t('insights.subtitle')}
             </p>
           </div>
 
@@ -59,7 +61,7 @@ export default function InsightsPage() {
                 }`}
               >
                 <i className="fas fa-chart-bar mr-1 sm:mr-2"></i>
-                Overzicht
+                {t('insights.tab_overview')}
               </button>
               <button
                 onClick={() => handleTabChange('measurements')}
@@ -70,7 +72,7 @@ export default function InsightsPage() {
                 }`}
               >
                 <i className="fas fa-heart-pulse mr-1 sm:mr-2"></i>
-                Metingen
+                {t('insights.tab_measurements')}
               </button>
               <button
                 onClick={() => handleTabChange('sessions')}
@@ -81,7 +83,7 @@ export default function InsightsPage() {
                 }`}
               >
                 <i className="fas fa-wind mr-1 sm:mr-2"></i>
-                Sessies
+                {t('insights.tab_sessions')}
               </button>
             </div>
 
@@ -91,10 +93,10 @@ export default function InsightsPage() {
                 <div className={activeTab !== 'overview' ? 'hidden' : ''}>
                   <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-orange-600 dark:text-orange-400 mb-3 sm:mb-4 flex items-center transition-colors">
                     <i className="fas fa-chart-bar mr-2 sm:mr-3"></i>
-                    Symptoom Intensiteit Overzicht
+                    {t('insights.intensity_title')}
                   </h2>
                   <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-3 sm:mb-4 transition-colors">
-                    Hoe evolueert de intensiteit van je symptomen over tijd?
+                    {t('insights.intensity_subtitle')}
                   </p>
                   <ErrorBoundary>
                     <Suspense fallback={<LoadingFallback />}>
@@ -110,7 +112,7 @@ export default function InsightsPage() {
                     <div>
                       <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-purple-600 dark:text-purple-400 mb-3 sm:mb-4 flex items-center transition-colors">
                         <i className="fas fa-heart-pulse mr-2 sm:mr-3"></i>
-                        Heart Rate Variability (HRV)
+                        {t('insights.hrv_title')}
                       </h2>
                       <ErrorBoundary>
                         <Suspense fallback={<LoadingFallback />}>
@@ -121,7 +123,7 @@ export default function InsightsPage() {
                     <div className="border-t-2 border-gray-200 dark:border-slate-600 pt-6 sm:pt-8 transition-colors">
                       <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-green-600 dark:text-green-400 mb-3 sm:mb-4 flex items-center transition-colors">
                         <i className="fas fa-stopwatch mr-2 sm:mr-3"></i>
-                        Control Pause (CP)
+                        {t('insights.cp_title')}
                       </h2>
                       <ErrorBoundary>
                         <Suspense fallback={<LoadingFallback />}>
@@ -137,7 +139,7 @@ export default function InsightsPage() {
                 <div className={activeTab !== 'sessions' ? 'hidden' : ''}>
                   <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-indigo-600 dark:text-indigo-400 mb-3 sm:mb-4 flex items-center transition-colors">
                     <i className="fas fa-wind mr-2 sm:mr-3"></i>
-                    Ademhalingssessies
+                    {t('insights.sessions_title')}
                   </h2>
                   <ErrorBoundary>
                     <Suspense fallback={<LoadingFallback />}>

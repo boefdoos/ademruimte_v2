@@ -1,9 +1,11 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { useI18n } from '@/contexts/I18nContext';
 
 export function Navigation() {
   const pathname = usePathname();
+  const { t } = useI18n();
 
   // Don't show navigation on auth or privacy pages
   if (pathname === '/auth' || pathname === '/' || pathname === '/privacy') {
@@ -11,11 +13,11 @@ export function Navigation() {
   }
 
   const navItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: 'fa-home' },
-    { href: '/exercises', label: 'Oefeningen', icon: 'fa-wind' },
-    { href: '/insights', label: 'Inzichten', icon: 'fa-chart-line' },
-    { href: '/journal', label: 'Tracking', icon: 'fa-clipboard-list' },
-    { href: '/settings', label: 'Profiel', icon: 'fa-user' },
+    { href: '/dashboard', label: t('nav_dashboard'), icon: 'fa-home' },
+    { href: '/exercises', label: t('nav_exercises'), icon: 'fa-wind' },
+    { href: '/insights', label: t('nav_insights'), icon: 'fa-chart-line' },
+    { href: '/journal', label: t('nav_tracking'), icon: 'fa-clipboard-list' },
+    { href: '/settings', label: t('nav_profile'), icon: 'fa-user' },
   ];
 
   return (
