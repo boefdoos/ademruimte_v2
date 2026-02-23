@@ -456,16 +456,15 @@ export function ResonantBreathing() {
                 className="w-full h-2 bg-orange-200 rounded-lg appearance-none cursor-pointer accent-orange-600"
               />
               <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-2 transition-colors">
-                <span>3s (Begin)</span>
-                <span>9s (Gemiddeld)</span>
-                <span>15s (Gevorderd)</span>
+                <span>{t('resonant.hold_begin')}</span>
+                <span>{t('resonant.hold_avg')}</span>
+                <span>{t('resonant.hold_advanced')}</span>
               </div>
               <div className="mt-3 p-3 bg-white dark:bg-slate-700 rounded border border-orange-100 dark:border-orange-800 transition-colors">
                 <div className="flex items-start gap-2">
                   <i className="fas fa-wind text-orange-500 dark:text-orange-400 mt-1 transition-colors"></i>
                   <p className="text-sm text-gray-700 dark:text-gray-300 transition-colors">
-                    <strong>Extended Breath Hold:</strong> In (3s) → Uit (3s) → Pauze na uitademing.
-                    Deze verlengde adempauze verhoogt je CO2-tolerantie en reduceert hyperventilatie volgens de Buteyko methode.
+                    <strong>Extended Breath Hold:</strong> {t('resonant.extended_hold_desc')}
                   </p>
                 </div>
               </div>
@@ -733,7 +732,7 @@ export function ResonantBreathing() {
                   onClick={() => setIntensiteitScore(5)}
                   className="mt-1 text-xs text-blue-500 hover:text-blue-700 dark:text-blue-400 underline"
                 >
-                  Score invullen
+                  {t('resonant.score_enter')}
                 </button>
               )}
             </div>
@@ -757,7 +756,7 @@ export function ResonantBreathing() {
                 className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
               >
                 <i className="fas fa-save mr-2"></i>
-                Opslaan
+                {t('resonant.save')}
               </button>
               <button
                 onClick={skipJournal}

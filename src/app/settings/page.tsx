@@ -246,17 +246,17 @@ export default function SettingsPage() {
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 mb-6 transition-colors">
             <h2 className="text-2xl font-semibold mb-4 flex items-center text-gray-900 dark:text-gray-100">
               <i className="fas fa-sign-out-alt text-orange-600 dark:text-orange-400 mr-3"></i>
-              Sessie
+              {t('settings.session_section')}
             </h2>
             <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
-              Log uit van je huidige sessie
+              {t('settings.session_desc')}
             </p>
             <button
               onClick={handleLogout}
               className="px-6 py-3 bg-orange-600 dark:bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-700 dark:hover:bg-orange-600 transition-colors flex items-center gap-2"
             >
               <i className="fas fa-sign-out-alt"></i>
-              Uitloggen
+              {t('settings.logout_button')}
             </button>
           </div>
 
@@ -317,14 +317,14 @@ export default function SettingsPage() {
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                 <h3 className="font-semibold mb-2 flex items-center text-gray-900 dark:text-gray-100">
                   <i className="fas fa-info-circle text-blue-600 dark:text-blue-400 mr-2"></i>
-                  Je rechten onder de AVG
+                  {t('settings.privacy_rights_title')}
                 </h3>
                 <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
-                  <li>✓ <strong>Inzage</strong> - Je kunt al je data bekijken in de app</li>
-                  <li>✓ <strong>Rectificatie</strong> - Je kunt je data aanpassen in de app</li>
-                  <li>✓ <strong>Verwijdering</strong> - Je kunt je account verwijderen (zie hieronder)</li>
-                  <li>✓ <strong>Overdracht</strong> - Je kunt je data exporteren als JSON</li>
-                  <li>✓ <strong>Bezwaar</strong> - Neem contact op via troostberg@gmail.com</li>
+                  <li>{t('settings.privacy_right_access')}</li>
+                  <li>{t('settings.privacy_right_rectify')}</li>
+                  <li>{t('settings.privacy_right_delete')}</li>
+                  <li>{t('settings.privacy_right_transfer')}</li>
+                  <li>{t('settings.privacy_right_object')}</li>
                 </ul>
               </div>
             </div>
@@ -384,12 +384,12 @@ export default function SettingsPage() {
                       {isDeleting ? (
                         <>
                           <i className="fas fa-spinner fa-spin mr-2"></i>
-                          Verwijderen...
+                          {t('settings.deleting')}
                         </>
                       ) : (
                         <>
                           <i className="fas fa-trash mr-2"></i>
-                          Definitief verwijderen
+                          {t('settings.delete_final')}
                         </>
                       )}
                     </button>

@@ -250,7 +250,7 @@ export function BreathingSessionsChart() {
                 <div>
                   <div className="font-semibold text-gray-800 dark:text-gray-100 transition-colors">{session.pattern}</div>
                   <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">
-                    {session.timestamp.toLocaleDateString(locale, {
+                    {session.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', {
                       weekday: 'short',
                       day: 'numeric',
                       month: 'short',
@@ -269,7 +269,7 @@ export function BreathingSessionsChart() {
                   onClick={() => handleDelete(session.id)}
                   disabled={deletingId === session.id}
                   className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors disabled:opacity-50"
-                  title="Verwijder sessie"
+                  title={t('sessions.delete_tooltip')}
                 >
                   {deletingId === session.id ? (
                     <i className="fas fa-spinner fa-spin"></i>
@@ -291,16 +291,16 @@ export function BreathingSessionsChart() {
         </h4>
         <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300 transition-colors">
           <li>
-            🏆 Je favoriete patroon is <strong>{mostUsedPattern[0]}</strong> ({mostUsedPattern[1]}x gebruikt)
+            {t('sessions.insights_favorite').replace('{pattern}', mostUsedPattern[0]).replace('{count}', String(mostUsedPattern[1]))}
           </li>
           <li>
-            ⏱️ Je hebt in totaal <strong>{totalMinutes} minuten</strong> geoefend
+            {t('sessions.insights_total_time').replace('{n}', String(totalMinutes))}
           </li>
           {totalMinutes >= 50 && (
             <li>🎯 {t('sessions.insights_goal_reached')}</li>
           )}
           {avgDuration >= 10 && (
-            <li>✅ Perfect! Sessies van 10+ minuten zijn ideaal voor HRV training</li>
+            <li>{t('sessions.insights_perfect')}</li>
           )}
           {sessions.length >= 7 && (
             <li>🔥 {t('sessions.insights_consistency')}</li>

@@ -338,7 +338,7 @@ export function HRVChart() {
                   {t('hrv.auto_baseline')}
                 </div>
                 <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 transition-colors">
-                  Wordt wekelijks bijgewerkt op basis van je metingen
+                  {t('hrv.auto_baseline_update')}
                 </div>
               </div>
               <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 transition-colors">{autoBaseline} ms</div>
@@ -356,8 +356,8 @@ export function HRVChart() {
               </div>
               <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 transition-colors">
                 {baselineValue
-                  ? `Je persoonlijke doel is ${baselineValue} ms`
-                  : 'Gebruik dit als je een specifiek HRV doel wilt nastreven'
+                  ? t('hrv.personal_goal_desc').replace('{n}', String(baselineValue))
+                  : t('hrv.goal_hint_desc')
                 }
               </div>
             </div>
@@ -472,7 +472,7 @@ export function HRVChart() {
                             <div className="text-gray-300">HR: {measurement.heartRate} bpm</div>
                           )}
                           <div className="text-gray-300">
-                            {measurement.timestamp.toLocaleDateString(locale, {
+                            {measurement.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', {
                               day: 'numeric',
                               month: 'short',
                               year: 'numeric',
@@ -490,13 +490,13 @@ export function HRVChart() {
             {/* X-axis labels */}
             <div className="absolute left-10 sm:left-12 md:left-14 right-0 bottom-0 flex justify-between text-xs sm:text-sm text-gray-600 dark:text-gray-300 pt-2 transition-colors font-medium">
               <span>
-                {chartData[0]?.timestamp.toLocaleDateString(locale, { day: 'numeric', month: 'short' })}
+                {chartData[0]?.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short' })}
               </span>
               <span className="text-gray-500 dark:text-gray-400 transition-colors hidden sm:inline">
                 {chartData.length} metingen
               </span>
               <span>
-                {chartData[chartData.length - 1]?.timestamp.toLocaleDateString(locale, {
+                {chartData[chartData.length - 1]?.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', {
                   day: 'numeric',
                   month: 'short',
                 })}
@@ -524,32 +524,32 @@ export function HRVChart() {
         <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300 transition-colors">
           <div className="flex items-start gap-2">
             <i className="fas fa-check text-green-600 dark:text-green-400 mt-1 transition-colors"></i>
-            <span>Hogere HRV = beter herstel en minder stress</span>
+            <span>{t('hrv.about_1')}</span>
           </div>
           <div className="flex items-start gap-2">
             <i className="fas fa-check text-green-600 dark:text-green-400 mt-1 transition-colors"></i>
-            <span>Meet 's ochtends direct na het wakker worden</span>
+            <span>{t('hrv.about_2')}</span>
           </div>
           <div className="flex items-start gap-2">
             <i className="fas fa-check text-green-600 dark:text-green-400 mt-1 transition-colors"></i>
-            <span>Resonant breathing (5-5 ademhaling) verhoogt HRV</span>
+            <span>{t('hrv.about_3')}</span>
           </div>
           <div className="flex items-start gap-2">
             <i className="fas fa-check text-green-600 dark:text-green-400 mt-1 transition-colors"></i>
-            <span>Volg trends, niet individuele metingen</span>
+            <span>{t('hrv.about_4')}</span>
           </div>
           {autoBaseline && (
             <div className="flex items-start gap-2 mt-4 pt-4 border-t border-purple-200 dark:border-purple-700 transition-colors">
               <i className="fas fa-robot text-blue-600 dark:text-blue-400 mt-1 transition-colors"></i>
               <span>
-                Je automatische baseline is {autoBaseline}ms (30-dagen mediaan) - wordt wekelijks bijgewerkt
+                {t('hrv.auto_baseline_desc').replace('{n}', String(autoBaseline))}
               </span>
             </div>
           )}
           {baselineValue && (
             <div className="flex items-start gap-2 mt-2">
               <i className="fas fa-target text-green-600 dark:text-green-400 mt-1 transition-colors"></i>
-              <span>Je persoonlijke doel is {baselineValue}ms</span>
+              <span>{t('hrv.personal_goal_desc').replace('{n}', String(baselineValue))}</span>
             </div>
           )}
         </div>

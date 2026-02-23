@@ -311,7 +311,7 @@ export function ControlPauseChart() {
                         <div className="opacity-0 group-hover:opacity-100 absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-slate-900 text-white text-xs rounded py-2 px-3 whitespace-nowrap transition-opacity pointer-events-none z-20">
                           <div className="font-bold">{record.seconds}s</div>
                           <div className="text-gray-300 dark:text-gray-400 transition-colors">
-                            {record.timestamp.toLocaleDateString(locale, {
+                            {record.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', {
                               day: 'numeric',
                               month: 'short',
                               year: 'numeric',
@@ -329,13 +329,13 @@ export function ControlPauseChart() {
             {/* X-axis labels */}
             <div className="absolute left-10 sm:left-12 md:left-14 right-0 bottom-0 flex justify-between text-xs sm:text-sm text-gray-600 dark:text-gray-300 pt-2 transition-colors font-medium">
               <span>
-                {records[0]?.timestamp.toLocaleDateString(locale, { day: 'numeric', month: 'short' })}
+                {records[0]?.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short' })}
               </span>
               <span className="text-gray-500 dark:text-gray-400 transition-colors hidden sm:inline">
                 {records.length} metingen
               </span>
               <span>
-                {records[records.length - 1]?.timestamp.toLocaleDateString(locale, {
+                {records[records.length - 1]?.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', {
                   day: 'numeric',
                   month: 'short',
                 })}
@@ -400,7 +400,7 @@ export function ControlPauseChart() {
 
               {/* Level feedback */}
               {maxCP >= 40 && <li>✅ Uitstekend! Je beste meting ({maxCP}s) duidt op een gezonde ademhaling.</li>}
-              {avgCP >= 30 && avgCP < 40 && <li>👍 Goed bezig! Gemiddelde CP van {avgCP}s is een gezond niveau.</li>}
+              {avgCP >= 30 && avgCP < 40 && <li>{t('cp.insights_good').replace('{n}', String(avgCP))}</li>}
               {avgCP < 20 && <li>💪 Blijf oefenen! Elke seconde verbetering telt — dat zal je merken in je klachten.</li>}
 
               {/* Goal progress */}
@@ -434,7 +434,7 @@ export function ControlPauseChart() {
                 <div>
                   <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 transition-colors">{getLevel(record.seconds)}</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors">
-                    {record.timestamp.toLocaleDateString(locale, {
+                    {record.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', {
                       weekday: 'short',
                       day: 'numeric',
                       month: 'short',
@@ -449,7 +449,7 @@ export function ControlPauseChart() {
                 onClick={() => handleDelete(record.id)}
                 disabled={deletingId === record.id}
                 className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
-                title="Verwijder meting"
+                title={t('cp.delete_tooltip')}
               >
                 {deletingId === record.id ? (
                   <i className="fas fa-spinner fa-spin"></i>

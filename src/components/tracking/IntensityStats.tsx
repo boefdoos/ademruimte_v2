@@ -187,10 +187,10 @@ export function IntensityStats() {
   };
 
   const getIntensityLabel = (intensity: number) => {
-    if (intensity <= 3) return 'Mild';
-    if (intensity <= 5) return 'Gemiddeld';
-    if (intensity <= 7) return 'Matig';
-    return 'Ernstig';
+    if (intensity <= 3) return t('common.level_mild');
+    if (intensity <= 5) return t('common.level_average');
+    if (intensity <= 7) return t('common.level_moderate');
+    return t('common.level_severe');
   };
 
   return (
@@ -297,8 +297,8 @@ export function IntensityStats() {
         {/* Chart with Y-axis and X-axis */}
         {(() => {
           const chartEntries = entriesWithIntensity.slice().reverse().slice(-20);
-          const firstDate = chartEntries[0]?.timestamp.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
-          const lastDate = chartEntries[chartEntries.length - 1]?.timestamp.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
+          const firstDate = chartEntries[0]?.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short' });
+          const lastDate = chartEntries[chartEntries.length - 1]?.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short' });
           return (
             <div className="flex gap-2">
               {/* Y-axis labels */}
@@ -332,7 +332,7 @@ export function IntensityStats() {
                             {/* Tooltip */}
                             <div className="opacity-0 group-hover:opacity-100 absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-slate-900 text-white text-xs rounded py-2 px-3 whitespace-nowrap transition-opacity pointer-events-none z-10">
                               <div className="font-bold">{entry.intensiteit}/10</div>
-                              <div>{entry.timestamp.toLocaleDateString(locale, { day: 'numeric', month: 'short' })}</div>
+                              <div>{entry.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short' })}</div>
                               <div className="text-gray-300 dark:text-gray-400">{entry.techniekGebruikt}</div>
                             </div>
                           </div>

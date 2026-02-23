@@ -108,7 +108,15 @@
     "language_label": "Taal / Language",
     "logout_title": "Uitloggen",
     "logout_button": "Uitloggen",
+    "session_section": "Sessie",
+    "session_desc": "Log uit van je huidige sessie",
     "privacy_title": "Privacy & GDPR",
+    "privacy_rights_title": "Je rechten onder de AVG",
+    "privacy_right_access": "Inzage - Je kunt al je data bekijken in de app",
+    "privacy_right_rectify": "Rectificatie - Je kunt je data aanpassen in de app",
+    "privacy_right_delete": "Verwijdering - Je kunt je account verwijderen (zie hieronder)",
+    "privacy_right_transfer": "Overdracht - Je kunt je data exporteren als JSON",
+    "privacy_right_object": "Bezwaar - Neem contact op via troostberg@gmail.com",
     "export_title": "Exporteer mijn data",
     "export_desc": "Download al je gegevens in JSON formaat. Dit omvat alle metingen, sessies en logboek entries.",
     "export_button": "Exporteer data",
@@ -119,6 +127,7 @@
     "delete_confirm_placeholder": "Typ VERWIJDER om te bevestigen",
     "delete_confirm_word": "VERWIJDER",
     "delete_button": "Account definitief verwijderen",
+    "delete_final": "Definitief verwijderen",
     "deleting": "Verwijderen..."
   },
   "cp": {
@@ -143,9 +152,22 @@
     "set_goal": "Instellen",
     "goal_reached": "✅ Doel bereikt!",
     "confirm_delete": "Weet je zeker dat je deze CP meting wilt verwijderen?",
+    "delete_tooltip": "Verwijder meting",
     "insights_positive": "Positieve trend!",
     "insights_decline": "Lichte daling:",
-    "insights_stable": "Stabiel:"
+    "insights_stable": "Stabiel:",
+    "insights_good": "👍 Goed bezig! Gemiddelde CP van {n}s is een gezond niveau.",
+    "log_title": "Control Pause Loggen",
+    "log_description": "Log hier je Control Pause meting nadat je hem buiten de app gemeten hebt, of ga naar Oefeningen voor de begeleide Buteyko timer.",
+    "enter_title": "Nieuwe CP Meting Invoeren",
+    "placeholder": "bijv. 25",
+    "save_progress": "Opslaan...",
+    "guided_hint": "Wil je de begeleide Buteyko timer gebruiken?",
+    "guided_link": "Ga naar CP Meting",
+    "alert_invalid": "Voer een geldig getal in",
+    "alert_range": "CP waarde moet tussen 1 en 300 seconden zijn",
+    "save_success_msg": "✅ CP meting opgeslagen!",
+    "save_error_msg": "❌ Fout bij opslaan"
   },
   "hrv": {
     "title": "HRV Meting",
@@ -167,15 +189,24 @@
     "empty_desc": "Voeg je eerste HRV meting toe via het Tracking tabblad",
     "empty_button": "Voeg HRV meting toe",
     "confirm_delete": "Weet je zeker dat je deze HRV meting wilt verwijderen?",
+    "delete_tooltip": "Verwijder meting",
     "change_goal": "Wijzig doel",
     "set_goal": "Stel doel in",
     "baseline_title": "Baseline Tracking",
     "auto_baseline": "Automatische Baseline (30-dagen mediaan)",
+    "auto_baseline_update": "Wordt wekelijks bijgewerkt op basis van je metingen",
+    "auto_baseline_desc": "Je automatische baseline is {n}ms (30-dagen mediaan) - wordt wekelijks bijgewerkt",
     "personal_goal": "Persoonlijk Doel",
+    "personal_goal_desc": "Je persoonlijke doel is {n} ms",
     "goal_hint": "Optioneel: Stel persoonlijk doel in",
+    "goal_hint_desc": "Gebruik dit als je een specifiek HRV doel wilt nastreven",
     "goal_label": "Doel:",
     "chart_title": "HRV Tijdlijn (laatste 30 metingen)",
     "about_title": "Over HRV",
+    "about_1": "Hogere HRV = beter herstel en minder stress",
+    "about_2": "Meet 's ochtends direct na het wakker worden",
+    "about_3": "Resonant breathing (5-5 ademhaling) verhoogt HRV",
+    "about_4": "Volg trends, niet individuele metingen",
     "scroll_hint": "Veeg horizontaal om alle metingen te zien"
   },
   "journal_form": {
@@ -200,7 +231,8 @@
     "trigger_add_error": "Fout bij toevoegen trigger",
     "sensation_add_error": "Fout bij toevoegen sensatie",
     "view_all": "Bekijk alle entries",
-    "symptoms_entry": "Symptomen Entry"
+    "symptoms_entry": "Symptomen Entry",
+    "delete_tooltip": "Verwijder entry"
   },
   "sessions": {
     "total": "Totaal Sessies",
@@ -212,9 +244,13 @@
     "empty_desc": "Start met Resonant Breathing om je sessies te volgen",
     "empty_button": "Start Resonant Breathing",
     "confirm_delete": "Weet je zeker dat je deze ademsessie wilt verwijderen?",
+    "delete_tooltip": "Verwijder sessie",
     "recent_title": "Recente Sessies",
     "insights_consistency": "Fantastische consistentie! 7+ sessies is uitstekend",
-    "insights_goal_reached": "Geweldig! Je hebt het doel van 50 minuten per week bereikt"
+    "insights_goal_reached": "Geweldig! Je hebt het doel van 50 minuten per week bereikt",
+    "insights_favorite": "Je favoriete patroon is {pattern} ({count}x gebruikt)",
+    "insights_total_time": "Je hebt in totaal {n} minuten geoefend",
+    "insights_perfect": "✅ Perfect! Sessies van 10+ minuten zijn ideaal voor HRV training"
   },
   "weekly": {
     "avg_cp": "Gem. Control Pause",
@@ -244,6 +280,7 @@
     "remaining": "Resterend",
     "start": "Start Oefening",
     "stop_save": "Stop & Opslaan",
+    "save": "Opslaan",
     "session_complete": "Sessie voltooid! 🎉",
     "mood_before_label": "Hoe voelde je je vóór de sessie? (optioneel)",
     "mood_calm": "Rustig",
@@ -253,7 +290,12 @@
     "breath_time_label": "Ademhalingstijd",
     "science_label": "Wetenschap:",
     "science_text": "Dit synchroniseert je ademhaling met je hartslagvariabiliteit.",
-    "breath_pause_label": "Verlengde Adempauze (na uitademing)"
+    "breath_pause_label": "Verlengde Adempauze (na uitademing)",
+    "hold_begin": "3s (Begin)",
+    "hold_avg": "9s (Gemiddeld)",
+    "hold_advanced": "15s (Gevorderd)",
+    "extended_hold_desc": "In (3s) → Uit (3s) → Pauze na uitademing. Deze verlengde adempauze verhoogt je CO2-tolerantie en reduceert hyperventilatie volgens de Buteyko methode.",
+    "score_enter": "Score invullen"
   },
   "onboarding": {
     "ready_title": "Klaar om te beginnen!",

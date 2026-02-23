@@ -108,7 +108,15 @@
     "language_label": "Language / Taal",
     "logout_title": "Log out",
     "logout_button": "Log out",
+    "session_section": "Session",
+    "session_desc": "Log out of your current session",
     "privacy_title": "Privacy & GDPR",
+    "privacy_rights_title": "Your rights under GDPR",
+    "privacy_right_access": "Access - You can view all your data in the app",
+    "privacy_right_rectify": "Rectification - You can modify your data in the app",
+    "privacy_right_delete": "Deletion - You can delete your account (see below)",
+    "privacy_right_transfer": "Portability - You can export your data as JSON",
+    "privacy_right_object": "Objection - Contact us at troostberg@gmail.com",
     "export_title": "Export my data",
     "export_desc": "Download all your data in JSON format. This includes all measurements, sessions and log entries.",
     "export_button": "Export data",
@@ -119,6 +127,7 @@
     "delete_confirm_placeholder": "Type DELETE to confirm",
     "delete_confirm_word": "DELETE",
     "delete_button": "Permanently delete account",
+    "delete_final": "Permanently delete",
     "deleting": "Deleting..."
   },
   "cp": {
@@ -143,9 +152,22 @@
     "set_goal": "Set",
     "goal_reached": "✅ Goal reached!",
     "confirm_delete": "Are you sure you want to delete this CP measurement?",
+    "delete_tooltip": "Delete measurement",
     "insights_positive": "Positive trend!",
     "insights_decline": "Slight decline:",
-    "insights_stable": "Stable:"
+    "insights_stable": "Stable:",
+    "insights_good": "👍 Good progress! Average CP of {n}s is a healthy level.",
+    "log_title": "Log Control Pause",
+    "log_description": "Log your Control Pause measurement here after measuring it outside the app, or go to Exercises for the guided Buteyko timer.",
+    "enter_title": "Enter New CP Measurement",
+    "placeholder": "e.g. 25",
+    "save_progress": "Saving...",
+    "guided_hint": "Want to use the guided Buteyko timer?",
+    "guided_link": "Go to CP Measurement",
+    "alert_invalid": "Please enter a valid number",
+    "alert_range": "CP value must be between 1 and 300 seconds",
+    "save_success_msg": "✅ CP measurement saved!",
+    "save_error_msg": "❌ Error saving"
   },
   "hrv": {
     "title": "HRV Measurement",
@@ -167,15 +189,24 @@
     "empty_desc": "Add your first HRV measurement via the Tracking tab",
     "empty_button": "Add HRV measurement",
     "confirm_delete": "Are you sure you want to delete this HRV measurement?",
+    "delete_tooltip": "Delete measurement",
     "change_goal": "Change goal",
     "set_goal": "Set goal",
     "baseline_title": "Baseline Tracking",
     "auto_baseline": "Automatic Baseline (30-day median)",
+    "auto_baseline_update": "Updated weekly based on your measurements",
+    "auto_baseline_desc": "Your automatic baseline is {n}ms (30-day median) - updated weekly",
     "personal_goal": "Personal Goal",
+    "personal_goal_desc": "Your personal goal is {n} ms",
     "goal_hint": "Optional: Set personal goal",
+    "goal_hint_desc": "Use this if you want to track a specific HRV goal",
     "goal_label": "Goal:",
     "chart_title": "HRV Timeline (last 30 measurements)",
     "about_title": "About HRV",
+    "about_1": "Higher HRV = better recovery and less stress",
+    "about_2": "Measure in the morning right after waking up",
+    "about_3": "Resonant breathing (5-5 breathing) increases HRV",
+    "about_4": "Track trends, not individual measurements",
     "scroll_hint": "Swipe horizontally to see all measurements"
   },
   "journal_form": {
@@ -200,7 +231,8 @@
     "trigger_add_error": "Error adding trigger",
     "sensation_add_error": "Error adding sensation",
     "view_all": "View all entries",
-    "symptoms_entry": "Symptoms Entry"
+    "symptoms_entry": "Symptoms Entry",
+    "delete_tooltip": "Delete entry"
   },
   "sessions": {
     "total": "Total Sessions",
@@ -212,9 +244,13 @@
     "empty_desc": "Start Resonant Breathing to track your sessions",
     "empty_button": "Start Resonant Breathing",
     "confirm_delete": "Are you sure you want to delete this breathing session?",
+    "delete_tooltip": "Delete session",
     "recent_title": "Recent Sessions",
     "insights_consistency": "Fantastic consistency! 7+ sessions is excellent",
-    "insights_goal_reached": "Great! You've reached the 50-minute per week goal"
+    "insights_goal_reached": "Great! You've reached the 50-minute per week goal",
+    "insights_favorite": "Your favorite pattern is {pattern} ({count}x used)",
+    "insights_total_time": "You have practiced {n} minutes in total",
+    "insights_perfect": "✅ Perfect! Sessions of 10+ minutes are ideal for HRV training"
   },
   "weekly": {
     "avg_cp": "Avg. Control Pause",
@@ -244,6 +280,7 @@
     "remaining": "Remaining",
     "start": "Start Exercise",
     "stop_save": "Stop & Save",
+    "save": "Save",
     "session_complete": "Session complete! 🎉",
     "mood_before_label": "How did you feel before the session? (optional)",
     "mood_calm": "Calm",
@@ -253,7 +290,12 @@
     "breath_time_label": "Breathing time",
     "science_label": "Science:",
     "science_text": "This synchronizes your breathing with your heart rate variability.",
-    "breath_pause_label": "Extended Breath Pause (after exhale)"
+    "breath_pause_label": "Extended Breath Pause (after exhale)",
+    "hold_begin": "3s (Beginner)",
+    "hold_avg": "9s (Average)",
+    "hold_advanced": "15s (Advanced)",
+    "extended_hold_desc": "In (3s) → Out (3s) → Pause after exhale. This extended breath pause increases your CO2 tolerance and reduces hyperventilation according to the Buteyko method.",
+    "score_enter": "Enter score"
   },
   "onboarding": {
     "ready_title": "Ready to begin!",
