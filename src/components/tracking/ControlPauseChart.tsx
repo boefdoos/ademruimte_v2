@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
 import { db } from '@/lib/firebase/config';
 import { collection, query, where, orderBy, limit, getDocs, deleteDoc, doc } from 'firebase/firestore';
 
@@ -13,6 +14,7 @@ interface CPRecord {
 
 export function ControlPauseChart() {
   const { currentUser } = useAuth();
+  const { t, locale } = useI18n();
   const [records, setRecords] = useState<CPRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'all'>('week');
@@ -88,7 +90,7 @@ export function ControlPauseChart() {
   }, [currentUser, timeRange]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Weet je zeker dat je deze CP meting wilt verwijderen?')) return;
+    if (!confirm(t('cp.confirm_delete'))) return;
 
     setDeletingId(id);
     try {
@@ -96,7 +98,7 @@ export function ControlPauseChart() {
       setRecords(records.filter(r => r.id !== id));
     } catch (error) {
       console.error('Error deleting CP measurement:', error);
-      alert('Er ging iets mis bij het verwijderen.');
+      alert(t('common.error_deleting'));
     } finally {
       setDeletingId(null);
     }
@@ -115,17 +117,17 @@ export function ControlPauseChart() {
       <div className="text-center py-12">
         <div className="text-6xl mb-4">📊</div>
         <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2 transition-colors">
-          Nog geen Control Pause metingen
+          {t('cp.empty_title')}
         </h3>
         <p className="text-gray-600 dark:text-gray-400 mb-6 transition-colors">
-          Start met meten om je vooruitgang te volgen
+          {t('cp.empty_desc')}
         </p>
         <a
           href="/exercises"
           className="inline-block px-6 py-3 bg-blue-600 dark:bg-blue-700 text-white rounded-lg font-semibold hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
         >
           <i className="fas fa-stopwatch mr-2"></i>
-          Start Control Pause
+          {t('cp.start')}
         </a>
       </div>
     );
@@ -136,11 +138,11 @@ export function ControlPauseChart() {
   const avgCP = Math.round(records.reduce((sum, r) => sum + r.seconds, 0) / records.length);
 
   const getLevel = (seconds: number) => {
-    if (seconds < 10) return 'Zeer laag';
-    if (seconds < 20) return 'Laag';
-    if (seconds < 30) return 'Gemiddeld';
-    if (seconds < 40) return 'Goed';
-    return 'Uitstekend';
+    if (seconds < 10) return t('common.level_very_low');
+    if (seconds < 20) return t('common.level_low');
+    if (seconds < 30) return t('common.level_average');
+    if (seconds < 40) return t('common.level_good');
+    return t('common.level_excellent');
   };
 
   return (
@@ -155,7 +157,7 @@ export function ControlPauseChart() {
               : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
           }`}
         >
-          Week
+          {t('common.week')}
         </button>
         <button
           onClick={() => setTimeRange('month')}
@@ -165,7 +167,7 @@ export function ControlPauseChart() {
               : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
           }`}
         >
-          Maand
+          {t('common.month')}
         </button>
         <button
           onClick={() => setTimeRange('all')}
@@ -175,24 +177,24 @@ export function ControlPauseChart() {
               : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
           }`}
         >
-          Alles
+          {t('common.all')}
         </button>
       </div>
 
       {/* Stats Summary */}
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-xl text-center transition-colors">
-          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">Hoogste</div>
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">{t('intensity.highest')}</div>
           <div className="text-3xl font-bold text-green-700 dark:text-green-400 transition-colors">{maxCP}s</div>
           <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 transition-colors">{getLevel(maxCP)}</div>
         </div>
         <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-xl text-center transition-colors">
-          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">Gemiddeld</div>
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">{t('common.level_average')}</div>
           <div className="text-3xl font-bold text-blue-700 dark:text-blue-400 transition-colors">{avgCP}s</div>
           <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 transition-colors">{getLevel(avgCP)}</div>
         </div>
         <div className="bg-orange-50 dark:bg-orange-900/30 p-4 rounded-xl text-center transition-colors">
-          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">Laagste</div>
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">{t('intensity.lowest')}</div>
           <div className="text-3xl font-bold text-orange-700 dark:text-orange-400 transition-colors">{minCP}s</div>
           <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 transition-colors">{getLevel(minCP)}</div>
         </div>
@@ -203,10 +205,10 @@ export function ControlPauseChart() {
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-2">
             <i className="fas fa-bullseye text-blue-600 dark:text-blue-400"></i>
-            <span className="font-semibold text-sm text-gray-800 dark:text-gray-100">Persoonlijk doel:</span>
+            <span className="font-semibold text-sm text-gray-800 dark:text-gray-100">{t('cp.personal_goal')}</span>
             {cpGoal
               ? <span className="text-blue-700 dark:text-blue-300 font-bold">{cpGoal}s</span>
-              : <span className="text-gray-500 dark:text-gray-400 text-sm italic">nog niet ingesteld</span>
+              : <span className="text-gray-500 dark:text-gray-400 text-sm italic">{t('cp.not_set')}</span>
             }
           </div>
           {editingGoal ? (
@@ -221,15 +223,15 @@ export function ControlPauseChart() {
                 className="w-24 px-3 py-1.5 border-2 border-blue-400 rounded-lg text-sm font-semibold text-center dark:bg-slate-700 dark:text-gray-100 dark:border-blue-500"
               />
               <button onClick={saveGoal} className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">
-                Opslaan
+                {t('save')}
               </button>
               <button onClick={() => setEditingGoal(false)} className="px-3 py-1.5 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-gray-200 rounded-lg text-sm font-semibold hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors">
-                Annuleer
+                {t('cancel')}
               </button>
             </div>
           ) : (
             <button onClick={() => setEditingGoal(true)} className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-semibold">
-              {cpGoal ? 'Wijzigen' : 'Instellen'}
+              {cpGoal ? t('cp.change') : t('cp.set_goal')}
             </button>
           )}
         </div>
@@ -247,7 +249,7 @@ export function ControlPauseChart() {
       <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg dark:shadow-2xl transition-colors">
         <h3 className="text-xl font-bold mb-6 flex items-center text-gray-900 dark:text-gray-100 transition-colors">
           <i className="fas fa-chart-bar text-green-600 dark:text-green-500 mr-2 transition-colors"></i>
-          Control Pause Tijdlijn
+          {t('cp.chart_title')}
         </h3>
 
         {/* Chart Container with horizontal scroll on mobile */}
@@ -309,7 +311,7 @@ export function ControlPauseChart() {
                         <div className="opacity-0 group-hover:opacity-100 absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-slate-900 text-white text-xs rounded py-2 px-3 whitespace-nowrap transition-opacity pointer-events-none z-20">
                           <div className="font-bold">{record.seconds}s</div>
                           <div className="text-gray-300 dark:text-gray-400 transition-colors">
-                            {record.timestamp.toLocaleDateString('nl-NL', {
+                            {record.timestamp.toLocaleDateString(locale, {
                               day: 'numeric',
                               month: 'short',
                               year: 'numeric',
@@ -327,13 +329,13 @@ export function ControlPauseChart() {
             {/* X-axis labels */}
             <div className="absolute left-10 sm:left-12 md:left-14 right-0 bottom-0 flex justify-between text-xs sm:text-sm text-gray-600 dark:text-gray-300 pt-2 transition-colors font-medium">
               <span>
-                {records[0]?.timestamp.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}
+                {records[0]?.timestamp.toLocaleDateString(locale, { day: 'numeric', month: 'short' })}
               </span>
               <span className="text-gray-500 dark:text-gray-400 transition-colors hidden sm:inline">
                 {records.length} metingen
               </span>
               <span>
-                {records[records.length - 1]?.timestamp.toLocaleDateString('nl-NL', {
+                {records[records.length - 1]?.timestamp.toLocaleDateString(locale, {
                   day: 'numeric',
                   month: 'short',
                 })}
@@ -346,7 +348,7 @@ export function ControlPauseChart() {
         {records.length > 20 && (
           <div className="text-center text-xs text-gray-500 dark:text-gray-400 mt-2 md:hidden transition-colors">
             <i className="fas fa-hand-pointer mr-1"></i>
-            Veeg horizontaal om alle metingen te zien
+            {t('hrv.scroll_hint')}
           </div>
         )}
       </div>
@@ -379,7 +381,7 @@ export function ControlPauseChart() {
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-xl p-6 transition-colors">
             <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-3 transition-colors">
               <i className="fas fa-lightbulb mr-2 text-yellow-500 dark:text-yellow-400 transition-colors"></i>
-              Inzichten
+              {t('common.insights_title')}
             </h4>
             <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300 transition-colors">
               <li>📈 {records.length} meting{records.length !== 1 ? 'en' : ''} in deze periode</li>
@@ -387,9 +389,9 @@ export function ControlPauseChart() {
               {/* Trend vs baseline — only show when enough data */}
               {records.length >= 4 && (
                 <li>
-                  {trendUp && `⬆️ Positieve trend! Recente gem. ${recentAvg}s vs basislijn ${baseline}s (+${diff}s)`}
-                  {trendDown && `⬇️ Lichte daling: recente gem. ${recentAvg}s vs basislijn ${baseline}s (${diff}s). Normaal bij stress of slaaptekort.`}
-                  {trendStable && `➡️ Stabiel: recente gem. ${recentAvg}s — vergelijkbaar met je basislijn van ${baseline}s.`}
+                  {trendUp && `⬆️ ${t('cp.insights_positive')} Recente gem. ${recentAvg}s vs basislijn ${baseline}s (+${diff}s)`}
+                  {trendDown && `⬇️ ${t('cp.insights_decline')} recente gem. ${recentAvg}s vs basislijn ${baseline}s (${diff}s). Normaal bij stress of slaaptekort.`}
+                  {trendStable && `➡️ ${t('cp.insights_stable')} recente gem. ${recentAvg}s — vergelijkbaar met je basislijn van ${baseline}s.`}
                 </li>
               )}
               {records.length < 4 && records.length >= 2 && (
@@ -415,7 +417,7 @@ export function ControlPauseChart() {
         <div className="flex items-center justify-between mb-4">
           <h4 className="font-bold text-gray-800 dark:text-gray-100 flex items-center transition-colors">
             <i className="fas fa-list mr-2 text-blue-600 dark:text-blue-400 transition-colors"></i>
-            Recente metingen
+            {t('cp.recent_measurements')}
           </h4>
           <span className="text-sm text-gray-500 dark:text-gray-400">
             Laatste {Math.min(records.length, 15)} van {records.length}
@@ -432,7 +434,7 @@ export function ControlPauseChart() {
                 <div>
                   <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 transition-colors">{getLevel(record.seconds)}</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors">
-                    {record.timestamp.toLocaleDateString('nl-NL', {
+                    {record.timestamp.toLocaleDateString(locale, {
                       weekday: 'short',
                       day: 'numeric',
                       month: 'short',

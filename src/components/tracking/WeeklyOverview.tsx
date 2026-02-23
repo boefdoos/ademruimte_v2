@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
 import { db } from '@/lib/firebase/config';
 import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 
@@ -15,6 +16,7 @@ interface DayData {
 
 export function WeeklyOverview() {
   const { currentUser } = useAuth();
+  const { t, locale } = useI18n();
   const [weekData, setWeekData] = useState<DayData[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -138,7 +140,7 @@ export function WeeklyOverview() {
 
   const getDayName = (dateString: string) => {
     const date = new Date(dateString + 'T12:00:00');
-    return date.toLocaleDateString('nl-NL', { weekday: 'short' });
+    return date.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { weekday: 'short' });
   };
 
   const getActivityColor = (day: DayData) => {
@@ -154,21 +156,21 @@ export function WeeklyOverview() {
       {/* Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl">
-          <div className="text-sm font-semibold text-gray-600 mb-1">Gem. Control Pause</div>
+          <div className="text-sm font-semibold text-gray-600 mb-1">{t('weekly.avg_cp')}</div>
           <div className="text-3xl font-bold text-green-700">{stats.avgCP}s</div>
         </div>
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl">
-          <div className="text-sm font-semibold text-gray-600 mb-1">Ademsessies</div>
+          <div className="text-sm font-semibold text-gray-600 mb-1">{t('weekly.breathing_sessions')}</div>
           <div className="text-3xl font-bold text-blue-700">{stats.totalSessions}</div>
         </div>
         <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl">
-          <div className="text-sm font-semibold text-gray-600 mb-1">Gem. HRV</div>
+          <div className="text-sm font-semibold text-gray-600 mb-1">{t('weekly.avg_hrv')}</div>
           <div className="text-3xl font-bold text-purple-700">
             {stats.avgHRV > 0 ? stats.avgHRV : '—'}
           </div>
         </div>
         <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl">
-          <div className="text-sm font-semibold text-gray-600 mb-1">Dagen Actief</div>
+          <div className="text-sm font-semibold text-gray-600 mb-1">{t('weekly.days_active')}</div>
           <div className="text-3xl font-bold text-orange-700">
             {weekData.filter(d => d.cp || d.breathingSessions > 0).length}/7
           </div>
@@ -178,7 +180,7 @@ export function WeeklyOverview() {
       {/* Weekly Activity Grid */}
       <div className="bg-white rounded-xl p-6">
         <h3 className="font-bold text-lg mb-4 text-gray-800">
-          Deze Week / This Week
+          {t('weekly.this_week')}
         </h3>
         <div className="grid grid-cols-7 gap-2">
           {weekData.map((day, index) => (
@@ -210,15 +212,15 @@ export function WeeklyOverview() {
         <div className="mt-4 flex items-center gap-4 text-sm text-gray-600">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-green-500 rounded"></div>
-            <span>Volledig</span>
+            <span>{t('weekly.full')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-yellow-500 rounded"></div>
-            <span>Gedeeltelijk</span>
+            <span>{t('weekly.partial')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-gray-100 rounded border border-gray-300"></div>
-            <span>Geen activiteit</span>
+            <span>{t('weekly.no_activity')}</span>
           </div>
         </div>
       </div>
@@ -226,23 +228,23 @@ export function WeeklyOverview() {
       {/* Day-by-Day Breakdown */}
       <div className="bg-white rounded-xl p-6">
         <h3 className="font-bold text-lg mb-4 text-gray-800">
-          Details per Dag / Daily Details
+          {t('weekly.daily_details')}
         </h3>
         <div className="space-y-3">
           {weekData.slice().reverse().map((day, index) => (
             <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
               <div>
                 <div className="font-semibold text-gray-800">
-                  {new Date(day.date + 'T12:00:00').toLocaleDateString('nl-NL', {
+                  {new Date(day.date + 'T12:00:00').toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', {
                     weekday: 'long',
                     day: 'numeric',
                     month: 'short',
                   })}
                 </div>
                 <div className="text-sm text-gray-600">
-                  {day.cp ? `CP: ${day.cp}s` : 'Geen CP'}
+                  {day.cp ? `CP: ${day.cp}s` : t('weekly.no_cp')}
                   {day.breathingSessions > 0 && (
-                    <> • {day.breathingSessions} {day.breathingSessions === 1 ? 'sessie' : 'sessies'}</>
+                    <> • {day.breathingSessions} {day.breathingSessions === 1 ? t('weekly.session') : t('weekly.sessions')}</>
                   )}
                 </div>
               </div>

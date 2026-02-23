@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
 import { db } from '@/lib/firebase/config';
 import { collection, query, where, orderBy, limit, getDocs, deleteDoc, doc, setDoc } from 'firebase/firestore';
 
@@ -14,6 +15,7 @@ interface HRVMeasurement {
 
 export function HRVChart() {
   const { currentUser } = useAuth();
+  const { t, locale } = useI18n();
   const [measurements, setMeasurements] = useState<HRVMeasurement[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -165,7 +167,7 @@ export function HRVChart() {
 
     const value = Number(tempBaseline);
     if (isNaN(value) || value < 10 || value > 200) {
-      alert('Baseline moet tussen 10 en 200 ms zijn');
+      alert(t('hrv.value_range'));
       return;
     }
 
@@ -180,12 +182,12 @@ export function HRVChart() {
       setTempBaseline('');
     } catch (error) {
       console.error('Error saving baseline:', error);
-      alert('Fout bij opslaan baseline');
+      alert(t('common.error_deleting'));
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Weet je zeker dat je deze HRV meting wilt verwijderen?')) return;
+    if (!confirm(t('hrv.confirm_delete'))) return;
 
     setDeletingId(id);
     try {
@@ -193,19 +195,19 @@ export function HRVChart() {
       setMeasurements(measurements.filter(m => m.id !== id));
     } catch (error) {
       console.error('Error deleting HRV measurement:', error);
-      alert('Er ging iets mis bij het verwijderen.');
+      alert(t('common.error_deleting'));
     } finally {
       setDeletingId(null);
     }
   };
 
   const getLevel = (value: number) => {
-    if (!value || isNaN(value) || value <= 0) return { label: 'Ongeldig', color: 'red' };
-    if (value < 20) return { label: 'Zeer laag', color: 'red' };
-    if (value < 50) return { label: 'Laag', color: 'orange' };
-    if (value < 75) return { label: 'Gemiddeld', color: 'yellow' };
-    if (value < 100) return { label: 'Goed', color: 'green' };
-    return { label: 'Uitstekend', color: 'emerald' };
+    if (!value || isNaN(value) || value <= 0) return { label: t('common.level_invalid'), color: 'red' };
+    if (value < 20) return { label: t('common.level_very_low'), color: 'red' };
+    if (value < 50) return { label: t('common.level_low'), color: 'orange' };
+    if (value < 75) return { label: t('common.level_average'), color: 'yellow' };
+    if (value < 100) return { label: t('common.level_good'), color: 'green' };
+    return { label: t('common.level_excellent'), color: 'emerald' };
   };
 
   const colorClasses = {
@@ -229,17 +231,17 @@ export function HRVChart() {
       <div className="text-center py-12">
         <div className="text-6xl mb-4">💓</div>
         <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2 transition-colors">
-          Nog geen HRV metingen
+          {t('hrv.empty_title')}
         </h3>
         <p className="text-gray-600 dark:text-gray-400 mb-6 transition-colors">
-          Voeg je eerste HRV meting toe via het Oefeningen tabblad
+          {t('hrv.empty_desc')}
         </p>
         <a
           href="/exercises"
           className="inline-block px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors"
         >
           <i className="fas fa-plus mr-2"></i>
-          Voeg HRV meting toe
+          {t('hrv.empty_button')}
         </a>
       </div>
     );
@@ -291,12 +293,12 @@ export function HRVChart() {
       {/* Summary Stats - Responsive Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-900/20 rounded-xl p-3 sm:p-4 transition-colors">
-          <div className="text-xs sm:text-sm text-purple-600 dark:text-purple-400 font-semibold mb-1 transition-colors">Laatste</div>
+          <div className="text-xs sm:text-sm text-purple-600 dark:text-purple-400 font-semibold mb-1 transition-colors">{t('hrv.last_measurement')}</div>
           <div className="text-2xl sm:text-3xl font-bold text-purple-900 dark:text-purple-200 transition-colors">{latestHRV}</div>
           <div className="text-xs text-purple-600 dark:text-purple-400 mt-1 transition-colors">ms</div>
         </div>
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-900/20 rounded-xl p-3 sm:p-4 transition-colors">
-          <div className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 font-semibold mb-1 transition-colors">Gemiddeld</div>
+          <div className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 font-semibold mb-1 transition-colors">{t('common.level_average')}</div>
           <div className="text-2xl sm:text-3xl font-bold text-blue-900 dark:text-blue-200 transition-colors">{avgHRV}</div>
           <div className="text-xs text-blue-600 dark:text-blue-400 mt-1 transition-colors">ms</div>
         </div>
@@ -310,7 +312,7 @@ export function HRVChart() {
           <div className="text-xs text-green-600 dark:text-green-400 mt-1 transition-colors">{autoBaseline ? '30d' : 'ms'}</div>
         </div>
         <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-700/50 dark:to-slate-700/30 rounded-xl p-3 sm:p-4 transition-colors">
-          <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 font-semibold mb-1 transition-colors">Trend</div>
+          <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 font-semibold mb-1 transition-colors">{t('intensity.trend')}</div>
           <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-1 transition-colors">
             {trend === 'up' && <><i className="fas fa-arrow-up text-green-600 dark:text-green-400 text-sm transition-colors"></i> <span className="text-base sm:text-lg">↑</span></>}
             {trend === 'down' && <><i className="fas fa-arrow-down text-red-600 dark:text-red-400 text-sm transition-colors"></i> <span className="text-base sm:text-lg">↓</span></>}
@@ -323,7 +325,7 @@ export function HRVChart() {
       <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4 border border-green-200 dark:border-green-700 transition-colors">
         <h4 className="font-semibold text-gray-800 dark:text-gray-100 flex items-center mb-3 transition-colors">
           <i className="fas fa-chart-line mr-2 text-green-600 dark:text-green-400 transition-colors"></i>
-          Baseline Tracking
+          {t('hrv.baseline_title')}
         </h4>
 
         {/* Auto Baseline */}
@@ -333,7 +335,7 @@ export function HRVChart() {
               <div>
                 <div className="text-sm font-semibold text-gray-700 dark:text-gray-200 transition-colors">
                   <i className="fas fa-robot mr-1 text-blue-600 dark:text-blue-400 transition-colors"></i>
-                  Automatische Baseline (30-dagen mediaan)
+                  {t('hrv.auto_baseline')}
                 </div>
                 <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 transition-colors">
                   Wordt wekelijks bijgewerkt op basis van je metingen
@@ -350,7 +352,7 @@ export function HRVChart() {
             <div className="flex-1">
               <div className="text-sm font-semibold text-gray-700 dark:text-gray-200 transition-colors">
                 <i className="fas fa-target mr-1 text-green-600 dark:text-green-400 transition-colors"></i>
-                {baselineValue ? 'Persoonlijk Doel' : 'Optioneel: Stel persoonlijk doel in'}
+                {baselineValue ? t('hrv.personal_goal') : t('hrv.goal_hint')}
               </div>
               <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 transition-colors">
                 {baselineValue
@@ -369,7 +371,7 @@ export function HRVChart() {
               onClick={() => setShowBaselineInput(true)}
               className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 text-sm transition-colors"
             >
-              {baselineValue ? 'Wijzig doel' : 'Stel doel in'}
+              {baselineValue ? t('hrv.change_goal') : t('hrv.set_goal')}
             </button>
           ) : (
             <div className="flex gap-2">
@@ -404,7 +406,7 @@ export function HRVChart() {
       <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-lg transition-colors">
         <h3 className="text-xl font-bold mb-6 flex items-center text-gray-900 dark:text-gray-100 transition-colors">
           <i className="fas fa-chart-bar text-purple-600 dark:text-purple-400 mr-2 transition-colors"></i>
-          HRV Tijdlijn (laatste 30 metingen)
+          {t('hrv.chart_title')}
         </h3>
 
         {/* Chart Container with horizontal scroll on mobile */}
@@ -470,7 +472,7 @@ export function HRVChart() {
                             <div className="text-gray-300">HR: {measurement.heartRate} bpm</div>
                           )}
                           <div className="text-gray-300">
-                            {measurement.timestamp.toLocaleDateString('nl-NL', {
+                            {measurement.timestamp.toLocaleDateString(locale, {
                               day: 'numeric',
                               month: 'short',
                               year: 'numeric',
@@ -488,13 +490,13 @@ export function HRVChart() {
             {/* X-axis labels */}
             <div className="absolute left-10 sm:left-12 md:left-14 right-0 bottom-0 flex justify-between text-xs sm:text-sm text-gray-600 dark:text-gray-300 pt-2 transition-colors font-medium">
               <span>
-                {chartData[0]?.timestamp.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}
+                {chartData[0]?.timestamp.toLocaleDateString(locale, { day: 'numeric', month: 'short' })}
               </span>
               <span className="text-gray-500 dark:text-gray-400 transition-colors hidden sm:inline">
                 {chartData.length} metingen
               </span>
               <span>
-                {chartData[chartData.length - 1]?.timestamp.toLocaleDateString('nl-NL', {
+                {chartData[chartData.length - 1]?.timestamp.toLocaleDateString(locale, {
                   day: 'numeric',
                   month: 'short',
                 })}
@@ -507,7 +509,7 @@ export function HRVChart() {
         {chartData.length > 20 && (
           <div className="text-center text-xs text-gray-500 dark:text-gray-400 mt-2 md:hidden transition-colors">
             <i className="fas fa-hand-pointer mr-1"></i>
-            Veeg horizontaal om alle metingen te zien
+            {t('hrv.scroll_hint')}
           </div>
         )}
       </div>
@@ -517,7 +519,7 @@ export function HRVChart() {
       <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-6 transition-colors">
         <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-3 flex items-center transition-colors">
           <i className="fas fa-info-circle mr-2 text-purple-600 dark:text-purple-400 transition-colors"></i>
-          Over HRV
+          {t('hrv.about_title')}
         </h4>
         <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300 transition-colors">
           <div className="flex items-start gap-2">

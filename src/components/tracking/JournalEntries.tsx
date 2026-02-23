@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
 import { db } from '@/lib/firebase/config';
 import { collection, query, where, orderBy, getDocs, addDoc, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 
@@ -74,6 +75,7 @@ interface JournalEntriesProps {
 
 export function JournalEntries({ limit }: JournalEntriesProps = {}) {
   const { currentUser } = useAuth();
+  const { t, locale } = useI18n();
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -158,7 +160,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
 
     // Check if it already exists
     if (COMMON_TRIGGERS.includes(trimmedTrigger) || customTriggers.includes(trimmedTrigger)) {
-      alert('Deze trigger bestaat al');
+      alert(t('journal_form.trigger_exists'));
       return;
     }
 
@@ -176,7 +178,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
       setShowAddTrigger(false);
     } catch (error) {
       console.error('Error adding custom trigger:', error);
-      alert('Fout bij toevoegen trigger');
+      alert(t('journal_form.trigger_add_error'));
     }
   };
 
@@ -187,7 +189,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
 
     // Check if it already exists
     if (COMMON_SENSATIONS.includes(trimmedSensation) || customSensations.includes(trimmedSensation)) {
-      alert('Deze sensatie bestaat al');
+      alert(t('journal_form.sensation_exists'));
       return;
     }
 
@@ -205,7 +207,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
       setShowAddSensation(false);
     } catch (error) {
       console.error('Error adding custom sensation:', error);
-      alert('Fout bij toevoegen sensatie');
+      alert(t('journal_form.sensation_add_error'));
     }
   };
 
@@ -248,7 +250,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
       await loadEntries();
     } catch (error) {
       console.error('Error saving journal entry:', error);
-      alert('Fout bij opslaan');
+      alert(t('journal_form.save_error'));
     }
   };
 
@@ -269,7 +271,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Weet je zeker dat je dit wilt verwijderen?')) return;
+    if (!confirm(t('journal_form.confirm_delete'))) return;
 
     setDeletingId(id);
     try {
@@ -277,7 +279,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
       setEntries(entries.filter(e => e.id !== id));
     } catch (error) {
       console.error('Error deleting journal entry:', error);
-      alert('Er ging iets mis bij het verwijderen.');
+      alert(t('journal_form.delete_error'));
     } finally {
       setDeletingId(null);
     }
@@ -328,19 +330,19 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
           className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors dark:bg-blue-700 dark:hover:bg-blue-600"
         >
           <i className={`fas fa-${showForm ? 'times' : 'plus'} mr-2`}></i>
-          {showForm ? 'Annuleren' : 'Nieuwe Entry'}
+          {showForm ? t('journal_form.new_entry_cancel') : t('journal_form.new_entry_button')}
         </button>
       </div>
 
       {/* Add Entry Form */}
       {showForm && (
         <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-md dark:shadow-lg dark:shadow-black/30 transition-colors">
-          <h4 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-100">Nieuwe Symptomen Entry</h4>
+          <h4 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-100">{t('journal_form.form_title')}</h4>
 
           {/* Triggers */}
           <div className="mb-4">
             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 transition-colors">
-              Triggers (wat veroorzaakte ademhalingsproblemen?)
+              {t('journal_form.triggers_label')}
             </label>
             <div className="flex flex-wrap gap-2">
               {COMMON_TRIGGERS.map(trigger => (
@@ -375,7 +377,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                   className="px-3 py-1 rounded-full text-sm font-medium bg-white text-blue-600 border-2 border-dashed border-blue-300 hover:border-blue-500 hover:bg-blue-50 transition-colors dark:bg-slate-700 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-slate-600 dark:hover:border-blue-700"
                 >
                   <i className="fas fa-plus mr-1"></i>
-                  Eigen trigger
+                  {t('journal_form.custom_trigger')}
                 </button>
               ) : (
                 <div className="flex gap-2 items-center">
@@ -411,7 +413,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
           {/* Intensity Slider with Gradient */}
           <div className="mb-4">
             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 transition-colors">
-              Intensiteit
+              {t('journal_form.intensity_label')}
             </label>
 
             {/* Visual intensity indicator */}
@@ -516,11 +518,11 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
             <div className="flex justify-between text-xs font-medium mt-2 transition-colors">
               <span className="text-green-600 dark:text-green-400 flex items-center gap-1 transition-colors">
                 <i className="fas fa-smile"></i>
-                Mild
+                {t('common.intensity_mild')}
               </span>
-              <span className="text-gray-400 dark:text-gray-500 transition-colors">Matig</span>
+              <span className="text-gray-400 dark:text-gray-500 transition-colors">{t('common.intensity_moderate')}</span>
               <span className="text-red-600 dark:text-red-400 flex items-center gap-1 transition-colors">
-                Ernstig
+                {t('common.intensity_severe')}
                 <i className="fas fa-frown"></i>
               </span>
             </div>
@@ -529,7 +531,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
           {/* Sensations */}
           <div className="mb-4">
             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 transition-colors">
-              Sensaties
+              {t('journal_form.sensations_label')}
             </label>
             <div className="flex flex-wrap gap-2">
               {COMMON_SENSATIONS.map(sensation => (
@@ -564,7 +566,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                   className="px-3 py-1 rounded-full text-sm font-medium bg-white text-purple-600 border-2 border-dashed border-purple-300 hover:border-purple-500 hover:bg-purple-50 transition-colors dark:bg-slate-700 dark:text-purple-400 dark:border-purple-800 dark:hover:bg-slate-600 dark:hover:border-purple-700"
                 >
                   <i className="fas fa-plus mr-1"></i>
-                  Eigen sensatie
+                  {t('journal_form.custom_sensation')}
                 </button>
               ) : (
                 <div className="flex gap-2 items-center">
@@ -600,7 +602,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
           {/* CP Score (optional) */}
           <div className="mb-4">
             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 transition-colors">
-              Control Pause Score (optioneel)
+              {t('journal_form.cp_score_label')}
             </label>
             <input
               type="number"
@@ -614,7 +616,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
           {/* Notes */}
           <div className="mb-6">
             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 transition-colors">
-              Notities
+              {t('journal_form.notes_label')}
             </label>
             <textarea
               value={notes}
@@ -631,7 +633,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
             className="w-full px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors dark:bg-green-700 dark:hover:bg-green-600"
           >
             <i className="fas fa-save mr-2"></i>
-            Opslaan
+            {t('journal_form.save')}
           </button>
         </div>
       )}
@@ -647,7 +649,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-700 dark:text-gray-300 dark:hover:bg-slate-600'
             }`}
           >
-            Week
+            {t('common.week')}
           </button>
           <button
             onClick={() => setFilter('month')}
@@ -657,7 +659,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-700 dark:text-gray-300 dark:hover:bg-slate-600'
             }`}
           >
-            Maand
+            {t('common.month')}
           </button>
           <button
             onClick={() => setFilter('all')}
@@ -667,7 +669,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-700 dark:text-gray-300 dark:hover:bg-slate-600'
             }`}
           >
-            Alles
+            {t('common.all')}
           </button>
         </div>
       )}
@@ -677,10 +679,10 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
         <div className="text-center py-12 bg-white dark:bg-slate-800 rounded-xl transition-colors dark:shadow-lg dark:shadow-black/30">
           <div className="text-6xl mb-4">📖</div>
           <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2 transition-colors">
-            Nog geen symptomen gelogd
+            {t('journal_form.empty_title')}
           </h3>
           <p className="text-gray-600 dark:text-gray-400 transition-colors">
-            Begin met je eerste entry om je vooruitgang te volgen
+            {t('journal_form.empty_desc')}
           </p>
         </div>
       ) : (
@@ -691,10 +693,10 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <h4 className={`font-bold text-gray-800 dark:text-gray-100 transition-colors ${limit ? 'text-base' : 'text-lg'}`}>
-                      {entry.techniekGebruikt || 'Symptomen Entry'}
+                      {entry.techniekGebruikt || t('journal_form.symptoms_entry')}
                     </h4>
                     <p className="text-xs text-gray-500 dark:text-gray-400 transition-colors">
-                      {entry.timestamp.toLocaleDateString('nl-NL', {
+                      {entry.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', {
                         weekday: 'short',
                         day: 'numeric',
                         month: 'short',
@@ -787,7 +789,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                 className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors dark:bg-blue-700 dark:hover:bg-blue-600"
               >
                 <i className="fas fa-book mr-2"></i>
-                Bekijk alle entries
+                {t('journal_form.view_all')}
               </a>
             </div>
           )}

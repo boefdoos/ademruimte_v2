@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
 import { db } from '@/lib/firebase/config';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
@@ -64,6 +65,7 @@ interface OnboardingModalProps {
 
 export function OnboardingModal({ forceOpen = false, onClose }: OnboardingModalProps = {}) {
   const { currentUser } = useAuth();
+  const { t, locale } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -154,18 +156,16 @@ export function OnboardingModal({ forceOpen = false, onClose }: OnboardingModalP
           <div className="text-6xl mb-4">
             <i className={step.icon}></i>
           </div>
-          <h2 className="text-3xl font-bold mb-2">{step.title}</h2>
-          <p className="text-sm opacity-90">{step.titleEn}</p>
+          <h2 className="text-3xl font-bold mb-2">{locale === 'en' ? step.titleEn : step.title}</h2>
+          {locale === 'nl' && <p className="text-sm opacity-90">{step.titleEn}</p>}
         </div>
 
         {/* Content */}
         <div className="p-8">
           <p className="text-gray-700 text-lg leading-relaxed mb-3">
-            {step.description}
+            {locale === 'en' ? step.descriptionEn : step.description}
           </p>
-          <p className="text-gray-500 text-sm leading-relaxed">
-            {step.descriptionEn}
-          </p>
+          {locale === 'nl' && <p className="text-gray-500 text-sm leading-relaxed">{step.descriptionEn}</p>}
 
           {/* Step Indicators */}
           <div className="flex justify-center gap-2 mt-8 mb-6">
@@ -188,20 +188,20 @@ export function OnboardingModal({ forceOpen = false, onClose }: OnboardingModalP
             <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 mt-6">
               <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
                 <i className="fas fa-rocket text-blue-600"></i>
-                Klaar om te beginnen!
+                {t('onboarding.ready_title')}
               </h3>
               <ul className="space-y-2 text-sm text-gray-700">
                 <li className="flex items-center gap-2">
                   <i className="fas fa-check text-green-600"></i>
-                  Meet je eerste Control Pause
+                  {t('onboarding.action_1')}
                 </li>
                 <li className="flex items-center gap-2">
                   <i className="fas fa-check text-green-600"></i>
-                  Probeer een ademsessie van 5-10 minuten
+                  {t('onboarding.action_2')}
                 </li>
                 <li className="flex items-center gap-2">
                   <i className="fas fa-check text-green-600"></i>
-                  Voltooi je eerste dagelijkse doelen
+                  {t('onboarding.action_3')}
                 </li>
               </ul>
             </div>
@@ -213,7 +213,7 @@ export function OnboardingModal({ forceOpen = false, onClose }: OnboardingModalP
               onClick={skipOnboarding}
               className="px-4 py-2 text-gray-600 hover:text-gray-800 font-semibold transition-colors"
             >
-              Overslaan / Skip
+              {t('onboarding.skip')}
             </button>
 
             <div className="flex gap-3">
@@ -223,7 +223,7 @@ export function OnboardingModal({ forceOpen = false, onClose }: OnboardingModalP
                   className="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
                 >
                   <i className="fas fa-arrow-left mr-2"></i>
-                  Vorige
+                  {t('onboarding.prev')}
                 </button>
               )}
               <button
@@ -232,12 +232,12 @@ export function OnboardingModal({ forceOpen = false, onClose }: OnboardingModalP
               >
                 {currentStep < steps.length - 1 ? (
                   <>
-                    Volgende
+                    {t('onboarding.next')}
                     <i className="fas fa-arrow-right ml-2"></i>
                   </>
                 ) : (
                   <>
-                    Start!
+                    {t('onboarding.start')}
                     <i className="fas fa-check ml-2"></i>
                   </>
                 )}

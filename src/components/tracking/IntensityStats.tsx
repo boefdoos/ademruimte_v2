@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
 import { db } from '@/lib/firebase/config';
 import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
 
@@ -16,6 +17,7 @@ interface JournalEntry {
 
 export function IntensityStats() {
   const { currentUser } = useAuth();
+  const { t, locale } = useI18n();
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'all'>('month');
@@ -84,17 +86,17 @@ export function IntensityStats() {
       <div className="text-center py-12">
         <div className="text-6xl mb-4">📊</div>
         <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">
-          Nog geen intensiteit data
+          {t('intensity.empty_title')}
         </h3>
         <p className="text-gray-600 dark:text-gray-400 mb-6">
-          Begin met symptoom entries om je intensiteit trends te volgen
+          {t('intensity.empty_desc')}
         </p>
         <a
           href="/journal"
           className="inline-block px-6 py-3 bg-orange-600 text-white rounded-lg font-semibold hover:bg-orange-700 transition-colors"
         >
           <i className="fas fa-clipboard-list mr-2"></i>
-          Ga naar Tracking
+          {t('intensity.empty_button')}
         </a>
       </div>
     );
@@ -108,10 +110,10 @@ export function IntensityStats() {
       <div className="text-center py-12">
         <div className="text-6xl mb-4">📈</div>
         <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">
-          Geen intensiteit metingen
+          {t('intensity.no_scores')}
         </h3>
         <p className="text-gray-600 dark:text-gray-400">
-          Je logboek entries bevatten geen intensiteit scores
+          {t('intensity.no_scores_desc')}
         </p>
       </div>
     );
@@ -203,7 +205,7 @@ export function IntensityStats() {
               : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
           }`}
         >
-          Week
+          {t('common.week')}
         </button>
         <button
           onClick={() => setTimeRange('month')}
@@ -213,7 +215,7 @@ export function IntensityStats() {
               : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
           }`}
         >
-          Maand
+          {t('common.month')}
         </button>
         <button
           onClick={() => setTimeRange('all')}
@@ -223,44 +225,44 @@ export function IntensityStats() {
               : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
           }`}
         >
-          Alles
+          {t('common.all')}
         </button>
       </div>
 
       {/* Summary Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-900/20 p-4 sm:p-6 rounded-xl text-center transition-colors">
-          <div className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">Gemiddelde Intensiteit</div>
+          <div className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">{t('intensity.avg')}</div>
           <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-blue-700 dark:text-blue-300">{avgIntensity}/10</div>
           <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">{getIntensityLabel(avgIntensity)}</div>
         </div>
         <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-900/20 p-4 sm:p-6 rounded-xl text-center transition-colors">
-          <div className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">Laagste</div>
+          <div className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">{t('intensity.lowest')}</div>
           <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-green-700 dark:text-green-300">{minIntensity}/10</div>
         </div>
         <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-900/20 p-4 sm:p-6 rounded-xl text-center transition-colors">
-          <div className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">Hoogste</div>
+          <div className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">{t('intensity.highest')}</div>
           <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-red-700 dark:text-red-300">{maxIntensity}/10</div>
         </div>
         <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-900/20 p-4 sm:p-6 rounded-xl text-center transition-colors">
-          <div className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">Trend</div>
+          <div className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">{t('intensity.trend')}</div>
           <div className="text-xl sm:text-2xl md:text-3xl font-bold text-purple-700 dark:text-purple-300">
             {trendDirection === 'down' && (
               <>
                 <i className="fas fa-arrow-down mr-2 text-green-600"></i>
-                Beter
+                {t('common.trend_better')}
               </>
             )}
             {trendDirection === 'up' && (
               <>
                 <i className="fas fa-arrow-up mr-2 text-red-600"></i>
-                Hoger
+                {t('common.trend_higher')}
               </>
             )}
             {trendDirection === 'stable' && (
               <>
                 <i className="fas fa-minus mr-2 text-gray-600 dark:text-gray-400"></i>
-                Stabiel
+                {t('common.trend_stable')}
               </>
             )}
           </div>
@@ -270,24 +272,24 @@ export function IntensityStats() {
       {/* Timeline Chart */}
       <div className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-6 transition-colors">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-3">
-          <h3 className="font-bold text-base sm:text-lg text-gray-800 dark:text-gray-100">Intensiteit Trend</h3>
+          <h3 className="font-bold text-base sm:text-lg text-gray-800 dark:text-gray-100">{t('intensity.chart_title')}</h3>
           {/* Legend */}
           <div className="flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm">
             <div className="flex items-center gap-1.5">
               <div className="w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-t from-green-400 to-green-600 rounded"></div>
-              <span className="text-gray-600 dark:text-gray-300">Mild (1-3)</span>
+              <span className="text-gray-600 dark:text-gray-300">{t('common.intensity_mild')} (1-3)</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-t from-yellow-400 to-yellow-600 rounded"></div>
-              <span className="text-gray-600 dark:text-gray-300">Gemiddeld (4-5)</span>
+              <span className="text-gray-600 dark:text-gray-300">{t('common.level_average')} (4-5)</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-t from-orange-400 to-orange-600 rounded"></div>
-              <span className="text-gray-600 dark:text-gray-300">Matig (6-7)</span>
+              <span className="text-gray-600 dark:text-gray-300">{t('common.intensity_moderate')} (6-7)</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-t from-red-400 to-red-600 rounded"></div>
-              <span className="text-gray-600 dark:text-gray-300">Ernstig (8-10)</span>
+              <span className="text-gray-600 dark:text-gray-300">{t('common.intensity_severe')} (8-10)</span>
             </div>
           </div>
         </div>
@@ -295,8 +297,8 @@ export function IntensityStats() {
         {/* Chart with Y-axis and X-axis */}
         {(() => {
           const chartEntries = entriesWithIntensity.slice().reverse().slice(-20);
-          const firstDate = chartEntries[0]?.timestamp.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' });
-          const lastDate = chartEntries[chartEntries.length - 1]?.timestamp.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' });
+          const firstDate = chartEntries[0]?.timestamp.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
+          const lastDate = chartEntries[chartEntries.length - 1]?.timestamp.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
           return (
             <div className="flex gap-2">
               {/* Y-axis labels */}
@@ -330,7 +332,7 @@ export function IntensityStats() {
                             {/* Tooltip */}
                             <div className="opacity-0 group-hover:opacity-100 absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-slate-900 text-white text-xs rounded py-2 px-3 whitespace-nowrap transition-opacity pointer-events-none z-10">
                               <div className="font-bold">{entry.intensiteit}/10</div>
-                              <div>{entry.timestamp.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })}</div>
+                              <div>{entry.timestamp.toLocaleDateString(locale, { day: 'numeric', month: 'short' })}</div>
                               <div className="text-gray-300 dark:text-gray-400">{entry.techniekGebruikt}</div>
                             </div>
                           </div>
@@ -361,14 +363,14 @@ export function IntensityStats() {
       {triggerStats.length > 0 && (
         <div className="bg-white dark:bg-slate-800 rounded-xl p-6 transition-colors">
           <h3 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-100">
-            Triggers met Hoogste Intensiteit
+            {t('intensity.triggers_title')}
           </h3>
           <div className="space-y-3">
             {triggerStats.map(stat => (
               <div key={stat.trigger} className="flex items-center justify-between p-4 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/30 dark:to-orange-900/30 rounded-lg transition-colors">
                 <div>
                   <div className="font-semibold text-gray-800 dark:text-gray-100">{stat.trigger}</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">{stat.count} keer voorgekomen</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{stat.count} {t('intensity.occurrences')}</div>
                 </div>
                 <div className="text-right">
                   <div className="text-2xl font-bold text-red-600 dark:text-red-400">{stat.avg}/10</div>
@@ -383,7 +385,7 @@ export function IntensityStats() {
       <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-xl p-6 transition-colors">
         <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-3">
           <i className="fas fa-lightbulb mr-2 text-yellow-500"></i>
-          Inzichten
+          {t('common.insights_title')}
         </h4>
         <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
           {trendDirection === 'down' && (

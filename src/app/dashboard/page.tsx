@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
 import { Button } from '@/components/ui/Button';
 import { useRouter } from 'next/navigation';
 import { StatsCard } from '@/components/dashboard/StatsCard';
@@ -13,6 +14,7 @@ import { doc, getDoc, setDoc, collection, query, where, orderBy, limit, getDocs 
 
 export default function DashboardPage() {
   const { currentUser, logout, loading: authLoading } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [streak, setStreak] = useState(0);
   const [lastCP, setLastCP] = useState<number | null>(null);
@@ -119,7 +121,7 @@ export default function DashboardPage() {
         <div className="min-h-screen p-8 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center transition-colors">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 dark:border-blue-400 mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-300">Laden...</p>
+            <p className="text-gray-600 dark:text-gray-300">{t('loading')}</p>
           </div>
         </div>
       </>
@@ -139,7 +141,7 @@ export default function DashboardPage() {
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-4 sm:p-6 md:p-8 mb-4 sm:mb-6 transition-colors">
           <div className="mb-4 sm:mb-6">
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 transition-colors">
-              Welkom terug!
+              {t('dashboard.welcome_back')}
             </h1>
             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mt-2">{currentUser?.email}</p>
           </div>
@@ -149,22 +151,22 @@ export default function DashboardPage() {
             <StatsCard
               icon="fas fa-fire"
               title="Streak"
-              value={`${streak} ${streak === 1 ? 'dag' : 'dagen'}`}
-              subtitle="Blijf doorgaan!"
+              value={`${streak} ${streak === 1 ? t('common.day') : t('common.days')}`}
+              subtitle={t('dashboard.keep_going')}
               color="orange"
             />
             <StatsCard
               icon="fas fa-heart-pulse"
               title="HRV Laatste"
               value={lastHRV ? `${lastHRV}ms` : '—'}
-              subtitle={lastHRV ? 'Laatste meting' : 'Nog geen metingen'}
+              subtitle={lastHRV ? t('dashboard.last_measurement') : t('dashboard.no_measurements')}
               color="purple"
             />
             <StatsCard
               icon="fas fa-stopwatch"
               title="Control Pause"
               value={lastCP ? `${lastCP}s` : '—'}
-              subtitle={lastCP ? 'Laatste meting' : 'Nog geen metingen'}
+              subtitle={lastCP ? t('dashboard.last_measurement') : t('dashboard.no_measurements')}
               color="green"
             />
           </div>
@@ -182,10 +184,10 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">
-                  Oefeningen
+                  {t('dashboard.exercises_section')}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
-                  Buteyko & Breathing
+                  {t('dashboard.exercises_desc')}
                 </p>
               </div>
             </div>
@@ -201,10 +203,10 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">
-                  Inzichten
+                  {t('dashboard.insights_section')}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
-                  Metingen & Analytics
+                  {t('dashboard.insights_desc')}
                 </p>
               </div>
             </div>
@@ -220,10 +222,10 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">
-                  Tracking
+                  {t('dashboard.tracking_section')}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
-                  Reflecties & Symptomen
+                  {t('dashboard.tracking_desc')}
                 </p>
               </div>
             </div>
@@ -240,7 +242,7 @@ export default function DashboardPage() {
             className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors inline-flex items-center gap-2"
           >
             <i className="fas fa-info-circle"></i>
-            Bekijk de introductie opnieuw
+            {t('dashboard.restart_intro')}
           </button>
         </div>
         </div>

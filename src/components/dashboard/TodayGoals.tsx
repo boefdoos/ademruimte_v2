@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
 import { db } from '@/lib/firebase/config';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 
@@ -14,6 +15,7 @@ interface Goal {
 
 export function TodayGoals() {
   const { currentUser } = useAuth();
+  const { t } = useI18n();
   const [goals, setGoals] = useState<Goal[]>([
     { id: 'cp', label: 'Log Control Pause', icon: 'fa-stopwatch', completed: false },
     { id: 'hrv', label: 'Log HRV', icon: 'fa-heart-pulse', completed: false },
@@ -85,11 +87,20 @@ export function TodayGoals() {
     }
   };
 
+  const getGoalLabel = (id: string) => {
+    switch(id) {
+      case 'cp': return t('dashboard.log_cp');
+      case 'hrv': return t('dashboard.log_hrv');
+      case 'journal': return t('dashboard.log_symptoms');
+      default: return id;
+    }
+  };
+
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 transition-colors">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-          Doelen vandaag
+          {t('dashboard.todays_goals')}
         </h2>
         <div className="text-sm font-semibold text-gray-600 dark:text-gray-300">
           {completedCount} / {totalCount}
@@ -118,11 +129,11 @@ export function TodayGoals() {
             </div>
             <div className={`text-lg ${goal.completed ? 'text-gray-400 dark:text-gray-500 line-through' : 'text-gray-700 dark:text-gray-200'}`}>
               <i className={`fas ${goal.icon} mr-2`}></i>
-              {goal.label}
+              {getGoalLabel(goal.id)}
             </div>
             <div className="ml-auto flex items-center gap-2">
               <div className="text-xs text-gray-500 dark:text-gray-400 italic">
-                {goal.completed ? 'Voltooid!' : 'Auto-voltooid na oefening'}
+                {goal.completed ? t('dashboard.completed') : t('dashboard.auto_completed')}
               </div>
               {!goal.completed && (
                 <i className="fas fa-arrow-right text-blue-500 dark:text-blue-400"></i>
@@ -136,7 +147,7 @@ export function TodayGoals() {
         <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 rounded-lg text-center transition-colors">
           <div className="text-2xl mb-1">🎉</div>
           <p className="text-green-800 dark:text-green-300 font-semibold">
-            Alle doelen bereikt!
+            {t('dashboard.all_goals_done')}
           </p>
         </div>
       )}

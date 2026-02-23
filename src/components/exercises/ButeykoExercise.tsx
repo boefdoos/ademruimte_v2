@@ -2,12 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
 import { db } from '@/lib/firebase/config';
 import { collection, addDoc, query, where, orderBy, limit, getDocs, doc, setDoc } from 'firebase/firestore';
 import { useWakeLock } from '@/hooks/useWakeLock';
 
 export function ButeykoExercise() {
   const { currentUser } = useAuth();
+  const { t, locale } = useI18n();
   const { requestWakeLock, releaseWakeLock } = useWakeLock();
   const [isRunning, setIsRunning] = useState(false);
   const [seconds, setSeconds] = useState(0);
@@ -121,11 +123,11 @@ export function ButeykoExercise() {
   };
 
   const getCPLevel = (secs: number) => {
-    if (secs < 10) return { text: 'Zeer laag', color: 'text-red-600', bg: 'bg-red-50' };
-    if (secs < 20) return { text: 'Laag', color: 'text-orange-600', bg: 'bg-orange-50' };
-    if (secs < 30) return { text: 'Gemiddeld', color: 'text-yellow-600', bg: 'bg-yellow-50' };
-    if (secs < 40) return { text: 'Goed', color: 'text-green-600', bg: 'bg-green-50' };
-    return { text: 'Uitstekend', color: 'text-blue-600', bg: 'bg-blue-50' };
+    if (secs < 10) return { text: t('common.level_very_low'), color: 'text-red-600', bg: 'bg-red-50' };
+    if (secs < 20) return { text: t('common.level_low'), color: 'text-orange-600', bg: 'bg-orange-50' };
+    if (secs < 30) return { text: t('common.level_average'), color: 'text-yellow-600', bg: 'bg-yellow-50' };
+    if (secs < 40) return { text: t('common.level_good'), color: 'text-green-600', bg: 'bg-green-50' };
+    return { text: t('common.level_excellent'), color: 'text-blue-600', bg: 'bg-blue-50' };
   };
 
   return (
@@ -135,15 +137,15 @@ export function ButeykoExercise() {
         <div className="mb-6 p-6 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-700 transition-colors">
           <h3 className="font-bold text-lg mb-3 text-blue-900 dark:text-blue-200 transition-colors">
             <i className="fas fa-info-circle mr-2"></i>
-            Hoe meet je je Control Pause?
+            {t('cp.instructions_title')}
           </h3>
           <ol className="space-y-2 text-gray-700 dark:text-gray-300 transition-colors">
-            <li>1. Zit rechtop en ontspan</li>
-            <li>2. Adem normaal in en uit door je neus</li>
-            <li>3. Na een normale uitademing, knijp je neus dicht</li>
-            <li>4. Start de timer</li>
-            <li>5. Stop wanneer je de <strong>eerste</strong> drang voelt om te ademen</li>
-            <li>6. Dit is je Control Pause (niet maximale adem inhouden!)</li>
+            <li>1. {t('cp.instruction_1')}</li>
+            <li>2. {t('cp.instruction_2')}</li>
+            <li>3. {t('cp.instruction_3')}</li>
+            <li>4. {t('cp.instruction_4')}</li>
+            <li>5. {t('cp.instruction_5')}</li>
+            <li>6. {t('cp.instruction_6')}</li>
           </ol>
         </div>
       )}
@@ -162,7 +164,7 @@ export function ButeykoExercise() {
               className="px-8 py-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-lg"
             >
               <i className="fas fa-play mr-2"></i>
-              Start Control Pause
+              {t('cp.start')}
             </button>
           ) : (
             <>
@@ -171,14 +173,14 @@ export function ButeykoExercise() {
                 className="px-8 py-4 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-lg"
               >
                 <i className="fas fa-stop mr-2"></i>
-                Stop & Opslaan
+                {t('cp.stop_save')}
               </button>
               <button
                 onClick={resetTimer}
                 className="px-8 py-4 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 transition-colors shadow-lg"
               >
                 <i className="fas fa-redo mr-2"></i>
-                Reset
+                {t('cp.reset')}
               </button>
             </>
           )}
@@ -189,7 +191,7 @@ export function ButeykoExercise() {
       {lastCP !== null && !isRunning && (
         <div className="mb-6 p-6 rounded-lg bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 transition-colors">
           <div className="text-center">
-            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1 transition-colors">Laatste meting</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 mb-1 transition-colors">{t('cp.last_measurement')}</div>
             <div className="text-4xl font-bold text-blue-600">
               {lastCP}s
             </div>
@@ -201,7 +203,7 @@ export function ButeykoExercise() {
       {history.length > 0 && (
         <div className="mt-8">
           <h3 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-100 transition-colors">
-            Recente metingen
+            {t('cp.recent_measurements')}
           </h3>
           <div className="space-y-2">
             {history.map((record, index) => (
@@ -210,7 +212,7 @@ export function ButeykoExercise() {
                 className="flex justify-between items-center p-4 bg-gray-50 dark:bg-slate-700 rounded-lg transition-colors"
               >
                 <div className="text-gray-600 dark:text-gray-300 text-sm transition-colors">
-                  {record.timestamp.toLocaleDateString('nl-NL', {
+                  {record.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', {
                     day: 'numeric',
                     month: 'short',
                     hour: '2-digit',

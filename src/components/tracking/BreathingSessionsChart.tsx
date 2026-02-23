@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
 import { db } from '@/lib/firebase/config';
 import { collection, query, where, orderBy, limit, getDocs, deleteDoc, doc } from 'firebase/firestore';
 
@@ -15,6 +16,7 @@ interface Session {
 
 export function BreathingSessionsChart() {
   const { currentUser } = useAuth();
+  const { t, locale } = useI18n();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'all'>('week');
@@ -71,7 +73,7 @@ export function BreathingSessionsChart() {
   }, [currentUser, timeRange]);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Weet je zeker dat je deze ademsessie wilt verwijderen?')) return;
+    if (!confirm(t('sessions.confirm_delete'))) return;
 
     setDeletingId(id);
     try {
@@ -79,7 +81,7 @@ export function BreathingSessionsChart() {
       setSessions(sessions.filter(s => s.id !== id));
     } catch (error) {
       console.error('Error deleting breathing session:', error);
-      alert('Er ging iets mis bij het verwijderen.');
+      alert(t('common.error_deleting'));
     } finally {
       setDeletingId(null);
     }
@@ -98,17 +100,17 @@ export function BreathingSessionsChart() {
       <div className="text-center py-12">
         <div className="text-6xl mb-4">🌊</div>
         <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2 transition-colors">
-          Nog geen ademsessies
+          {t('sessions.empty_title')}
         </h3>
         <p className="text-gray-600 dark:text-gray-400 mb-6 transition-colors">
-          Start met Resonant Breathing om je sessies te volgen
+          {t('sessions.empty_desc')}
         </p>
         <a
           href="/exercises"
           className="inline-block px-6 py-3 bg-blue-600 dark:bg-blue-700 text-white rounded-lg font-semibold hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
         >
           <i className="fas fa-wind mr-2"></i>
-          Start Resonant Breathing
+          {t('sessions.empty_button')}
         </a>
       </div>
     );
@@ -156,7 +158,7 @@ export function BreathingSessionsChart() {
               : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
           }`}
         >
-          Week
+          {t('common.week')}
         </button>
         <button
           onClick={() => setTimeRange('month')}
@@ -166,7 +168,7 @@ export function BreathingSessionsChart() {
               : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
           }`}
         >
-          Maand
+          {t('common.month')}
         </button>
         <button
           onClick={() => setTimeRange('all')}
@@ -176,33 +178,33 @@ export function BreathingSessionsChart() {
               : 'bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-slate-600'
           }`}
         >
-          Alles
+          {t('common.all')}
         </button>
       </div>
 
       {/* Stats Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-xl text-center transition-colors">
-          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">Totaal Sessies</div>
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">{t('sessions.total')}</div>
           <div className="text-3xl font-bold text-blue-700 dark:text-blue-300 transition-colors">{sessions.length}</div>
         </div>
         <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-xl text-center transition-colors">
-          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">Totale Tijd</div>
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">{t('sessions.total_time')}</div>
           <div className="text-3xl font-bold text-green-700 dark:text-green-300 transition-colors">{totalMinutes}m</div>
         </div>
         <div className="bg-purple-50 dark:bg-purple-900/30 p-4 rounded-xl text-center transition-colors">
-          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">Totaal Cycli</div>
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">{t('sessions.total_cycles')}</div>
           <div className="text-3xl font-bold text-purple-700 dark:text-purple-300 transition-colors">{totalCycles}</div>
         </div>
         <div className="bg-orange-50 dark:bg-orange-900/30 p-4 rounded-xl text-center transition-colors">
-          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">Gem. Sessie</div>
+          <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">{t('sessions.avg_session')}</div>
           <div className="text-3xl font-bold text-orange-700 dark:text-orange-300 transition-colors">{avgDuration}m</div>
         </div>
       </div>
 
       {/* Pattern Distribution */}
       <div className="bg-white dark:bg-slate-800 rounded-xl p-6 transition-colors">
-        <h3 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-100 transition-colors">Patronen Verdeling</h3>
+        <h3 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-100 transition-colors">{t('sessions.patterns_title')}</h3>
         <div className="space-y-3">
           {Object.entries(patternCounts)
             .sort((a, b) => b[1] - a[1])
@@ -231,7 +233,7 @@ export function BreathingSessionsChart() {
       {/* Recent Sessions — max 15 most recent */}
       <div className="bg-white dark:bg-slate-800 rounded-xl p-6 transition-colors">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100 transition-colors">Recente Sessies</h3>
+          <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100 transition-colors">{t('sessions.recent_title')}</h3>
           <span className="text-sm text-gray-500 dark:text-gray-400">
             Laatste {Math.min(sessions.length, 15)} van {sessions.length}
           </span>
@@ -248,7 +250,7 @@ export function BreathingSessionsChart() {
                 <div>
                   <div className="font-semibold text-gray-800 dark:text-gray-100 transition-colors">{session.pattern}</div>
                   <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">
-                    {session.timestamp.toLocaleDateString('nl-NL', {
+                    {session.timestamp.toLocaleDateString(locale, {
                       weekday: 'short',
                       day: 'numeric',
                       month: 'short',
@@ -285,7 +287,7 @@ export function BreathingSessionsChart() {
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-xl p-6 transition-colors">
         <h4 className="font-bold text-gray-800 dark:text-gray-100 mb-3 transition-colors">
           <i className="fas fa-lightbulb mr-2 text-yellow-500"></i>
-          Inzichten
+          {t('common.insights_title')}
         </h4>
         <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300 transition-colors">
           <li>
@@ -295,13 +297,13 @@ export function BreathingSessionsChart() {
             ⏱️ Je hebt in totaal <strong>{totalMinutes} minuten</strong> geoefend
           </li>
           {totalMinutes >= 50 && (
-            <li>🎯 Geweldig! Je hebt het doel van 50 minuten per week bereikt</li>
+            <li>🎯 {t('sessions.insights_goal_reached')}</li>
           )}
           {avgDuration >= 10 && (
             <li>✅ Perfect! Sessies van 10+ minuten zijn ideaal voor HRV training</li>
           )}
           {sessions.length >= 7 && (
-            <li>🔥 Fantastische consistentie! 7+ sessies is uitstekend</li>
+            <li>🔥 {t('sessions.insights_consistency')}</li>
           )}
         </ul>
       </div>
