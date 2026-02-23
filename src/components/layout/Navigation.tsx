@@ -29,9 +29,7 @@ export function Navigation() {
             {/* Logo/Brand */}
             <div className="flex items-center">
               <a href="/dashboard" className="flex items-center">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
-                  A
-                </div>
+                <img src="/new_icon.png" alt="Ademruimte" className="w-10 h-10 rounded-xl object-cover" />
                 <span className="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   Ademruimte
                 </span>
@@ -62,9 +60,7 @@ export function Navigation() {
       {/* Mobile Header - Logo Only */}
       <div className="md:hidden bg-white dark:bg-slate-900 shadow-sm dark:shadow-slate-950/30 sticky top-0 z-50 px-4 py-3 transition-colors">
         <a href="/dashboard" className="flex items-center">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
-            A
-          </div>
+          <img src="/new_icon.png" alt="Ademruimte" className="w-8 h-8 rounded-lg object-cover" />
           <span className="ml-2 text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Ademruimte
           </span>
