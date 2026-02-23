@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
 
   // Better code splitting for mobile
   experimental: {
-    optimizePackageImports: ['@/components', 'lucide-react'],
+    optimizePackageImports: ['lucide-react'],
   },
 };
 
