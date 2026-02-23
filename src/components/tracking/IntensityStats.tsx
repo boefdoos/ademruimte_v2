@@ -187,10 +187,10 @@ export function IntensityStats() {
   };
 
   const getIntensityLabel = (intensity: number) => {
-    if (intensity <= 3) return t('common.level_mild');
+    if (intensity <= 3) return t('common.intensity_mild');
     if (intensity <= 5) return t('common.level_average');
-    if (intensity <= 7) return t('common.level_moderate');
-    return t('common.level_severe');
+    if (intensity <= 7) return t('common.intensity_moderate');
+    return t('common.intensity_severe');
   };
 
   return (

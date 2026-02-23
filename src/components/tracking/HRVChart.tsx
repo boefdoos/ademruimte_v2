@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { db } from '@/lib/firebase/config';
@@ -23,6 +23,7 @@ export function HRVChart() {
   const [autoBaseline, setAutoBaseline] = useState<number | null>(null);
   const [showBaselineInput, setShowBaselineInput] = useState(false);
   const [tempBaseline, setTempBaseline] = useState('');
+  const chartScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadMeasurements();
@@ -288,6 +289,12 @@ export function HRVChart() {
   const chartMax = Math.max(maxHRV, baselineValue || 0, autoBaseline || 0) + 20;
   const chartMin = Math.max(0, Math.min(minHRV, baselineValue || minHRV, autoBaseline || minHRV) - 10);
 
+  useEffect(() => {
+    if (chartScrollRef.current) {
+      chartScrollRef.current.scrollLeft = chartScrollRef.current.scrollWidth;
+    }
+  }, [chartData]);
+
   return (
     <div className="space-y-6 px-4">
       {/* Summary Stats - Responsive Grid */}
@@ -410,7 +417,7 @@ export function HRVChart() {
         </h3>
 
         {/* Chart Container with horizontal scroll on mobile */}
-        <div className="relative h-80 overflow-x-auto overflow-y-hidden touch-pan-x">
+        <div ref={chartScrollRef} className="relative h-80 overflow-x-auto overflow-y-hidden touch-pan-x">
           <div className="relative h-full" style={{ minWidth: chartData.length > 20 ? `${chartData.length * 24}px` : '100%' }}>
             {/* Y-axis labels */}
             <div className="absolute left-0 top-0 bottom-8 w-10 sm:w-12 flex flex-col justify-between text-xs sm:text-sm text-gray-600 dark:text-gray-300 pr-1 sm:pr-2 bg-white dark:bg-slate-800 z-10 transition-colors font-medium">

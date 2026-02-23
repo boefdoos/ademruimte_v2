@@ -19,7 +19,7 @@ export function BreathingSessionsChart() {
   const { t, locale } = useI18n();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState<'week' | 'month' | 'all'>('week');
+  const [timeRange, setTimeRange] = useState<'week' | 'month' | 'all'>('month');
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {

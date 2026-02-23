@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { db } from '@/lib/firebase/config';
@@ -17,11 +17,12 @@ export function ControlPauseChart() {
   const { t, locale } = useI18n();
   const [records, setRecords] = useState<CPRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState<'week' | 'month' | 'all'>('week');
+  const [timeRange, setTimeRange] = useState<'week' | 'month' | 'all'>('month');
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [cpGoal, setCpGoal] = useState<number | null>(null);
   const [goalInput, setGoalInput] = useState('');
   const [editingGoal, setEditingGoal] = useState(false);
+  const chartScrollRef = useRef<HTMLDivElement>(null);
 
   // Load/save personal goal from localStorage
   useEffect(() => {
@@ -43,6 +44,12 @@ export function ControlPauseChart() {
       setEditingGoal(false);
     }
   };
+
+  useEffect(() => {
+    if (chartScrollRef.current) {
+      chartScrollRef.current.scrollLeft = chartScrollRef.current.scrollWidth;
+    }
+  }, [records]);
 
   useEffect(() => {
     const loadRecords = async () => {
@@ -253,7 +260,7 @@ export function ControlPauseChart() {
         </h3>
 
         {/* Chart Container with horizontal scroll on mobile */}
-        <div className="relative h-80 overflow-x-auto overflow-y-hidden touch-pan-x">
+        <div ref={chartScrollRef} className="relative h-80 overflow-x-auto overflow-y-hidden touch-pan-x">
           <div className="relative h-full" style={{ minWidth: records.length > 20 ? `${records.length * 24}px` : '100%' }}>
             {/* Y-axis labels */}
             <div className="absolute left-0 top-0 bottom-8 w-10 sm:w-12 flex flex-col justify-between text-xs sm:text-sm text-gray-600 dark:text-gray-300 pr-1 sm:pr-2 bg-white dark:bg-slate-800 z-10 transition-colors font-medium">
