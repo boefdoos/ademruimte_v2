@@ -1,19 +1,14 @@
 // Ademruimte Service Worker
-const CACHE_NAME = 'ademruimte-v2';
-const STATIC_CACHE = 'ademruimte-static-v2';
-const DYNAMIC_CACHE = 'ademruimte-dynamic-v2';
+const CACHE_NAME = 'ademruimte-v3';
+const STATIC_CACHE = 'ademruimte-static-v3';
+const DYNAMIC_CACHE = 'ademruimte-dynamic-v3';
 
-// Files to cache immediately
+// Files to cache immediately (app shell only)
 const STATIC_ASSETS = [
-  '/',
-  '/dashboard',
-  '/exercises',
-  '/insights',
-  '/journal',
   '/offline',
 ];
 
-// Install event - cache static assets
+// Install event - cache minimal static assets
 self.addEventListener('install', (event) => {
   console.log('[SW] Installing service worker...');
   event.waitUntil(
@@ -25,7 +20,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up ALL old caches
 self.addEventListener('activate', (event) => {
   console.log('[SW] Activating service worker...');
   event.waitUntil(
@@ -43,7 +38,7 @@ self.addEventListener('activate', (event) => {
   return self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -61,6 +56,17 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // NEVER cache Next.js JS/CSS chunks — they change hash on every deploy
+  if (
+    url.pathname.startsWith('/_next/static/chunks/') ||
+    url.pathname.startsWith('/_next/static/css/') ||
+    url.pathname.startsWith('/_next/static/media/') ||
+    url.pathname.includes('/_next/')
+  ) {
+    // Always fetch fresh from network, no caching
+    return;
+  }
+
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       // Return cached response if available
@@ -68,7 +74,7 @@ self.addEventListener('fetch', (event) => {
         return cachedResponse;
       }
 
-      // Otherwise fetch from network and cache it
+      // Otherwise fetch from network
       return fetch(request)
         .then((response) => {
           // Don't cache non-successful responses
@@ -76,12 +82,19 @@ self.addEventListener('fetch', (event) => {
             return response;
           }
 
-          // Clone the response
-          const responseToCache = response.clone();
-
-          caches.open(DYNAMIC_CACHE).then((cache) => {
-            cache.put(request, responseToCache);
-          });
+          // Only cache static public assets (icons, manifest, etc.) not pages
+          if (
+            url.pathname.startsWith('/icons/') ||
+            url.pathname === '/manifest.json' ||
+            url.pathname === '/new_icon.png' ||
+            url.pathname === '/icon-192.png' ||
+            url.pathname === '/icon-512.png'
+          ) {
+            const responseToCache = response.clone();
+            caches.open(DYNAMIC_CACHE).then((cache) => {
+              cache.put(request, responseToCache);
+            });
+          }
 
           return response;
         })
