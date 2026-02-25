@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { db } from '@/lib/firebase/config';
@@ -45,11 +45,11 @@ export function ControlPauseChart() {
     }
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (chartScrollRef.current) {
       chartScrollRef.current.scrollLeft = chartScrollRef.current.scrollWidth;
     }
-  }, [records]);
+  }, [records.length]);
 
   useEffect(() => {
     const loadRecords = async () => {

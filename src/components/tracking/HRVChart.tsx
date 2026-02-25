@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useLayoutEffect, useState, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { db } from '@/lib/firebase/config';
@@ -289,11 +289,11 @@ export function HRVChart() {
   const chartMax = Math.max(maxHRV, baselineValue || 0, autoBaseline || 0) + 20;
   const chartMin = Math.max(0, Math.min(minHRV, baselineValue || minHRV, autoBaseline || minHRV) - 10);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (chartScrollRef.current) {
       chartScrollRef.current.scrollLeft = chartScrollRef.current.scrollWidth;
     }
-  }, [chartData]);
+  }, [measurements.length]);
 
   return (
     <div className="space-y-6 px-4">
