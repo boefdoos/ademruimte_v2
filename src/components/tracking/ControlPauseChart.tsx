@@ -280,14 +280,25 @@ export function ControlPauseChart() {
               <div className="absolute left-0 right-0 border-t-2 border-dashed border-yellow-200 dark:border-yellow-900/50 transition-colors" style={{ bottom: '50%' }}></div>
               <div className="absolute left-0 right-0 border-t-2 border-dashed border-orange-200 dark:border-orange-900/50 transition-colors" style={{ bottom: '33.33%' }}></div>
               <div className="absolute left-0 right-0 border-t-2 border-dashed border-red-200 dark:border-red-900/50 transition-colors" style={{ bottom: '16.67%' }}></div>
+              
+              {/* Average line */}
+              <div
+                className="absolute left-0 right-0 border-t-2 border-dashed border-gray-400 dark:border-gray-500 z-10 transition-colors"
+                style={{ bottom: `${(avgCP / 60) * 100}%` }}
+              >
+                <span className="absolute right-0 -top-4 text-xs font-semibold text-gray-600 dark:text-gray-400 bg-white dark:bg-slate-800 px-1">
+                  Gem.
+                </span>
+              </div>
+
               {/* Personal goal line */}
               {cpGoal && (
                 <div
-                  className="absolute left-0 right-0 border-t-2 border-dashed border-blue-500 dark:border-blue-400 z-10 transition-colors"
+                  className="absolute left-0 right-0 border-t-2 border-dashed border-green-500 dark:border-green-400 z-10 transition-colors"
                   style={{ bottom: `${(cpGoal / 60) * 100}%` }}
                 >
-                  <span className="absolute right-0 -top-4 text-xs font-semibold text-blue-600 dark:text-blue-400 bg-white dark:bg-slate-800 px-1">
-                    Doel {cpGoal}s
+                  <span className="absolute right-0 -top-4 text-xs font-semibold text-green-600 dark:text-green-400 bg-white dark:bg-slate-800 px-1">
+                    Doel
                   </span>
                 </div>
               )}

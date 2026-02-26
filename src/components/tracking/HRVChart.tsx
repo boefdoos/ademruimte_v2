@@ -25,6 +25,13 @@ export function HRVChart() {
   const [tempBaseline, setTempBaseline] = useState('');
   const chartScrollRef = useRef<HTMLDivElement>(null);
 
+  // Must be before any conditional returns (Rules of Hooks)
+  useLayoutEffect(() => {
+    if (chartScrollRef.current) {
+      chartScrollRef.current.scrollLeft = chartScrollRef.current.scrollWidth;
+    }
+  }, [measurements.length]);
+
   useEffect(() => {
     loadMeasurements();
     loadBaseline();
@@ -288,12 +295,6 @@ export function HRVChart() {
   const chartData = validMeasurements.slice(0, 30).reverse();
   const chartMax = Math.max(maxHRV, baselineValue || 0, autoBaseline || 0) + 20;
   const chartMin = Math.max(0, Math.min(minHRV, baselineValue || minHRV, autoBaseline || minHRV) - 10);
-
-  useLayoutEffect(() => {
-    if (chartScrollRef.current) {
-      chartScrollRef.current.scrollLeft = chartScrollRef.current.scrollWidth;
-    }
-  }, [measurements.length]);
 
   return (
     <div className="space-y-6 px-4">

@@ -55,7 +55,20 @@ export function ResonantBreathing() {
   const [showJournalModal, setShowJournalModal] = useState(false);
   const [journalNotes, setJournalNotes] = useState('');
   const [intensiteitScore, setIntensiteitScore] = useState<number | null>(null);
+  const [selectedTriggers, setSelectedTriggers] = useState<string[]>([]);
+  const [selectedSensations, setSelectedSensations] = useState<string[]>([]);
   const [isMounted, setIsMounted] = useState(false);
+
+const COMMON_TRIGGERS = [
+  'Stress','Angst','Piekergedachten','Hyperwaakzaamheid','Lichamelijke inspanning',
+  'Sociale situaties','Werk/Studie','Vermoeidheid','Slaaptekort','Emoties',
+  'Geen duidelijke trigger'
+];
+const COMMON_SENSATIONS = [
+  'Kortademigheid','Hyperventilatie','Beklemmend gevoel','Spanning in borst',
+  'Hartkloppingen','Tintelingen','Duizeligheid','Onrust','Gespannenheid',
+  'Vermoeidheid','Concentratieproblemen','Neerslachtigheid'
+];
   // Ref keeps totalSeconds always up-to-date inside async/callback closures
   const totalSecondsRef = useRef(0);
 
@@ -304,14 +317,16 @@ export function ResonantBreathing() {
         techniekGebruikt: selectedPattern.name,
         notities: journalNotes,
         intensiteit: intensiteitScore,
-        triggers: [],
-        sensaties: [],
+        triggers: selectedTriggers,
+        sensaties: selectedSensations,
         timestamp: new Date(),
       });
 
       setShowJournalModal(false);
       setJournalNotes('');
       setIntensiteitScore(null);
+      setSelectedTriggers([]);
+      setSelectedSensations([]);
     } catch (error) {
       console.error('Error saving journal entry:', error);
       alert(t('journal_form.save_error'));
@@ -322,6 +337,8 @@ export function ResonantBreathing() {
     setShowJournalModal(false);
     setJournalNotes('');
     setIntensiteitScore(null);
+    setSelectedTriggers([]);
+    setSelectedSensations([]);
   };
 
   const getPhaseText = () => {
@@ -737,9 +754,59 @@ export function ResonantBreathing() {
               )}
             </div>
 
+            {/* Triggers */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                Notities (optioneel)
+                {t('journal_form.triggers_label')} <span className="font-normal text-gray-400">({t('journal_form.optional')})</span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {COMMON_TRIGGERS.map(trigger => (
+                  <button
+                    key={trigger}
+                    type="button"
+                    onClick={() => setSelectedTriggers(prev =>
+                      prev.includes(trigger) ? prev.filter(x => x !== trigger) : [...prev, trigger]
+                    )}
+                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
+                      selectedTriggers.includes(trigger)
+                        ? 'bg-orange-500 text-white border-orange-500'
+                        : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-slate-500 hover:border-orange-400'
+                    }`}
+                  >
+                    {trigger}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Sensations */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
+                {t('journal_form.sensations_label')} <span className="font-normal text-gray-400">({t('journal_form.optional')})</span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {COMMON_SENSATIONS.map(sensation => (
+                  <button
+                    key={sensation}
+                    type="button"
+                    onClick={() => setSelectedSensations(prev =>
+                      prev.includes(sensation) ? prev.filter(x => x !== sensation) : [...prev, sensation]
+                    )}
+                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
+                      selectedSensations.includes(sensation)
+                        ? 'bg-blue-500 text-white border-blue-500'
+                        : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-slate-500 hover:border-blue-400'
+                    }`}
+                  >
+                    {sensation}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
+                {t('journal_form.notes_label')} <span className="font-normal text-gray-400">({t('journal_form.optional')})</span>
               </label>
               <textarea
                 value={journalNotes}
