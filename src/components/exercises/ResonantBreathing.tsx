@@ -25,7 +25,7 @@ const patterns: BreathPattern[] = [
     inhale: 5,
     hold: 0,
     exhale: 5,
-    description: '6 ademhalingen/min voor optimale HRV (instelbaar)',
+    description: '', // Will be populated from i18n
     color: 'blue',
   },
   {
@@ -33,7 +33,7 @@ const patterns: BreathPattern[] = [
     inhale: 3,
     hold: 0, // Hold comes AFTER exhale for Buteyko
     exhale: 3,
-    description: 'In → Uit → Pauze (verlengde adempauze)',
+    description: '', // Will be populated from i18n
     color: 'orange',
   },
 ];
@@ -93,14 +93,14 @@ const COMMON_SENSATIONS = [
         ...selectedPattern,
         inhale: coherentDuration,
         exhale: coherentDuration,
-        description: `${coherentDuration}s in/uit = ${bpm} ademhalingen/min`,
+        description: t('resonant.pattern_coherent_detail', { duration: coherentDuration, bpm }),
       };
     }
     if (selectedPattern.name === 'Buteyko - Extended Breath Hold') {
       return {
         ...selectedPattern,
         hold: customHoldDuration, // This hold comes AFTER exhale
-        description: `3s in → 3s uit → ${customHoldDuration}s pauze`,
+        description: t('resonant.pattern_buteyko_detail', { hold: customHoldDuration }),
       };
     }
     return selectedPattern;
@@ -375,7 +375,11 @@ const COMMON_SENSATIONS = [
             {t('resonant.choose_pattern')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-            {patterns.map((pattern) => (
+            {patterns.map((pattern) => {
+              const patternDesc = pattern.name === 'Resonant Breathing'
+                ? t('resonant.pattern_coherent_desc')
+                : t('resonant.pattern_buteyko_desc');
+              return (
               <button
                 key={pattern.name}
                 onClick={() => setSelectedPattern(pattern)}
@@ -386,7 +390,7 @@ const COMMON_SENSATIONS = [
                 }`}
               >
                 <div className="font-bold text-sm sm:text-base text-gray-800 dark:text-gray-100 mb-1 break-words transition-colors">{pattern.name}</div>
-                <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-2 break-words transition-colors">{pattern.description}</div>
+                <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-2 break-words transition-colors">{patternDesc}</div>
                 <div className="flex flex-wrap gap-2 text-xs sm:text-sm font-mono">
                   {/* Inhale */}
                   <span className="px-2 py-1 bg-green-100 text-green-700 rounded whitespace-nowrap">
@@ -415,7 +419,8 @@ const COMMON_SENSATIONS = [
                   )}
                 </div>
               </button>
-            ))}
+            );
+            })}
           </div>
 
           {/* Coherent Breathing Duration Slider */}
@@ -646,46 +651,46 @@ const COMMON_SENSATIONS = [
             <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300 transition-colors">
               <li className="flex items-start gap-2">
                 <i className="fas fa-check text-green-600 mt-1"></i>
-                <span>Adem langzaam en diep door je neus</span>
+                <span>{t('resonant.tip_coherent_1')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <i className="fas fa-check text-green-600 mt-1"></i>
-                <span>Gebruik je buik (diafragma) - voel je buik uitzetten bij inademen</span>
+                <span>{t('resonant.tip_coherent_2')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <i className="fas fa-check text-green-600 mt-1"></i>
-                <span>Blijf ontspannen, forceer niets - comfort is belangrijker dan perfectie</span>
+                <span>{t('resonant.tip_coherent_3')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <i className="fas fa-check text-green-600 mt-1"></i>
-                <span>10-20 minuten dagelijks verhoogt significant je HRV</span>
+                <span>{t('resonant.tip_coherent_4')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <i className="fas fa-check text-green-600 mt-1"></i>
-                <span>Beste momenten: 's ochtends, voor het slapen, of tijdens stress</span>
+                <span>{t('resonant.tip_coherent_5')}</span>
               </li>
             </ul>
           ) : (
             <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300 transition-colors">
               <li className="flex items-start gap-2">
                 <i className="fas fa-check text-orange-600 mt-1"></i>
-                <span>Adem LICHT en rustig door je neus - minder volume dan normaal</span>
+                <span>{t('resonant.tip_buteyko_1')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <i className="fas fa-check text-orange-600 mt-1"></i>
-                <span>De pauze na uitademen moet comfortabel zijn - geen worsteling</span>
+                <span>{t('resonant.tip_buteyko_2')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <i className="fas fa-check text-orange-600 mt-1"></i>
-                <span>Je mag een lichte "lucht-honger" voelen - dit is normaal en gezond</span>
+                <span>{t('resonant.tip_buteyko_3')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <i className="fas fa-check text-orange-600 mt-1"></i>
-                <span>Start kort en bouw geleidelijk op - overtraining kan hyperventilatie veroorzaken</span>
+                <span>{t('resonant.tip_buteyko_4')}</span>
               </li>
               <li className="flex items-start gap-2">
                 <i className="fas fa-check text-orange-600 mt-1"></i>
-                <span>Meet je Control Pause (CP) regelmatig om vooruitgang te volgen</span>
+                <span>{t('resonant.tip_buteyko_5')}</span>
               </li>
             </ul>
           )}
@@ -708,7 +713,7 @@ const COMMON_SENSATIONS = [
                   <div className="text-2xl font-bold text-gray-800 dark:text-gray-100 transition-colors">{cycles}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">Duur</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">{t('resonant.duration')}</div>
                   <div className="text-2xl font-bold text-gray-800 dark:text-gray-100 transition-colors">{formatTime(totalSeconds)}</div>
                 </div>
               </div>
@@ -740,7 +745,7 @@ const COMMON_SENSATIONS = [
                     onClick={() => setIntensiteitScore(null)}
                     className="ml-3 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 underline"
                   >
-                    wis
+                    {t('common.clear')}
                   </button>
                 </div>
               )}
@@ -811,7 +816,7 @@ const COMMON_SENSATIONS = [
               <textarea
                 value={journalNotes}
                 onChange={(e) => setJournalNotes(e.target.value)}
-                placeholder="bijv. Voelde me ontspannen, lichte duizeligheid aan het begin..."
+                placeholder={t('resonant.notes_placeholder')}
                 rows={3}
                 className="w-full px-4 py-2 border-2 border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
               />
@@ -830,7 +835,7 @@ const COMMON_SENSATIONS = [
                 className="flex-1 px-4 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-gray-200 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors"
               >
                 <i className="fas fa-times mr-2"></i>
-                Overslaan
+                {t('resonant.skip')}
               </button>
             </div>
           </div>

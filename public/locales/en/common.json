@@ -48,7 +48,8 @@
     "intensity_moderate": "Moderate",
     "intensity_severe": "Severe",
     "session": "session",
-    "sessions_count": "sessions"
+    "sessions_count": "sessions",
+    "clear": "Clear"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -72,7 +73,8 @@
     "restart_intro": "View introduction again",
     "auto_completed": "Auto-completed after exercise",
     "completed": "Completed!",
-    "all_goals_done": "All goals achieved!"
+    "all_goals_done": "All goals achieved!",
+    "hrv_latest": "Latest HRV"
   },
   "exercises": {
     "title": "Exercises",
@@ -232,7 +234,12 @@
     "sensation_add_error": "Error adding sensation",
     "view_all": "View all entries",
     "symptoms_entry": "Symptoms Entry",
-    "delete_tooltip": "Delete entry"
+    "delete_tooltip": "Delete entry",
+    "new_trigger_placeholder": "New trigger...",
+    "new_sensation_placeholder": "New sensation...",
+    "cp_placeholder": "e.g. 25",
+    "notes_placeholder": "Extra details about this session...",
+    "showing_entries": "Showing {shown} of {total} entries"
   },
   "sessions": {
     "total": "Total Sessions",
@@ -295,7 +302,24 @@
     "hold_avg": "9s (Average)",
     "hold_advanced": "15s (Advanced)",
     "extended_hold_desc": "In (3s) → Out (3s) → Pause after exhale. This extended breath pause increases your CO2 tolerance and reduces hyperventilation according to the Buteyko method.",
-    "score_enter": "Enter score"
+    "score_enter": "Enter score",
+    "pattern_coherent_desc": "6 breaths/min for optimal HRV (adjustable)",
+    "pattern_buteyko_desc": "In → Out → Pause (extended breath pause)",
+    "pattern_coherent_detail": "{duration}s in/out = {bpm} breaths/min",
+    "pattern_buteyko_detail": "3s in → 3s out → {hold}s pause",
+    "tip_coherent_1": "Breathe slowly and deeply through your nose",
+    "tip_coherent_2": "Use your belly (diaphragm) - feel your belly expand on inhalation",
+    "tip_coherent_3": "Stay relaxed, don't force anything - comfort is more important than perfection",
+    "tip_coherent_4": "10-20 minutes daily significantly increases your HRV",
+    "tip_coherent_5": "Best times: in the morning, before sleep, or during stress",
+    "tip_buteyko_1": "Breathe LIGHTLY and quietly through your nose - less volume than normal",
+    "tip_buteyko_2": "The pause after exhalation should be comfortable - no struggle",
+    "tip_buteyko_3": "You may feel a slight 'air hunger' - this is normal and healthy",
+    "tip_buteyko_4": "Start short and build gradually - overtraining can cause hyperventilation",
+    "tip_buteyko_5": "Measure your Control Pause (CP) regularly to track progress",
+    "duration": "Duration",
+    "skip": "Skip",
+    "notes_placeholder": "e.g. Felt relaxed, slight dizziness at the start..."
   },
   "onboarding": {
     "ready_title": "Ready to begin!",
@@ -319,6 +343,41 @@
     "trend": "Trend",
     "chart_title": "Intensity Trend",
     "triggers_title": "Triggers with Highest Intensity",
-    "occurrences": "times occurred"
+    "occurrences": "times occurred",
+    "trend_positive": "✅ Positive trend! Your average intensity is decreasing.",
+    "trend_negative": "⚠️ Warning: Your intensity is increasing. Consider more exercises or professional support.",
+    "trend_stable": "👍 Your average intensity is well under control.",
+    "best_technique": "🏆 {technique} is your most effective technique (avg. {avg}/10).",
+    "entries_analyzed": "📊 {n} entries analysed",
+    "chart_measurements": "measurements"
+  },
+  "journal_analysis": {
+    "tab": "Journal",
+    "title": "Journal Analysis",
+    "subtitle": "Patterns and insights based on your log entries",
+    "empty_title": "No journal data yet",
+    "empty_desc": "Add entries via the Tracking tab to discover patterns.",
+    "empty_button": "Go to Tracking",
+    "top_triggers": "Most common triggers",
+    "top_sensations": "Most common sensations",
+    "technique_effect": "Technique effectiveness",
+    "technique_effect_desc": "Average intensity before use (lower = more effective)",
+    "intensity_trend": "Intensity over time",
+    "entries": "entries",
+    "avg_intensity": "Avg. intensity",
+    "times": "×",
+    "no_triggers": "No triggers logged",
+    "no_sensations": "No sensations logged",
+    "no_technique_data": "Add intensity scores to your entries to see this overview",
+    "insight_top_trigger": "💡 Your most common trigger is {trigger} ({n}×).",
+    "insight_top_sensation": "💡 Your most reported sensation is {sensation} ({n}×).",
+    "insight_best_technique": "🏆 {technique} gives you the lowest average intensity ({avg}/10).",
+    "insight_trend_up": "📈 Your intensity has risen recently — consider more exercises.",
+    "insight_trend_down": "📉 Great progress! Your intensity is declining over the recent period.",
+    "insight_trend_stable": "📊 Your intensity has been stable over the recent period.",
+    "period_label": "Period",
+    "week": "Week",
+    "month": "Month",
+    "all": "All"
   }
 }

@@ -10,7 +10,7 @@ type Translations = typeof commonNL;
 interface I18nContextType {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string | number>) => string;
 }
 
 const translations: Record<Locale, Translations> = {
@@ -44,7 +44,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('ademruimte_locale', newLocale);
   };
 
-  const t = (key: string): string => {
+  const t = (key: string, params?: Record<string, string | number>): string => {
     const keys = key.split('.');
     let value: any = translations[locale];
 
@@ -56,7 +56,16 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    return typeof value === 'string' ? value : key;
+    let result = typeof value === 'string' ? value : key;
+
+    // Replace placeholders with parameters
+    if (params) {
+      for (const [paramKey, paramValue] of Object.entries(params)) {
+        result = result.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(paramValue));
+      }
+    }
+
+    return result;
   };
 
   return (

@@ -386,7 +386,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                     value={newTrigger}
                     onChange={(e) => setNewTrigger(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && addCustomTrigger()}
-                    placeholder="Nieuwe trigger..."
+                    placeholder={t('journal_form.new_trigger_placeholder')}
                     className="px-3 py-1 text-sm border border-blue-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-700 dark:border-blue-800 dark:text-gray-100 dark:placeholder-gray-400"
                     autoFocus
                   />
@@ -575,7 +575,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                     value={newSensation}
                     onChange={(e) => setNewSensation(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && addCustomSensation()}
-                    placeholder="Nieuwe sensatie..."
+                    placeholder={t('journal_form.new_sensation_placeholder')}
                     className="px-3 py-1 text-sm border border-purple-300 rounded-full focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors bg-white dark:bg-slate-700 dark:border-purple-800 dark:text-gray-100 dark:placeholder-gray-400"
                     autoFocus
                   />
@@ -608,7 +608,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
               type="number"
               value={cpScore}
               onChange={(e) => setCpScore(e.target.value)}
-              placeholder="bijv. 25"
+              placeholder={t('journal_form.cp_placeholder')}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-gray-100 dark:placeholder-gray-400"
             />
           </div>
@@ -622,7 +622,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={4}
-              placeholder="Extra details over deze sessie..."
+              placeholder={t('journal_form.notes_placeholder')}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-colors bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-gray-100 dark:placeholder-gray-400"
             />
           </div>
@@ -718,7 +718,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
                         onClick={() => handleDelete(entry.id!)}
                         disabled={deletingId === entry.id}
                         className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
-                        title="Verwijder entry"
+                        title={t('journal_form.delete_tooltip')}
                       >
                         {deletingId === entry.id ? (
                           <i className="fas fa-spinner fa-spin"></i>
@@ -782,7 +782,7 @@ export function JournalEntries({ limit }: JournalEntriesProps = {}) {
           {hasMore && (
             <div className="text-center pt-4">
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 transition-colors">
-                Toont {limit} van {entries.length} entries
+                {t('journal_form.showing_entries', { shown: limit, total: entries.length })}
               </p>
               <a
                 href="/journal"

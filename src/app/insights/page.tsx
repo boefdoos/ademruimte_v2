@@ -10,8 +10,9 @@ const HRVChart = lazy(() => import('@/components/tracking/HRVChart').then(mod =>
 const ControlPauseChart = lazy(() => import('@/components/tracking/ControlPauseChart').then(mod => ({ default: mod.ControlPauseChart })));
 const BreathingSessionsChart = lazy(() => import('@/components/tracking/BreathingSessionsChart').then(mod => ({ default: mod.BreathingSessionsChart })));
 const IntensityStats = lazy(() => import('@/components/tracking/IntensityStats').then(mod => ({ default: mod.IntensityStats })));
+const JournalAnalysis = lazy(() => import('@/components/tracking/JournalAnalysis').then(mod => ({ default: mod.JournalAnalysis })));
 
-type InsightTab = 'overview' | 'measurements' | 'sessions';
+type InsightTab = 'overview' | 'measurements' | 'sessions' | 'journal';
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center py-12">
@@ -26,7 +27,7 @@ export default function InsightsPage() {
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<InsightTab>('overview');
   // Track which tabs have been visited so they stay mounted
-  const [visitedTabs, setVisitedTabs] = useState<Set<InsightTab>>(new Set(['overview']));
+  const [visitedTabs, setVisitedTabs] = useState<Set<InsightTab>>(new Set<InsightTab>(['overview']));
 
   const handleTabChange = (tab: InsightTab) => {
     setActiveTab(tab);
@@ -84,6 +85,17 @@ export default function InsightsPage() {
               >
                 <i className="fas fa-wind mr-1 sm:mr-2"></i>
                 {t('insights.tab_sessions')}
+              </button>
+              <button
+                onClick={() => handleTabChange('journal')}
+                className={`flex-1 py-3 px-3 sm:py-4 sm:px-4 md:px-6 font-semibold text-xs sm:text-sm md:text-base transition-colors whitespace-nowrap ${
+                  activeTab === 'journal'
+                    ? 'bg-teal-600 text-white dark:bg-teal-700'
+                    : 'bg-gray-50 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-600'
+                }`}
+              >
+                <i className="fas fa-book mr-1 sm:mr-2"></i>
+                {t('journal_analysis.tab')}
               </button>
             </div>
 
@@ -149,10 +161,28 @@ export default function InsightsPage() {
                 </div>
               )}
 
+              {visitedTabs.has('journal') && (
+                <div className={activeTab !== 'journal' ? 'hidden' : ''}>
+                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-teal-600 dark:text-teal-400 mb-1 flex items-center transition-colors">
+                    <i className="fas fa-book mr-2 sm:mr-3"></i>
+                    {t('journal_analysis.title')}
+                  </h2>
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-4 transition-colors">
+                    {t('journal_analysis.subtitle')}
+                  </p>
+                  <ErrorBoundary>
+                    <Suspense fallback={<LoadingFallback />}>
+                      <JournalAnalysis />
+                    </Suspense>
+                  </ErrorBoundary>
+                </div>
+              )}
+
               {/* Loading for unvisited tabs */}
               {!visitedTabs.has('overview') && activeTab === 'overview' && <LoadingFallback />}
               {!visitedTabs.has('measurements') && activeTab === 'measurements' && <LoadingFallback />}
               {!visitedTabs.has('sessions') && activeTab === 'sessions' && <LoadingFallback />}
+              {!visitedTabs.has('journal') && activeTab === 'journal' && <LoadingFallback />}
             </div>
           </div>
         </div>

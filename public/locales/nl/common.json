@@ -48,7 +48,8 @@
     "intensity_moderate": "Matig",
     "intensity_severe": "Ernstig",
     "session": "sessie",
-    "sessions_count": "sessies"
+    "sessions_count": "sessies",
+    "clear": "Wis"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -72,7 +73,8 @@
     "restart_intro": "Bekijk de introductie opnieuw",
     "auto_completed": "Auto-voltooid na oefening",
     "completed": "Voltooid!",
-    "all_goals_done": "Alle doelen bereikt!"
+    "all_goals_done": "Alle doelen bereikt!",
+    "hrv_latest": "HRV Laatste"
   },
   "exercises": {
     "title": "Oefeningen",
@@ -232,7 +234,12 @@
     "sensation_add_error": "Fout bij toevoegen sensatie",
     "view_all": "Bekijk alle entries",
     "symptoms_entry": "Symptomen Entry",
-    "delete_tooltip": "Verwijder entry"
+    "delete_tooltip": "Verwijder entry",
+    "new_trigger_placeholder": "Nieuwe trigger...",
+    "new_sensation_placeholder": "Nieuwe sensatie...",
+    "cp_placeholder": "bijv. 25",
+    "notes_placeholder": "Extra details over deze sessie...",
+    "showing_entries": "Toont {shown} van {total} entries"
   },
   "sessions": {
     "total": "Totaal Sessies",
@@ -295,7 +302,24 @@
     "hold_avg": "9s (Gemiddeld)",
     "hold_advanced": "15s (Gevorderd)",
     "extended_hold_desc": "In (3s) → Uit (3s) → Pauze na uitademing. Deze verlengde adempauze verhoogt je CO2-tolerantie en reduceert hyperventilatie volgens de Buteyko methode.",
-    "score_enter": "Score invullen"
+    "score_enter": "Score invullen",
+    "pattern_coherent_desc": "6 ademhalingen/min voor optimale HRV (instelbaar)",
+    "pattern_buteyko_desc": "In → Uit → Pauze (verlengde adempauze)",
+    "pattern_coherent_detail": "{duration}s in/uit = {bpm} ademhalingen/min",
+    "pattern_buteyko_detail": "3s in → 3s uit → {hold}s pauze",
+    "tip_coherent_1": "Adem langzaam en diep door je neus",
+    "tip_coherent_2": "Gebruik je buik (diafragma) - voel je buik uitzetten bij inademen",
+    "tip_coherent_3": "Blijf ontspannen, forceer niets - comfort is belangrijker dan perfectie",
+    "tip_coherent_4": "10-20 minuten dagelijks verhoogt significant je HRV",
+    "tip_coherent_5": "Beste momenten: 's ochtends, voor het slapen, of tijdens stress",
+    "tip_buteyko_1": "Adem LICHT en rustig door je neus - minder volume dan normaal",
+    "tip_buteyko_2": "De pauze na uitademen moet comfortabel zijn - geen worsteling",
+    "tip_buteyko_3": "Je mag een lichte \"lucht-honger\" voelen - dit is normaal en gezond",
+    "tip_buteyko_4": "Start kort en bouw geleidelijk op - overtraining kan hyperventilatie veroorzaken",
+    "tip_buteyko_5": "Meet je Control Pause (CP) regelmatig om vooruitgang te volgen",
+    "duration": "Duur",
+    "skip": "Overslaan",
+    "notes_placeholder": "bijv. Voelde me ontspannen, lichte duizeligheid aan het begin..."
   },
   "onboarding": {
     "ready_title": "Klaar om te beginnen!",
@@ -319,6 +343,41 @@
     "trend": "Trend",
     "chart_title": "Intensiteit Trend",
     "triggers_title": "Triggers met Hoogste Intensiteit",
-    "occurrences": "keer voorgekomen"
+    "occurrences": "keer voorgekomen",
+    "trend_positive": "✅ Positieve trend! Je gemiddelde intensiteit daalt.",
+    "trend_negative": "⚠️ Let op: Je intensiteit neemt toe. Overweeg meer oefeningen of professionele hulp.",
+    "trend_stable": "👍 Je gemiddelde intensiteit is goed onder controle.",
+    "best_technique": "🏆 {technique} is jouw meest effectieve techniek (gem. {avg}/10).",
+    "entries_analyzed": "📊 {n} entries geanalyseerd",
+    "chart_measurements": "metingen"
+  },
+  "journal_analysis": {
+    "tab": "Dagboek",
+    "title": "Dagboek Analyse",
+    "subtitle": "Patronen en inzichten op basis van jouw logboek",
+    "empty_title": "Nog geen dagboek data",
+    "empty_desc": "Voeg entries toe via het Tracking tabblad om patronen te ontdekken.",
+    "empty_button": "Ga naar Tracking",
+    "top_triggers": "Meest voorkomende triggers",
+    "top_sensations": "Meest voorkomende sensaties",
+    "technique_effect": "Effectiviteit per techniek",
+    "technique_effect_desc": "Gemiddelde intensiteit vóór gebruik (lager = effectiever)",
+    "intensity_trend": "Intensiteit over tijd",
+    "entries": "entries",
+    "avg_intensity": "Gem. intensiteit",
+    "times": "×",
+    "no_triggers": "Geen triggers gelogd",
+    "no_sensations": "Geen sensaties gelogd",
+    "no_technique_data": "Voeg intensiteitsscores toe aan je entries voor dit overzicht",
+    "insight_top_trigger": "💡 Je meest voorkomende trigger is {trigger} ({n}×).",
+    "insight_top_sensation": "💡 Je meest gemelde sensatie is {sensation} ({n}×).",
+    "insight_best_technique": "🏆 {technique} geeft je de laagste gemiddelde intensiteit ({avg}/10).",
+    "insight_trend_up": "📈 Je intensiteit is de laatste periode gestegen — overweeg meer oefeningen.",
+    "insight_trend_down": "📉 Goed bezig! Je intensiteit daalt over de laatste periode.",
+    "insight_trend_stable": "📊 Je intensiteit is stabiel over de laatste periode.",
+    "period_label": "Periode",
+    "week": "Week",
+    "month": "Maand",
+    "all": "Alles"
   }
 }

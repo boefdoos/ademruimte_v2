@@ -347,7 +347,7 @@ export function IntensityStats() {
                     <span>{firstDate}</span>
                     {chartEntries.length > 4 && (
                       <span className="hidden sm:block text-gray-400 dark:text-gray-500">
-                        {chartEntries.length} metingen
+                        {chartEntries.length} {t('intensity.chart_measurements')}
                       </span>
                     )}
                     <span>{lastDate}</span>
@@ -389,21 +389,20 @@ export function IntensityStats() {
         </h4>
         <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
           {trendDirection === 'down' && (
-            <li>✅ Positieve trend! Je gemiddelde intensiteit daalt</li>
+            <li>{t('intensity.trend_positive')}</li>
           )}
           {trendDirection === 'up' && (
-            <li>⚠️ Let op: Je intensiteit neemt toe. Overweeg meer oefeningen of professionele hulp</li>
+            <li>{t('intensity.trend_negative')}</li>
           )}
           {avgIntensity <= 5 && (
-            <li>👍 Je gemiddelde intensiteit is goed onder controle</li>
+            <li>{t('intensity.trend_stable')}</li>
           )}
           {techniqueStats.length > 0 && (
             <li>
-              🏆 <strong>{techniqueStats[0].technique}</strong> is jouw meest effectieve techniek
-              (gem. {techniqueStats[0].avg}/10)
+              {t('intensity.best_technique', { technique: techniqueStats[0].technique, avg: techniqueStats[0].avg })}
             </li>
           )}
-          <li>📊 {entriesWithIntensity.length} entries geanalyseerd</li>
+          <li>{t('intensity.entries_analyzed', { n: entriesWithIntensity.length })}</li>
         </ul>
       </div>
     </div>

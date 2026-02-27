@@ -157,7 +157,7 @@ export default function DashboardPage() {
             />
             <StatsCard
               icon="fas fa-heart-pulse"
-              title="HRV Laatste"
+              title={t('dashboard.hrv_latest')}
               value={lastHRV ? `${lastHRV}ms` : '—'}
               subtitle={lastHRV ? t('dashboard.last_measurement') : t('dashboard.no_measurements')}
               color="purple"
