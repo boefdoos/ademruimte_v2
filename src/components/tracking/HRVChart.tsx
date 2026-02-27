@@ -417,18 +417,21 @@ export function HRVChart() {
           {t('hrv.chart_title')}
         </h3>
 
-        {/* Chart Container with horizontal scroll on mobile */}
-        <div ref={chartScrollRef} className="relative h-80 overflow-x-auto overflow-y-hidden touch-pan-x">
-          <div className="relative h-full" style={{ minWidth: chartData.length > 20 ? `${chartData.length * 24}px` : '100%' }}>
-            {/* Y-axis labels */}
-            <div className="absolute left-0 top-0 bottom-8 w-10 sm:w-12 flex flex-col justify-between text-xs sm:text-sm text-gray-600 dark:text-gray-300 pr-1 sm:pr-2 bg-white dark:bg-slate-800 z-10 transition-colors font-medium">
-              <span>{chartMax} ms</span>
-              <span>{Math.round((chartMax + chartMin) / 2)}</span>
-              <span>{chartMin} ms</span>
-            </div>
+        {/* Chart Container — y-axis is sticky (outside scroll), bars scroll */}
+        <div className="flex h-80">
+          {/* Y-axis — fixed, never scrolls */}
+          <div className="flex-shrink-0 w-10 sm:w-12 flex flex-col justify-between text-xs sm:text-sm text-gray-600 dark:text-gray-300 pr-1 sm:pr-2 transition-colors font-medium pb-8">
+            <span>{chartMax} ms</span>
+            <span>{Math.round((chartMax + chartMin) / 2)}</span>
+            <span>{chartMin} ms</span>
+          </div>
 
-            {/* Chart area with bars */}
-            <div className="absolute left-10 sm:left-12 md:left-14 right-0 top-0 bottom-8 border-l-2 border-b-2 border-gray-300 dark:border-slate-600 transition-colors">
+          {/* Scrollable chart area */}
+          <div ref={chartScrollRef} className="flex-1 relative overflow-x-auto overflow-y-hidden touch-pan-x">
+          <div className="relative h-full" style={{ minWidth: chartData.length > 20 ? `${chartData.length * 24}px` : '100%' }}>
+
+            {/* Chart area */}
+            <div className="absolute left-0 right-0 top-0 bottom-8 border-l-2 border-b-2 border-gray-300 dark:border-slate-600 transition-colors">
             {/* Auto Baseline line (blue) */}
             {autoBaseline && (
               <div
@@ -496,7 +499,7 @@ export function HRVChart() {
             </div>
 
             {/* X-axis labels */}
-            <div className="absolute left-10 sm:left-12 md:left-14 right-0 bottom-0 flex justify-between text-xs sm:text-sm text-gray-600 dark:text-gray-300 pt-2 transition-colors font-medium">
+            <div className="absolute left-0 right-0 bottom-0 flex justify-between text-xs sm:text-sm text-gray-600 dark:text-gray-300 pt-2 transition-colors font-medium">
               <span>
                 {chartData[0]?.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short' })}
               </span>
@@ -511,7 +514,8 @@ export function HRVChart() {
               </span>
             </div>
           </div>
-        </div>
+          </div>{/* end scrollable area */}
+        </div>{/* end flex row */}
 
         {/* Mobile scroll hint */}
         {chartData.length > 20 && (

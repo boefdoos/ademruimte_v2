@@ -757,7 +757,7 @@ const COMMON_SENSATIONS = [
             {/* Triggers */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                {t('journal_form.triggers_label')} <span className="font-normal text-gray-400">({t('journal_form.optional')})</span>
+                {t('journal_form.triggers_label')} <span className="font-normal text-gray-400">({t('common.optional')})</span>
               </label>
               <div className="flex flex-wrap gap-2">
                 {COMMON_TRIGGERS.map(trigger => (
@@ -782,7 +782,7 @@ const COMMON_SENSATIONS = [
             {/* Sensations */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                {t('journal_form.sensations_label')} <span className="font-normal text-gray-400">({t('journal_form.optional')})</span>
+                {t('journal_form.sensations_label')} <span className="font-normal text-gray-400">({t('common.optional')})</span>
               </label>
               <div className="flex flex-wrap gap-2">
                 {COMMON_SENSATIONS.map(sensation => (
@@ -806,7 +806,7 @@ const COMMON_SENSATIONS = [
 
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                {t('journal_form.notes_label')} <span className="font-normal text-gray-400">({t('journal_form.optional')})</span>
+                {t('journal_form.notes_label')} <span className="font-normal text-gray-400">({t('common.optional')})</span>
               </label>
               <textarea
                 value={journalNotes}

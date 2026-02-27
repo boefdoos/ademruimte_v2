@@ -259,22 +259,25 @@ export function ControlPauseChart() {
           {t('cp.chart_title')}
         </h3>
 
-        {/* Chart Container with horizontal scroll on mobile */}
-        <div ref={chartScrollRef} className="relative h-80 overflow-x-auto overflow-y-hidden touch-pan-x">
+        {/* Chart Container — y-axis is sticky (outside scroll), bars scroll */}
+        <div className="flex h-80">
+          {/* Y-axis — fixed, never scrolls */}
+          <div className="flex-shrink-0 w-10 sm:w-12 flex flex-col justify-between text-xs sm:text-sm text-gray-600 dark:text-gray-300 pr-1 sm:pr-2 transition-colors font-medium pb-8">
+            <span>60s</span>
+            <span>50s</span>
+            <span className="font-semibold text-green-600 dark:text-green-400 transition-colors">40s</span>
+            <span className="font-semibold text-yellow-600 dark:text-yellow-400 transition-colors">30s</span>
+            <span className="font-semibold text-orange-600 dark:text-orange-400 transition-colors">20s</span>
+            <span className="font-semibold text-red-600 dark:text-red-400 transition-colors">10s</span>
+            <span>0s</span>
+          </div>
+
+          {/* Scrollable chart area */}
+          <div ref={chartScrollRef} className="flex-1 relative overflow-x-auto overflow-y-hidden touch-pan-x">
           <div className="relative h-full" style={{ minWidth: records.length > 20 ? `${records.length * 24}px` : '100%' }}>
-            {/* Y-axis labels */}
-            <div className="absolute left-0 top-0 bottom-8 w-10 sm:w-12 flex flex-col justify-between text-xs sm:text-sm text-gray-600 dark:text-gray-300 pr-1 sm:pr-2 bg-white dark:bg-slate-800 z-10 transition-colors font-medium">
-              <span>60s</span>
-              <span>50s</span>
-              <span className="font-semibold text-green-600 dark:text-green-400 transition-colors">40s</span>
-              <span className="font-semibold text-yellow-600 dark:text-yellow-400 transition-colors">30s</span>
-              <span className="font-semibold text-orange-600 dark:text-orange-400 transition-colors">20s</span>
-              <span className="font-semibold text-red-600 dark:text-red-400 transition-colors">10s</span>
-              <span>0s</span>
-            </div>
 
             {/* Chart area with bars */}
-            <div className="absolute left-10 sm:left-12 md:left-14 right-0 top-0 bottom-8 border-l-2 border-b-2 border-gray-300 dark:border-slate-600 transition-colors">
+            <div className="absolute left-0 right-0 top-0 bottom-8 border-l-2 border-b-2 border-gray-300 dark:border-slate-600 transition-colors">
               {/* Reference lines */}
               <div className="absolute left-0 right-0 border-t-2 border-dashed border-green-200 dark:border-green-900/50 transition-colors" style={{ bottom: '66.67%' }}></div>
               <div className="absolute left-0 right-0 border-t-2 border-dashed border-yellow-200 dark:border-yellow-900/50 transition-colors" style={{ bottom: '50%' }}></div>
@@ -345,7 +348,7 @@ export function ControlPauseChart() {
             </div>
 
             {/* X-axis labels */}
-            <div className="absolute left-10 sm:left-12 md:left-14 right-0 bottom-0 flex justify-between text-xs sm:text-sm text-gray-600 dark:text-gray-300 pt-2 transition-colors font-medium">
+            <div className="absolute left-0 right-0 bottom-0 flex justify-between text-xs sm:text-sm text-gray-600 dark:text-gray-300 pt-2 transition-colors font-medium">
               <span>
                 {records[0]?.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short' })}
               </span>
@@ -360,7 +363,8 @@ export function ControlPauseChart() {
               </span>
             </div>
           </div>
-        </div>
+          </div>{/* end scrollable area */}
+        </div>{/* end flex row */}
 
         {/* Mobile scroll hint */}
         {records.length > 20 && (
