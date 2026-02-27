@@ -1,0 +1,2995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0076FF">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+    <title>OHK Wallet - Beloningssysteem</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon ohk wallet III.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon ohk wallet III.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon ohk wallet III.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/favicon ohk wallet III.png">
+    <link rel="manifest" href="/site.webmanifest">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+    
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <style>
+        /* === ROOT VARIABLES === */
+        :root {
+            --primary: #0076FF;
+            --primary-dark: #0062D6;
+            --background: #FFFFFF;
+            --text: #333333;
+            --gray: #777777;
+            --light-gray: #F5F5F5;
+            --border: #E0E0E0;
+            --success: #43A047;
+            --danger: #E53935;
+            --danger-dark: #C62828;
+            --warning: #FF9800;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+            --min-touch-target: 44px;
+        }
+
+        /* === GLOBAL RESET === */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* === LAYOUT === */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px;
+            width: 100%;
+        }
+
+        /* === AUTHENTICATION CONTAINER === */
+        .auth-container {
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 32px 24px;
+            background: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--primary);
+            font-size: clamp(20px, 4vw, 24px);
+            line-height: 1.2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header h1 svg {
+            flex-shrink: 0;
+        }
+
+        .header p {
+            color: var(--gray);
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        /* === FORMS === */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text);
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            background: var(--background);
+            color: var(--text);
+            min-height: var(--min-touch-target);
+            -webkit-appearance: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 118, 255, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: #999;
+        }
+
+        /* === CODE INPUT STYLING === */
+        .code-input {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            letter-spacing: 4px;
+            font-weight: 600;
+            padding: 20px 16px;
+        }
+
+        .code-input::placeholder {
+            letter-spacing: 2px;
+            opacity: 0.5;
+        }
+
+        /* === CHECKBOX STYLING === */
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary);
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: var(--gray);
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        /* === BUTTONS === */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 24px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            min-height: var(--min-touch-target);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            line-height: 1;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 118, 255, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--light-gray) !important;
+            color: var(--text) !important;
+            border: 1px solid var(--border) !important;
+        }
+
+        .btn-secondary:hover {
+            background: var(--border) !important;
+            color: var(--text) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .btn-danger {
+            background: var(--danger) !important;
+            color: white !important;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger-dark) !important;
+            box-shadow: 0 4px 12px rgba(229, 57, 53, 0.3) !important;
+        }
+
+        .btn-warning {
+            background: var(--warning) !important;
+            color: white !important;
+        }
+
+        .btn-warning:hover {
+            background: #F57C00 !important;
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3) !important;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 14px;
+            min-height: 36px;
+        }
+
+        /* === LOGIN DIVIDER === */
+        .login-divider {
+            text-align: center;
+            margin: 24px 0;
+            position: relative;
+        }
+
+        .login-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .login-divider span {
+            background: var(--background);
+            padding: 0 16px;
+            color: var(--gray);
+            font-size: 14px;
+            position: relative;
+        }
+
+        /* === FORM LINKS === */
+        .form-links {
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .form-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .form-links a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        /* === AUTH FOOTER === */
+        .auth-footer {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .admin-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: transparent;
+            color: var(--gray);
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            min-height: var(--min-touch-target);
+            margin-bottom: 16px;
+        }
+
+        .admin-toggle:hover {
+            background: var(--light-gray);
+            color: var(--text);
+            border-color: var(--gray);
+        }
+
+        .help-text {
+            color: var(--gray);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            opacity: 0.8;
+        }
+
+        /* === DASHBOARD === */
+        .dashboard {
+            display: none;
+        }
+
+        .admin-panel {
+            display: none;
+        }
+
+        .dashboard-header {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .dashboard-header h1 {
+            font-size: clamp(18px, 4vw, 24px);
+            margin-bottom: 4px;
+            color: var(--primary);
+            line-height: 1.2;
+            word-wrap: break-word;
+            display: flex;
+            align-items: center;
+        }
+
+        .dashboard-header h1 svg {
+            flex-shrink: 0;
+        }
+
+        .dashboard-header p {
+            color: var(--gray);
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .admin-level-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .admin-level-super {
+            background: linear-gradient(135deg, #FF6B6B, #FFE66D);
+            color: #333;
+        }
+
+        .admin-level-regular {
+            background: linear-gradient(135deg, #4ECDC4, #44A08D);
+            color: white;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* === TOKEN DISPLAY === */
+        .token-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            background: var(--background);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .token-card {
+            text-align: center;
+            padding: 20px 16px;
+            background: var(--light-gray);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border);
+        }
+
+        .token-card i {
+            font-size: 24px;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .token-card p {
+            color: var(--gray);
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .token-card h3 {
+            color: var(--primary);
+            font-size: clamp(24px, 5vw, 32px);
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        /* === TABLES === */
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border);
+            background: var(--background);
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .history-table th {
+            background: var(--light-gray);
+            font-weight: 600;
+            color: var(--text);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .history-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* === USER LIST === */
+        .user-list {
+            background: var(--background);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .user-item {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-info h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            word-wrap: break-word;
+            line-height: 1.3;
+        }
+
+        .user-info p {
+            color: var(--gray);
+            font-size: 14px;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .user-code {
+            font-family: 'Courier New', monospace;
+            background: var(--light-gray);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .user-stats {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1;
+        }
+
+        .badge-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* === MODALS === */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: var(--background);
+            margin: 20px auto;
+            padding: 24px;
+            border-radius: var(--border-radius);
+            width: calc(100% - 40px);
+            max-width: 600px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .modal-content h2,
+        .modal-content h3 {
+            color: var(--primary);
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            flex: 1;
+        }
+
+        .close {
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 8px 16px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: var(--min-touch-target);
+            min-width: 44px;
+            margin-left: 16px;
+            flex-shrink: 0;
+        }
+
+        .close:hover {
+            background: var(--danger-dark);
+            transform: scale(1.05);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn-cancel {
+            background: var(--light-gray) !important;
+            color: var(--text) !important;
+            border: 1px solid var(--border) !important;
+        }
+
+        .btn-cancel:hover {
+            background: var(--border) !important;
+        }
+
+        /* === QR CODE DISPLAY === */
+        .qr-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: var(--light-gray);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border);
+        }
+
+        .qr-container h4 {
+            margin-bottom: 16px;
+            color: var(--primary);
+        }
+
+        .qr-code {
+            margin: 0 auto 16px;
+            border: 8px solid white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        /* === SEARCH BAR === */
+        .search-bar {
+            margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            min-height: var(--min-touch-target);
+        }
+
+        /* === ALERTS === */
+        .alert {
+            padding: 16px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            color: white;
+            display: none;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: var(--success);
+        }
+
+        .alert-danger {
+            background: var(--danger);
+        }
+
+        /* === LOADING === */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .spinner {
+            border: 4px solid var(--border);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border-left-color: var(--primary);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+        }
+
+        #loading-overlay .loading-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--background);
+            padding: 32px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            min-width: 200px;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        /* === STATUS BAR === */
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            background: var(--background);
+            padding: 8px 12px;
+            font-size: 12px;
+            border: 1px solid var(--border);
+            border-bottom: none;
+            border-right: none;
+            border-top-left-radius: var(--border-radius);
+            z-index: 100;
+            opacity: 0.9;
+            transition: opacity 0.3s ease;
+        }
+
+        .status-bar:hover {
+            opacity: 1;
+        }
+
+        .status-connected,
+        .status-disconnected {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        .status-connected {
+            color: var(--success);
+        }
+
+        .status-disconnected {
+            color: var(--danger);
+        }
+
+        .status-connected::before,
+        .status-disconnected::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-connected::before {
+            background: var(--success);
+        }
+
+        .status-disconnected::before {
+            background: var(--danger);
+        }
+
+        /* === ACCOUNT SECTION === */
+        .account-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid var(--border);
+        }
+
+        .account-section h3 {
+            color: var(--gray);
+            font-size: 16px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .account-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* === MOBILE OPTIMIZATIONS === */
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+
+            .auth-container {
+                margin: 20px auto;
+                padding: 24px 20px;
+            }
+
+            .header h1 svg {
+                width: 36px;
+                height: 36px;
+                margin-right: 6px;
+            }
+
+            .dashboard-header {
+                gap: 12px;
+            }
+
+            .dashboard-header h1 svg {
+                width: 32px;
+                height: 32px;
+                margin-right: 6px;
+            }
+
+            .dashboard-actions {
+                flex-direction: column;
+            }
+
+            .dashboard-actions .btn {
+                width: 100%;
+            }
+
+            .user-item {
+                padding: 16px;
+            }
+
+            .user-actions {
+                flex-direction: column;
+            }
+
+            .user-actions .btn {
+                width: 100%;
+            }
+
+            .modal-content {
+                margin: 10px auto;
+                width: calc(100% - 20px);
+                max-height: calc(100vh - 20px);
+                padding: 20px 16px;
+            }
+
+            .token-display {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                padding: 16px;
+            }
+
+            .modal-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .close {
+                margin-left: 0;
+                align-self: flex-end;
+            }
+
+            .account-actions {
+                flex-direction: column;
+            }
+
+            .account-actions .btn {
+                width: 100%;
+            }
+
+            /* Quick action buttons stack on mobile */
+            #quickTokenActions {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            #quickTokenActions .btn {
+                width: 100%;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .dashboard-header {
+                flex-direction: row;
+                align-items: flex-start;
+                justify-content: space-between;
+            }
+
+            .dashboard-actions {
+                flex-shrink: 0;
+            }
+
+            .user-item {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .user-info {
+                flex: 1;
+            }
+
+            .user-actions {
+                flex-direction: row;
+                flex-shrink: 0;
+            }
+
+            #quickTokenActions {
+                display: flex;
+                gap: 8px;
+            }
+
+            #quickTokenActions .btn {
+                flex: 1;
+            }
+        }
+
+        /* === UTILITY CLASSES === */
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-20 {
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* === IMPROVEMENTS FOR TOUCH === */
+        .btn, .form-control, input[type="text"], input[type="email"], input[type="password"], input[type="tel"], input[type="number"] {
+            -webkit-appearance: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Prevent zoom on iOS when focusing inputs */
+        @media screen and (-webkit-min-device-pixel-ratio: 0) {
+            select, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"] {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Connection Status Bar -->
+    <div class="status-bar" id="statusBar">
+        <span id="connectionStatus">Verbinden...</span>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p id="loadingMessage">Laden...</p>
+        </div>
+    </div>
+    
+    <!-- Public Profile View (for QR code scans) -->
+    <div class="container dashboard" id="publicProfileContainer" style="display: none;">
+        <div class="dashboard-header">
+            <div>
+                <h1>
+                    <img src="/favicon ohk wallet III.png" alt="OHK Wallet Logo" width="36" height="36" style="vertical-align: middle; margin-right: 8px; border-radius: 50%;">
+                    <span id="publicUserName">Gebruiker Profiel</span>
+                </h1>
+                <p>Publiek wallet overzicht - Code: <span class="user-code" id="publicUserCode">Laden...</span></p>
+            </div>
+        </div>
+        
+        <div class="token-display">
+            <div class="token-card">
+                <i class="fas fa-coins"></i>
+                <p>Beschikbare Tokens</p>
+                <h3 id="publicAvailableTokens">0</h3>
+            </div>
+            <div class="token-card">
+                <i class="fas fa-star"></i>
+                <p>Totaal Verdiend</p>
+                <h3 id="publicTotalEarned">0</h3>
+            </div>
+            <div class="token-card">
+                <i class="fas fa-calendar-check"></i>
+                <p>Activiteiten</p>
+                <h3 id="publicWorkingDays">0</h3>
+            </div>
+        </div>
+
+        <h2 style="margin-bottom: 16px; color: var(--primary);">Recente Transacties</h2>
+        <div class="loading" id="publicHistoryLoading">
+            <div class="spinner"></div>
+            <p>Transactie geschiedenis laden...</p>
+        </div>
+        <div class="table-container">
+            <table class="history-table" id="publicHistoryTable">
+                <thead>
+                    <tr>
+                        <th>Datum</th>
+                        <th>Beschrijving</th>
+                        <th>Tokens</th>
+                    </tr>
+                </thead>
+                <tbody id="publicHistoryTableBody">
+                    <!-- Transaction history will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="account-section">
+            <h3>Acties</h3>
+            <div class="account-actions">
+                <button class="btn btn-secondary" onclick="goToLogin()">
+                    <i class="fas fa-sign-in-alt"></i> Inloggen
+                </button>
+                <button class="btn btn-secondary" onclick="window.location.reload()">
+                    <i class="fas fa-home"></i> Naar Hoofdpagina
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Auth Container -->
+    <div class="auth-container" id="authContainer">
+        <div class="header">
+            <h1>
+                <img src="/favicon ohk wallet III.png" alt="OHK Wallet Logo" width="40" height="40" style="vertical-align: middle; margin-right: 8px; border-radius: 50%;">
+                OHK Wallet
+            </h1>
+            <p>Rewards voor de beste vrijwilligers ♥</p>
+        </div>
+        
+        <!-- User Access Form -->
+        <form id="userAccessForm">
+            <div class="alert alert-danger" id="userAccessAlert"></div>
+            
+            <div class="form-group">
+                <label for="userCode">Jouw 10-Cijferige Code</label>
+                <input type="text" id="userCodeInput" class="form-control code-input" placeholder="0000000000" required maxlength="10" pattern="[0-9]{10}">
+            </div>
+            
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="stayLoggedIn">
+                    Blijf ingelogd op dit apparaat
+                </label>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn btn-full">
+                    <i class="fas fa-wallet"></i> Bekijk mijn wallet
+                </button>
+            </div>
+            
+            <div class="login-divider">
+                <span>Of scan een QR-code voor directe toegang</span>
+            </div>
+        </form>
+        
+        <!-- Admin Login Form -->
+        <form id="loginForm" class="hidden">
+            <div class="alert alert-danger" id="loginAlert"></div>
+            
+            <div class="form-group">
+                <label for="loginEmail">E-mailadres</label>
+                <input type="email" id="loginEmail" class="form-control" placeholder="naam@voorbeeld.nl" required autocomplete="email">
+            </div>
+            
+            <div class="form-group">
+                <label for="loginPassword">Wachtwoord</label>
+                <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn btn-full">
+                    <i class="fas fa-sign-in-alt"></i> Inloggen als Beheerder
+                </button>
+            </div>
+            
+            <div class="form-links">
+                <a href="#" id="forgotPasswordLink">Wachtwoord vergeten?</a>
+            </div>
+            
+            <div class="form-group" style="margin-top: 24px;">
+                <button type="button" class="btn btn-secondary btn-full" id="backToUserAccessBtn">
+                    <i class="fas fa-arrow-left"></i> Terug naar gebruiker toegang
+                </button>
+            </div>
+        </form>
+        
+        <!-- Footer Section -->
+        <div class="auth-footer" id="authFooter">
+            <button type="button" class="admin-toggle" id="showAdminLoginBtn">
+                <i class="fas fa-user-shield"></i> Beheerder inloggen
+            </button>
+            
+            <div class="help-text">
+                <i class="fas fa-info-circle"></i>
+                Nieuw in het systeem? Neem contact op met een beheerder.
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Dashboard -->
+    <div class="container dashboard" id="dashboardContainer">
+        <div class="dashboard-header">
+            <div>
+                <h1>
+                    <img src="/favicon ohk wallet III.png" alt="OHK Wallet Logo" width="36" height="36" style="vertical-align: middle; margin-right: 8px; border-radius: 50%;">
+                    Welkom, <span id="userName">Kunstenaar</span>!
+                </h1>
+                <p>Jouw creatieve bijdrage overzicht - Code: <span class="user-code" id="userCode">Laden...</span></p>
+            </div>
+        </div>
+        
+        <div class="token-display">
+            <div class="token-card">
+                <i class="fas fa-coins"></i>
+                <p>Beschikbare Tokens</p>
+                <h3 id="availableTokens">0</h3>
+            </div>
+            <div class="token-card">
+                <i class="fas fa-star"></i>
+                <p>Totaal Verdiend</p>
+                <h3 id="totalEarned">0</h3>
+            </div>
+            <div class="token-card">
+                <i class="fas fa-calendar-check"></i>
+                <p>Activiteiten</p>
+                <h3 id="workingDays">0</h3>
+            </div>
+        </div>
+
+        <!-- QR Code Display -->
+        <div class="qr-container">
+            <h4><i class="fas fa-qrcode"></i> Jouw Wallet QR-Code</h4>
+            <canvas id="userQRCode" class="qr-code"></canvas>
+            <p style="color: var(--gray); font-size: 14px;">Scan deze code om direct naar jouw profiel te gaan (werkt op elke telefoon met QR scanner)</p>
+        </div>
+        
+        <h2 style="margin-bottom: 16px; color: var(--primary);">Transactie Geschiedenis</h2>
+        <div class="loading" id="historyLoading">
+            <div class="spinner"></div>
+            <p>Transactie geschiedenis laden...</p>
+        </div>
+        <div class="table-container">
+            <table class="history-table" id="historyTable">
+                <thead>
+                    <tr>
+                        <th>Datum</th>
+                        <th>Beschrijving</th>
+                        <th>Tokens</th>
+                        <th>Saldo</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                    <!-- Transaction history will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Account Section at Bottom -->
+        <div class="account-section">
+            <h3>Account Instellingen</h3>
+            <div class="account-actions">
+                <button class="btn btn-secondary" id="accountSettingsBtn">
+                    <i class="fas fa-cog"></i> Instellingen
+                </button>
+                <button class="btn btn-warning" id="forgetDeviceBtn" style="display: none;">
+                    <i class="fas fa-mobile-alt"></i> Vergeet Apparaat
+                </button>
+                <button class="btn btn-danger" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Uitloggen
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Admin Panel -->
+    <div class="container admin-panel" id="adminContainer">
+        <div class="dashboard-header">
+            <div>
+                <h1>
+                    <img src="/favicon ohk wallet III.png" alt="OHK Wallet Logo" width="36" height="36" style="vertical-align: middle; margin-right: 8px; border-radius: 50%;">
+                    Beheerder Overzicht
+                    <span class="admin-level-badge" id="adminLevelBadge">Laden...</span>
+                </h1>
+                <p>Beheer gemeenschap beloningen</p>
+            </div>
+            <div class="dashboard-actions" id="adminActions">
+                <!-- Actions will be populated based on admin level -->
+            </div>
+        </div>
+        
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Zoek vrijwilligers op naam of code..." autocomplete="off">
+        </div>
+        
+        <div class="user-list" id="userList">
+            <div class="loading" id="usersLoading">
+                <div class="spinner"></div>
+                <p>Vrijwilligers laden...</p>
+            </div>
+        </div>
+
+        <!-- Account Section at Bottom -->
+        <div class="account-section">
+            <h3>Beheerder Instellingen</h3>
+            <div class="account-actions" id="adminAccountActions">
+                <!-- Actions will be populated based on admin level -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Token Management Modal -->
+    <div class="modal" id="tokenModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Beheer Tokens voor <span id="modalUserName"></span></h2>
+                <button class="close" id="closeTokenModal">×</button>
+            </div>
+            
+            <div class="token-display mb-20">
+                <div class="token-card">
+                    <p>Huidig Saldo</p>
+                    <h3 id="modalCurrentTokens">0</h3>
+                </div>
+                <div class="token-card">
+                    <p>Werkdagen</p>
+                    <h3 id="modalWorkingDays">0</h3>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div id="quickTokenActions" class="mb-20">
+                <button type="button" class="btn" id="quickAddBtn">+1 Token</button>
+                <button type="button" class="btn btn-danger" id="quickRemoveBtn">-1 Token</button>
+            </div>
+            
+            <form id="addTokensForm">
+                <div class="form-group">
+                    <label for="tokenAmount">Token Aantal</label>
+                    <input type="number" id="tokenAmount" class="form-control" placeholder="Voer token aantal in" required>
+                </div>
+                <div class="form-group">
+                    <label for="tokenReason">Reden</label>
+                    <input type="text" id="tokenReason" class="form-control" placeholder="Reden voor toevoegen/verwijderen tokens" required>
+                </div>
+                
+                <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <button type="submit" class="btn" style="flex: 1; min-width: 120px;">Tokens Toevoegen</button>
+                    <button type="button" class="btn btn-danger" id="removeTokensBtn" style="flex: 1; min-width: 120px;">Tokens Verwijderen</button>
+                </div>
+                
+                <div class="form-group">
+                    <button type="button" class="btn btn-secondary btn-full" id="addWorkDayBtn">Werkdag registreren (+3 tokens)</button>
+                </div>
+            </form>
+            
+            <h3 style="margin: 24px 0 12px 0; color: var(--primary);">Transactie Geschiedenis</h3>
+            <div class="table-container" style="max-height: 250px; overflow-y: auto;">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Datum</th>
+                            <th>Beschrijving</th>
+                            <th>Tokens</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalHistoryTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- User ID and QR Code Section - Moved to bottom for administrators -->
+            <div class="qr-container" style="margin-top: 24px;">
+                <h4><i class="fas fa-user"></i> Gebruiker Informatie</h4>
+                <p style="margin-bottom: 16px;">
+                    <strong>Gebruiker Code:</strong> 
+                    <span class="user-code" id="modalUserCode" style="font-size: 16px;">-</span>
+                </p>
+                <h4><i class="fas fa-qrcode"></i> Gebruiker's Wallet QR-Code</h4>
+                <canvas id="modalQRCode" class="qr-code"></canvas>
+                <p style="color: var(--gray); font-size: 14px;">Scan deze code om direct naar dit profiel te gaan (werkt op elke telefoon met QR scanner)</p>
+            </div>
+            
+            <!-- Super Admin Only Actions -->
+            <div id="superAdminActions" style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); text-align: center;">
+                <button class="btn btn-danger" id="deleteUserBtn" style="max-width: 200px;">Gebruiker Verwijderen</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add User Modal -->
+    <div class="modal" id="addUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nieuwe Gebruiker Toevoegen</h2>
+                <button class="close" id="closeAddUserModal">×</button>
+            </div>
+            
+            <form id="addUserForm">
+                <div class="alert alert-danger" id="addUserAlert"></div>
+                <div class="form-group">
+                    <label for="addUserName">Volledige Naam</label>
+                    <input type="text" id="addUserName" class="form-control" placeholder="Voer volledige naam in" required autocomplete="name">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-full">Gebruiker Toevoegen</button>
+                </div>
+                <p style="color: var(--gray); font-size: 14px; text-align: center; margin-top: 16px;">
+                    Een willekeurige 10-cijferige code wordt automatisch gegenereerd. Geen wachtwoord nodig - gebruikers krijgen toegang via code of QR-scan.
+                </p>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Password Reset Modal -->
+    <div class="modal" id="passwordResetModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Wachtwoord Herstellen</h2>
+                <button class="close" id="closePasswordResetModal">×</button>
+            </div>
+            
+            <div class="alert alert-success" id="passwordResetSuccessAlert"></div>
+            <div class="alert alert-danger" id="passwordResetAlert"></div>
+            
+            <p style="margin-bottom: 20px; color: var(--gray);">Voer jouw e-mailadres in en we sturen je een link om jouw wachtwoord te herstellen.</p>
+            
+            <form id="passwordResetForm">
+                <div class="form-group">
+                    <label for="resetEmail">E-mailadres</label>
+                    <input type="email" id="resetEmail" class="form-control" placeholder="Voer jouw e-mailadres in" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-full">Herstel E-mail Versturen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Account Settings Modal -->
+    <div class="modal" id="accountSettingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Account Instellingen</h2>
+                <button class="close" id="closeAccountSettingsModal">×</button>
+            </div>
+            
+            <div class="alert alert-success" id="accountSettingsSuccessAlert"></div>
+            <div class="alert alert-danger" id="accountSettingsAlert"></div>
+            
+            <form id="changeUsernameForm">
+                <h3 style="margin: 20px 0 10px 0; color: var(--primary);">Gebruikersnaam Wijzigen</h3>
+                <div class="form-group">
+                    <label for="newUsername">Nieuwe Gebruikersnaam</label>
+                    <input type="text" id="newUsername" class="form-control" placeholder="Voer nieuwe gebruikersnaam in" required autocomplete="name">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-secondary btn-full">Gebruikersnaam Bijwerken</button>
+                </div>
+            </form>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border);">
+                <h3 style="margin-bottom: 10px; color: var(--danger);">Account Verwijderen</h3>
+                <p style="margin-bottom: 15px; color: var(--gray);">Dit zal jouw account en alle gegevens permanent verwijderen. Je kunt later opnieuw registreren met hetzelfde e-mailadres indien gewenst.</p>
+                <div class="form-group">
+                    <button id="deleteAccountBtn" class="btn btn-danger btn-full">Mijn Account Verwijderen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Admin Password Modal -->
+    <div class="modal" id="adminPasswordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Beheerder Wachtwoord Wijzigen</h2>
+                <button class="close" id="closeAdminPasswordModal">×</button>
+            </div>
+            
+            <div class="alert alert-success" id="adminPasswordSuccessAlert"></div>
+            <div class="alert alert-danger" id="adminPasswordAlert"></div>
+            
+            <form id="adminPasswordForm">
+                <div class="form-group">
+                    <label for="adminCurrentPassword">Huidig Wachtwoord</label>
+                    <input type="password" id="adminCurrentPassword" class="form-control" placeholder="Voer huidig wachtwoord in" required autocomplete="current-password">
+                </div>
+                <div class="form-group">
+                    <label for="adminNewPassword">Nieuw Wachtwoord</label>
+                    <input type="password" id="adminNewPassword" class="form-control" placeholder="Voer nieuw wachtwoord in (min. 6 tekens)" required autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-full">Wachtwoord Wijzigen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Admin Modal -->
+    <div class="modal" id="addAdminModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nieuwe Beheerder Toevoegen</h2>
+                <button class="close" id="closeAddAdminModal">×</button>
+            </div>
+            
+            <form id="addAdminForm">
+                <div class="alert alert-success" id="addAdminSuccessAlert"></div>
+                <div class="alert alert-danger" id="addAdminAlert"></div>
+                <div class="form-group">
+                    <label for="addAdminEmail">E-mailadres</label>
+                    <input type="email" id="addAdminEmail" class="form-control" placeholder="Voer beheerder e-mailadres in" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="addAdminPassword">Tijdelijk Wachtwoord</label>
+                    <input type="password" id="addAdminPassword" class="form-control" placeholder="Min. 6 tekens — beheerder kan dit later wijzigen" required autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label for="addAdminLevel">Beheerder Niveau</label>
+                    <select id="addAdminLevel" class="form-control" required>
+                        <option value="">Selecteer beheerder niveau</option>
+                        <option value="regular">Gewone Beheerder (Alleen Token Beheer)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-full">Beheerder Toevoegen</button>
+                </div>
+                <p style="color: var(--gray); font-size: 14px; text-align: center; margin-top: 16px;">
+                    Er wordt een nieuw Firebase-account aangemaakt. Geef het tijdelijke wachtwoord door aan de beheerder — die kan het daarna zelf wijzigen.
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration - DO NOT CHANGE
+        const firebaseConfig = {
+            apiKey: "AIzaSyAev2VvDz3FCxdZmZo2W2jpgACFh9Q_YlA",
+            authDomain: "ohk-volunteers.firebaseapp.com",
+            databaseURL: "https://ohk-volunteers-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "ohk-volunteers",
+            storageBucket: "ohk-volunteers.firebasestorage.app",
+            messagingSenderId: "637356396673",
+            appId: "1:637356396673:web:e9cbfcf21dc509cadb7d80",
+            measurementId: "G-R4KV130GN8"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+        
+        // Global variables
+        let currentUser = null;
+        let currentAdminData = null;
+        let allUsers = [];
+        let currentModalUserId = null;
+
+        // Utility functions
+        function showLoading(message = 'Laden...') {
+            document.getElementById('loadingMessage').textContent = message;
+            document.getElementById('loading-overlay').style.display = 'block';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
+
+        function showAlert(alertElement, message) {
+            alertElement.textContent = message;
+            alertElement.style.display = 'block';
+            setTimeout(() => {
+                alertElement.style.display = 'none';
+            }, 5000);
+        }
+
+        function showContainer(containerName) {
+            document.getElementById('authContainer').style.display = containerName === 'auth' ? 'block' : 'none';
+            document.getElementById('dashboardContainer').style.display = containerName === 'dashboard' ? 'block' : 'none';
+            document.getElementById('adminContainer').style.display = containerName === 'admin' ? 'block' : 'none';
+            document.getElementById('publicProfileContainer').style.display = containerName === 'public-profile' ? 'block' : 'none';
+        }
+
+        function showAdminLogin() {
+            document.getElementById('userAccessForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('authFooter').style.display = 'none';
+        }
+        
+        function showUserAccess() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('userAccessForm').classList.remove('hidden');
+            document.getElementById('authFooter').style.display = 'block';
+        }
+
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function hideModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function generateUserCode() {
+            return Math.floor(1000000000 + Math.random() * 9000000000).toString();
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('nl-NL', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleTimeString('nl-NL', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        async function generateQRCode(canvas, data) {
+            console.log('🔗 Starting QR code generation...', data);
+            
+            if (!canvas) {
+                console.error('❌ Canvas element not found!');
+                return;
+            }
+            
+            // Method 1: Try QRCode library
+            if (typeof QRCode !== 'undefined') {
+                try {
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    await QRCode.toCanvas(canvas, data, {
+                        width: 200,
+                        height: 200,
+                        margin: 2,
+                        color: {
+                            dark: '#333333',
+                            light: '#FFFFFF'
+                        },
+                        errorCorrectionLevel: 'M'
+                    });
+                    
+                    console.log('✅ QR code generated successfully');
+                    return;
+                } catch (error) {
+                    console.error('❌ QRCode library failed:', error);
+                }
+            }
+            
+            // Method 2: Try Google Charts API as fallback
+            try {
+                await generateQRWithGoogleAPI(canvas, data);
+                console.log('✅ QR code generated with Google API');
+                return;
+            } catch (error) {
+                console.error('❌ Google API failed:', error);
+            }
+            
+            // Method 3: Fallback display
+            createFallbackQR(canvas, data, 'QR generation failed');
+        }
+        
+        async function generateQRWithGoogleAPI(canvas, data) {
+            return new Promise((resolve, reject) => {
+                const size = 200;
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}`;
+                
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                
+                img.onload = function() {
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = size;
+                    canvas.height = size;
+                    ctx.drawImage(img, 0, 0, size, size);
+                    resolve();
+                };
+                
+                img.onerror = function() {
+                    reject(new Error('Failed to load QR code from API'));
+                };
+                
+                img.src = qrUrl;
+            });
+        }
+        
+        function createFallbackQR(canvas, data, errorMsg) {
+            const ctx = canvas.getContext('2d');
+            canvas.width = 200;
+            canvas.height = 200;
+            
+            // Background
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, 200, 200);
+            
+            // Border
+            ctx.strokeStyle = '#dee2e6';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(1, 1, 198, 198);
+            
+            // Error text
+            ctx.fillStyle = '#6c757d';
+            ctx.font = '14px Inter, Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('QR Code Fout', 100, 100);
+            
+            // Data display
+            ctx.font = '10px monospace';
+            ctx.fillStyle = '#007bff';
+            ctx.fillText(data.substring(0, 30), 100, 120);
+        }
+
+        // User authentication functions
+        async function loginWithUserCode(userCode, stayLoggedIn = false) {
+            showLoading('Gebruiker zoeken...');
+            
+            try {
+                const usersSnapshot = await database.ref('users').orderByChild('userCode').equalTo(userCode).once('value');
+                
+                if (!usersSnapshot.exists()) {
+                    throw new Error('Ongeldige code. Controleer jouw 10-cijferige code.');
+                }
+                
+                const users = usersSnapshot.val();
+                const userId = Object.keys(users)[0];
+                const userData = users[userId];
+                
+                currentUser = { ...userData, id: userId };
+                
+                if (stayLoggedIn) {
+                    localStorage.setItem('ohk_user_code', userCode);
+                }
+                
+                hideLoading();
+                showContainer('dashboard');
+                await initializeUserDashboard(currentUser);
+                
+            } catch (error) {
+                hideLoading();
+                throw error;
+            }
+        }
+
+        async function initializeUserDashboard(userData) {
+            document.getElementById('userName').textContent = userData.name || 'Gebruiker';
+            document.getElementById('userCode').textContent = userData.userCode || 'Geen code';
+            document.getElementById('availableTokens').textContent = userData.tokens || 0;
+            document.getElementById('totalEarned').textContent = userData.totalEarned || 0;
+            document.getElementById('workingDays').textContent = userData.workingDays || 0;
+            
+            // Generate QR code with URL to user profile
+            const baseUrl = window.location.origin + window.location.pathname;
+            const qrData = `${baseUrl}?profile=${userData.id}`;
+            const qrCanvas = document.getElementById('userQRCode');
+            if (qrCanvas) {
+                await generateQRCode(qrCanvas, qrData);
+            }
+            
+            // Show forget device button if logged in with local storage
+            const storedCode = localStorage.getItem('ohk_user_code');
+            if (storedCode) {
+                document.getElementById('forgetDeviceBtn').style.display = 'inline-flex';
+            }
+            
+            // Load transaction history
+            await loadUserTransactionHistory(userData.id);
+        }
+
+        async function loadUserTransactionHistory(userId) {
+            const historyLoading = document.getElementById('historyLoading');
+            const historyTableBody = document.getElementById('historyTableBody');
+            
+            historyLoading.style.display = 'block';
+            
+            try {
+                const transactionsSnapshot = await database.ref(`users/${userId}/transactions`).orderByChild('timestamp').once('value');
+                
+                historyLoading.style.display = 'none';
+                historyTableBody.innerHTML = '';
+                
+                if (!transactionsSnapshot.exists()) {
+                    historyTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--gray);">Nog geen transacties</td></tr>';
+                    return;
+                }
+                
+                const transactions = [];
+                transactionsSnapshot.forEach((snap) => {
+                    transactions.push(snap.val());
+                });
+                
+                // Sort by timestamp descending (newest first)
+                transactions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                
+                let runningBalance = currentUser.tokens || 0;
+                
+                // Calculate running balance backwards
+                for (let i = transactions.length - 1; i >= 0; i--) {
+                    const transaction = transactions[i];
+                    if (i === transactions.length - 1) {
+                        runningBalance = (currentUser.tokens || 0);
+                        for (let j = 0; j < i; j++) {
+                            runningBalance -= transactions[j].amount || 0;
+                        }
+                    } else {
+                        runningBalance += transaction.amount || 0;
+                    }
+                    transaction.runningBalance = runningBalance;
+                }
+                
+                transactions.forEach((transaction) => {
+                    const row = document.createElement('tr');
+                    const amountClass = (transaction.amount || 0) >= 0 ? 'color: var(--success)' : 'color: var(--danger)';
+                    const amountPrefix = (transaction.amount || 0) >= 0 ? '+' : '';
+                    
+                    row.innerHTML = `
+                        <td>${formatDate(transaction.timestamp)}<br><small style="color: var(--gray)">${formatTime(transaction.timestamp)}</small></td>
+                        <td>${transaction.description || 'Geen beschrijving'}</td>
+                        <td style="${amountClass}; font-weight: 600;">${amountPrefix}${transaction.amount || 0}</td>
+                        <td style="font-weight: 600;">${transaction.runningBalance || 0}</td>
+                    `;
+                    historyTableBody.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('❌ Error loading transaction history:', error);
+                historyLoading.style.display = 'none';
+                historyTableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--danger);">Fout bij laden transacties</td></tr>';
+            }
+        }
+
+        // Admin functions
+        async function initializeAdminPanel(adminData) {
+            currentAdminData = adminData;
+            
+            // Wait a short moment to ensure the admin container is visible
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            const badge = document.getElementById('adminLevelBadge');
+            if (!badge) {
+                console.warn('Admin level badge not found, retrying...');
+                return;
+            }
+            
+            if (adminData.level === 'super') {
+                badge.textContent = 'Super Beheerder';
+                badge.className = 'admin-level-badge admin-level-super';
+            } else {
+                badge.textContent = 'Beheerder';
+                badge.className = 'admin-level-badge admin-level-regular';
+            }
+            
+            const adminActions = document.getElementById('adminActions');
+            if (adminActions) {
+                if (adminData.level === 'super') {
+                    adminActions.innerHTML = `
+                        <button class="btn btn-secondary" onclick="exportData()">
+                            <i class="fas fa-download"></i> Gegevens Exporteren
+                        </button>
+                        <button class="btn btn-secondary" onclick="openAddUserModal()">
+                            <i class="fas fa-user-plus"></i> Gebruiker Toevoegen
+                        </button>
+                    `;
+                } else {
+                    adminActions.innerHTML = `
+                        <p style="color: var(--gray);">Basis beheerder rechten - Token beheer beschikbaar</p>
+                    `;
+                }
+            }
+            
+            const adminAccountActions = document.getElementById('adminAccountActions');
+            if (adminAccountActions) {
+                if (adminData.level === 'super') {
+                    adminAccountActions.innerHTML = `
+                        <button class="btn btn-secondary" onclick="openAdminPasswordModal()">
+                            <i class="fas fa-key"></i> Wachtwoord Wijzigen
+                        </button>
+                        <button class="btn btn-secondary" onclick="openAddAdminModal()">
+                            <i class="fas fa-user-shield"></i> Beheerder Toevoegen
+                        </button>
+                        <button class="btn btn-danger" onclick="adminLogout()">
+                            <i class="fas fa-sign-out-alt"></i> Uitloggen
+                        </button>
+                    `;
+                } else {
+                    adminAccountActions.innerHTML = `
+                        <button class="btn btn-secondary" onclick="openAdminPasswordModal()">
+                            <i class="fas fa-key"></i> Wachtwoord Wijzigen
+                        </button>
+                        <button class="btn btn-danger" onclick="adminLogout()">
+                            <i class="fas fa-sign-out-alt"></i> Uitloggen
+                        </button>
+                    `;
+                }
+            }
+            
+            // Load users list only after ensuring the admin panel is ready
+            await loadUsersList();
+        }
+
+        async function loadUsersList() {
+            const userList = document.getElementById('userList');
+            const usersLoading = document.getElementById('usersLoading');
+            
+            // Check if elements exist before trying to access them
+            if (!userList || !usersLoading) {
+                console.warn('Admin panel elements not found, skipping user list load');
+                return;
+            }
+            
+            usersLoading.style.display = 'block';
+            
+            try {
+                const usersSnapshot = await database.ref('users').once('value');
+                
+                // Check again in case elements were removed during async operation
+                if (!usersLoading || !userList) {
+                    return;
+                }
+                
+                usersLoading.style.display = 'none';
+                
+                if (!usersSnapshot.exists()) {
+                    userList.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--gray);">Nog geen gebruikers in het systeem</div>';
+                    return;
+                }
+                
+                allUsers = [];
+                usersSnapshot.forEach((userSnapshot) => {
+                    const userData = userSnapshot.val();
+                    userData.id = userSnapshot.key;
+                    allUsers.push(userData);
+                });
+                
+                displayUsers(allUsers);
+                
+            } catch (error) {
+                console.error('❌ Error loading users:', error);
+                if (usersLoading) {
+                    usersLoading.style.display = 'none';
+                }
+                if (userList) {
+                    userList.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--danger);">Fout bij laden gebruikers</div>';
+                }
+            }
+        }
+
+        function displayUsers(users) {
+            const userList = document.getElementById('userList');
+            
+            // Check if userList element exists
+            if (!userList) {
+                console.warn('UserList element not found');
+                return;
+            }
+            
+            userList.innerHTML = '';
+            
+            if (users.length === 0) {
+                userList.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--gray);">Geen gebruikers gevonden</div>';
+                return;
+            }
+            
+            users.forEach(user => {
+                const userItem = document.createElement('div');
+                userItem.className = 'user-item';
+                userItem.setAttribute('data-user-id', user.id);
+                userItem.innerHTML = `
+                    <div class="user-info">
+                        <h3>${user.name || 'Onbekende Gebruiker'}</h3>
+                        <p>Code: <span class="user-code">${user.userCode || 'Geen code'}</span></p>
+                        <p>Tokens: ${user.tokens || 0} | Werkdagen: ${user.workingDays || 0} | Totaal verdiend: ${user.totalEarned || 0}</p>
+                    </div>
+                    <div class="user-actions">
+                        <button class="btn btn-small" onclick="openTokenModal('${user.id}')">
+                            <i class="fas fa-coins"></i> Beheer Tokens
+                        </button>
+                    </div>
+                `;
+                userList.appendChild(userItem);
+            });
+        }
+
+        async function removeUserFromUI(userId) {
+            allUsers = allUsers.filter(user => user.id !== userId);
+            
+            const userElement = document.querySelector(`[data-user-id="${userId}"]`);
+            if (userElement) {
+                userElement.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                userElement.style.opacity = '0';
+                userElement.style.transform = 'translateX(-20px)';
+                
+                setTimeout(() => {
+                    if (userElement.parentNode) {
+                        userElement.parentNode.removeChild(userElement);
+                    }
+                    
+                    const searchTerm = document.getElementById('searchInput').value;
+                    if (searchTerm) {
+                        searchUsers();
+                    } else {
+                        displayUsers(allUsers);
+                    }
+                }, 300);
+            }
+        }
+
+        async function updateUserInUI(userId) {
+            try {
+                const userSnapshot = await database.ref(`users/${userId}`).once('value');
+                if (!userSnapshot.exists()) {
+                    await removeUserFromUI(userId);
+                    return;
+                }
+                
+                const userData = userSnapshot.val();
+                userData.id = userId;
+                
+                const userIndex = allUsers.findIndex(user => user.id === userId);
+                if (userIndex !== -1) {
+                    allUsers[userIndex] = userData;
+                } else {
+                    allUsers.push(userData);
+                }
+                
+                const userElement = document.querySelector(`[data-user-id="${userId}"]`);
+                if (userElement) {
+                    const userInfo = userElement.querySelector('.user-info');
+                    userInfo.innerHTML = `
+                        <h3>${userData.name || 'Onbekende Gebruiker'}</h3>
+                        <p>Code: <span class="user-code">${userData.userCode || 'Geen code'}</span></p>
+                        <p>Tokens: ${userData.tokens || 0} | Werkdagen: ${userData.workingDays || 0} | Totaal verdiend: ${userData.totalEarned || 0}</p>
+                    `;
+                    
+                    userElement.style.transition = 'background-color 0.5s ease';
+                    userElement.style.backgroundColor = 'rgba(0, 118, 255, 0.1)';
+                    setTimeout(() => {
+                        userElement.style.backgroundColor = '';
+                    }, 1000);
+                }
+                
+            } catch (error) {
+                console.error('Error updating user in UI:', error);
+            }
+        }
+
+        function searchUsers() {
+            const searchInput = document.getElementById('searchInput');
+            if (!searchInput) {
+                return;
+            }
+            
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            if (!searchTerm) {
+                displayUsers(allUsers);
+                return;
+            }
+            
+            const filteredUsers = allUsers.filter(user => 
+                (user.name || '').toLowerCase().includes(searchTerm) ||
+                (user.userCode || '').includes(searchTerm)
+            );
+            
+            displayUsers(filteredUsers);
+        }
+
+        // Token management functions
+        async function openTokenModal(userId) {
+            currentModalUserId = userId;
+            
+            try {
+                const userSnapshot = await database.ref(`users/${userId}`).once('value');
+                const userData = userSnapshot.val();
+                
+                if (!userData) {
+                    alert('Gebruiker niet gevonden');
+                    return;
+                }
+                
+                document.getElementById('modalUserName').textContent = userData.name || 'Onbekende Gebruiker';
+                document.getElementById('modalCurrentTokens').textContent = userData.tokens || 0;
+                document.getElementById('modalWorkingDays').textContent = userData.workingDays || 0;
+                document.getElementById('modalUserCode').textContent = userData.userCode || 'Geen code';
+                
+                // Generate QR code with URL to user profile  
+                const baseUrl = window.location.origin + window.location.pathname;
+                const qrData = `${baseUrl}?profile=${userId}`;
+                const qrCanvas = document.getElementById('modalQRCode');
+                if (qrCanvas) {
+                    await generateQRCode(qrCanvas, qrData);
+                }
+                
+                await loadModalTransactionHistory(userId);
+                
+                const superAdminActions = document.getElementById('superAdminActions');
+                superAdminActions.style.display = currentAdminData?.level === 'super' ? 'block' : 'none';
+                
+                showModal('tokenModal');
+                
+            } catch (error) {
+                console.error('Error opening token modal:', error);
+                alert('Fout bij laden gebruikersgegevens');
+            }
+        }
+
+        async function loadModalTransactionHistory(userId) {
+            const historyTableBody = document.getElementById('modalHistoryTableBody');
+            
+            try {
+                const transactionsSnapshot = await database.ref(`users/${userId}/transactions`).orderByChild('timestamp').once('value');
+                
+                historyTableBody.innerHTML = '';
+                
+                if (!transactionsSnapshot.exists()) {
+                    historyTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--gray);">Nog geen transacties</td></tr>';
+                    return;
+                }
+                
+                const transactions = [];
+                transactionsSnapshot.forEach((snap) => {
+                    transactions.push(snap.val());
+                });
+                
+                transactions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                
+                transactions.forEach((transaction) => {
+                    const row = document.createElement('tr');
+                    const amountClass = (transaction.amount || 0) >= 0 ? 'color: var(--success)' : 'color: var(--danger)';
+                    const amountPrefix = (transaction.amount || 0) >= 0 ? '+' : '';
+                    
+                    row.innerHTML = `
+                        <td>${formatDate(transaction.timestamp)}<br><small style="color: var(--gray)">${formatTime(transaction.timestamp)}</small></td>
+                        <td>${transaction.description || 'Geen beschrijving'}</td>
+                        <td style="${amountClass}; font-weight: 600;">${amountPrefix}${transaction.amount || 0}</td>
+                    `;
+                    historyTableBody.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('Error loading modal transaction history:', error);
+                historyTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--danger);">Fout bij laden transacties</td></tr>';
+            }
+        }
+
+        async function addTokens(userId, amount, reason) {
+            try {
+                const userRef = database.ref(`users/${userId}`);
+                const userSnapshot = await userRef.once('value');
+                const userData = userSnapshot.val();
+                
+                if (!userData) {
+                    throw new Error('Gebruiker niet gevonden');
+                }
+                
+                const newTokens = (userData.tokens || 0) + amount;
+                const newTotalEarned = amount > 0 ? (userData.totalEarned || 0) + amount : (userData.totalEarned || 0);
+                
+                const transaction = {
+                    amount: amount,
+                    description: reason,
+                    timestamp: new Date().toISOString(),
+                    adminId: auth.currentUser?.uid || 'system',
+                    adminEmail: auth.currentUser?.email || 'system'
+                };
+                
+                const updates = {
+                    tokens: newTokens,
+                    totalEarned: newTotalEarned
+                };
+                
+                await userRef.update(updates);
+                await database.ref(`users/${userId}/transactions`).push(transaction);
+                await updateUserInUI(userId);
+                
+                return { success: true, newTokens };
+                
+            } catch (error) {
+                console.error('❌ Error updating tokens:', error);
+                throw error;
+            }
+        }
+
+        async function addWorkDay(userId) {
+            try {
+                const userRef = database.ref(`users/${userId}`);
+                const userSnapshot = await userRef.once('value');
+                const userData = userSnapshot.val();
+                
+                if (!userData) {
+                    throw new Error('Gebruiker niet gevonden');
+                }
+                
+                const newTokens = (userData.tokens || 0) + 3;
+                const newWorkingDays = (userData.workingDays || 0) + 1;
+                const newTotalEarned = (userData.totalEarned || 0) + 3;
+                
+                const transaction = {
+                    amount: 3,
+                    description: `Werkdag ${newWorkingDays} geregistreerd`,
+                    timestamp: new Date().toISOString(),
+                    adminId: auth.currentUser?.uid || 'system',
+                    adminEmail: auth.currentUser?.email || 'system'
+                };
+                
+                const updates = {
+                    tokens: newTokens,
+                    workingDays: newWorkingDays,
+                    totalEarned: newTotalEarned
+                };
+                
+                await userRef.update(updates);
+                await database.ref(`users/${userId}/transactions`).push(transaction);
+                await updateUserInUI(userId);
+                
+                return { success: true, newTokens, newWorkingDays };
+                
+            } catch (error) {
+                console.error('❌ Error adding work day:', error);
+                throw error;
+            }
+        }
+
+        // Modal and form functions
+        function openAddUserModal() {
+            showModal('addUserModal');
+        }
+
+        function openPasswordResetModal() {
+            showModal('passwordResetModal');
+        }
+
+        function openAccountSettingsModal() {
+            document.getElementById('newUsername').value = currentUser?.name || '';
+            showModal('accountSettingsModal');
+        }
+
+        function openAdminPasswordModal() {
+            showModal('adminPasswordModal');
+        }
+
+        function openAddAdminModal() {
+            showModal('addAdminModal');
+        }
+
+        async function addNewUser(name) {
+            try {
+                let userCode;
+                let isUnique = false;
+                
+                while (!isUnique) {
+                    userCode = generateUserCode();
+                    const existingUser = await database.ref('users').orderByChild('userCode').equalTo(userCode).once('value');
+                    isUnique = !existingUser.exists();
+                }
+                
+                const userData = {
+                    name: name,
+                    userCode: userCode,
+                    tokens: 0,
+                    totalEarned: 0,
+                    workingDays: 0,
+                    createdAt: new Date().toISOString(),
+                    createdBy: auth.currentUser?.uid || 'system'
+                };
+                
+                const newUserRef = await database.ref('users').push(userData);
+                const userId = newUserRef.key;
+                
+                userData.id = userId;
+                allUsers.push(userData);
+                
+                const searchTerm = document.getElementById('searchInput').value;
+                if (!searchTerm) {
+                    displayUsers(allUsers);
+                } else {
+                    searchUsers();
+                }
+                
+                return { success: true, userCode, userId };
+                
+            } catch (error) {
+                console.error('❌ Error adding user:', error);
+                throw error;
+            }
+        }
+
+        async function deleteUser(userId) {
+            if (!confirm('Weet je zeker dat je deze gebruiker wilt verwijderen? Dit kan niet ongedaan worden gemaakt.')) {
+                return;
+            }
+            
+            try {
+                await database.ref(`users/${userId}`).remove();
+                await removeUserFromUI(userId);
+                return { success: true };
+                
+            } catch (error) {
+                console.error('❌ Error deleting user:', error);
+                throw error;
+            }
+        }
+
+        function exportData() {
+            try {
+                const dataToExport = {
+                    users: allUsers,
+                    exportDate: new Date().toISOString(),
+                    exportedBy: auth.currentUser?.email || 'unknown'
+                };
+                
+                const jsonData = JSON.stringify(dataToExport, null, 2);
+                const blob = new Blob([jsonData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `ohk-wallet-export-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+            } catch (error) {
+                console.error('❌ Error exporting data:', error);
+                alert('Fout bij exporteren van gegevens');
+            }
+        }
+
+        function userLogout() {
+            currentUser = null;
+            localStorage.removeItem('ohk_user_code');
+            showContainer('auth');
+            document.getElementById('authFooter').style.display = 'block';
+        }
+
+        function adminLogout() {
+            auth.signOut();
+        }
+
+        // Public profile functions
+        async function loadPublicProfile(userId) {
+            showLoading('Profiel laden...');
+            
+            try {
+                const userSnapshot = await database.ref(`users/${userId}`).once('value');
+                
+                if (!userSnapshot.exists()) {
+                    throw new Error('Gebruiker niet gevonden');
+                }
+                
+                const userData = userSnapshot.val();
+                
+                document.getElementById('publicUserName').textContent = userData.name || 'Onbekende Gebruiker';
+                document.getElementById('publicUserCode').textContent = userData.userCode || 'Geen code';
+                document.getElementById('publicAvailableTokens').textContent = userData.tokens || 0;
+                document.getElementById('publicTotalEarned').textContent = userData.totalEarned || 0;
+                document.getElementById('publicWorkingDays').textContent = userData.workingDays || 0;
+                
+                await loadPublicTransactionHistory(userId);
+                
+                hideLoading();
+                showContainer('public-profile');
+                
+            } catch (error) {
+                console.error('❌ Error loading public profile:', error);
+                hideLoading();
+                alert('Fout bij laden profiel: ' + error.message);
+                showContainer('auth');
+            }
+        }
+
+        async function loadPublicTransactionHistory(userId) {
+            const historyLoading = document.getElementById('publicHistoryLoading');
+            const historyTableBody = document.getElementById('publicHistoryTableBody');
+            
+            historyLoading.style.display = 'block';
+            
+            try {
+                const transactionsSnapshot = await database.ref(`users/${userId}/transactions`)
+                    .orderByChild('timestamp')
+                    .limitToLast(10)
+                    .once('value');
+                
+                historyLoading.style.display = 'none';
+                historyTableBody.innerHTML = '';
+                
+                if (!transactionsSnapshot.exists()) {
+                    historyTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--gray);">Nog geen transacties</td></tr>';
+                    return;
+                }
+                
+                const transactions = [];
+                transactionsSnapshot.forEach((snap) => {
+                    transactions.push(snap.val());
+                });
+                
+                transactions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                
+                transactions.forEach((transaction) => {
+                    const row = document.createElement('tr');
+                    const amountClass = (transaction.amount || 0) >= 0 ? 'color: var(--success)' : 'color: var(--danger)';
+                    const amountPrefix = (transaction.amount || 0) >= 0 ? '+' : '';
+                    
+                    row.innerHTML = `
+                        <td>${formatDate(transaction.timestamp)}<br><small style="color: var(--gray)">${formatTime(transaction.timestamp)}</small></td>
+                        <td>${transaction.description || 'Geen beschrijving'}</td>
+                        <td style="${amountClass}; font-weight: 600;">${amountPrefix}${transaction.amount || 0}</td>
+                    `;
+                    historyTableBody.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error('❌ Error loading public transaction history:', error);
+                historyLoading.style.display = 'none';
+                historyTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--danger);">Fout bij laden transacties</td></tr>';
+            }
+        }
+
+        function goToLogin() {
+            window.history.replaceState(null, null, window.location.pathname);
+            showContainer('auth');
+            showUserAccess();
+        }
+
+        function getURLParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function forgetDevice() {
+            if (confirm('Weet je zeker dat je dit apparaat wilt vergeten? Je moet dan jouw code opnieuw invoeren.')) {
+                localStorage.removeItem('ohk_user_code');
+                document.getElementById('forgetDeviceBtn').style.display = 'none';
+            }
+        }
+
+        // Event listeners setup
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔥 OHK Wallet - Complete App Started');
+            
+            // Check QRCode library availability
+            setTimeout(() => {
+                if (typeof QRCode !== 'undefined') {
+                    console.log('✅ QRCode library loaded successfully');
+                } else {
+                    console.error('❌ QRCode library failed to load');
+                }
+            }, 1000);
+            
+            // Basic navigation
+            const showAdminBtn = document.getElementById('showAdminLoginBtn');
+            const backToUserBtn = document.getElementById('backToUserAccessBtn');
+            
+            if (showAdminBtn) {
+                showAdminBtn.addEventListener('click', showAdminLogin);
+            }
+            
+            if (backToUserBtn) {
+                backToUserBtn.addEventListener('click', showUserAccess);
+            }
+
+            // User access form
+            const userAccessForm = document.getElementById('userAccessForm');
+            if (userAccessForm) {
+                userAccessForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const userCode = document.getElementById('userCodeInput').value;
+                    const stayLoggedIn = document.getElementById('stayLoggedIn').checked;
+                    
+                    if (!userCode || userCode.length !== 10) {
+                        showAlert(document.getElementById('userAccessAlert'), 'Voer een geldige 10-cijferige code in');
+                        return;
+                    }
+                    
+                    try {
+                        await loginWithUserCode(userCode, stayLoggedIn);
+                    } catch (error) {
+                        showAlert(document.getElementById('userAccessAlert'), error.message);
+                    }
+                });
+            }
+
+            // Admin login form
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const email = document.getElementById('loginEmail').value;
+                    const password = document.getElementById('loginPassword').value;
+                    
+                    if (!email || !password) {
+                        showAlert(document.getElementById('loginAlert'), 'Vul alle velden in');
+                        return;
+                    }
+                    
+                    showLoading('Inloggen als beheerder...');
+                    
+                    try {
+                        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                        const user = userCredential.user;
+                        
+                        // Check admin status via Firebase database only
+                        const adminSnapshot = await database.ref(`admins/${user.uid}`).once('value');
+                        
+                        if (!adminSnapshot.exists()) {
+                            throw new Error('Geen beheerder rechten voor dit account');
+                        }
+                        
+                        const adminData = adminSnapshot.val();
+                        hideLoading();
+                        showContainer('admin');
+                        
+                        setTimeout(async () => {
+                            await initializeAdminPanel(adminData);
+                        }, 200);
+                        
+                    } catch (error) {
+                        console.error('Admin login error:', error);
+                        hideLoading();
+                        await auth.signOut();
+                        
+                        let errorMessage = 'Inloggen mislukt: ';
+                        if (error.code === 'auth/user-not-found') {
+                            errorMessage += 'Gebruiker niet gevonden';
+                        } else if (error.code === 'auth/wrong-password') {
+                            errorMessage += 'Verkeerd wachtwoord';
+                        } else if (error.code === 'auth/invalid-email') {
+                            errorMessage += 'Ongeldig e-mailadres';
+                        } else {
+                            errorMessage += error.message;
+                        }
+                        
+                        showAlert(document.getElementById('loginAlert'), errorMessage);
+                    }
+                });
+            }
+
+            // Code input formatting
+            const codeInput = document.getElementById('userCodeInput');
+            if (codeInput) {
+                codeInput.addEventListener('input', function(e) {
+                    e.target.value = e.target.value.replace(/\D/g, '');
+                    if (e.target.value.length > 10) {
+                        e.target.value = e.target.value.slice(0, 10);
+                    }
+                });
+            }
+
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', searchUsers);
+            }
+
+            // User dashboard buttons
+            const accountSettingsBtn = document.getElementById('accountSettingsBtn');
+            if (accountSettingsBtn) {
+                accountSettingsBtn.addEventListener('click', openAccountSettingsModal);
+            }
+
+            const forgetDeviceBtn = document.getElementById('forgetDeviceBtn');
+            if (forgetDeviceBtn) {
+                forgetDeviceBtn.addEventListener('click', forgetDevice);
+            }
+
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', userLogout);
+            }
+
+            // Password reset link
+            const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+            if (forgotPasswordLink) {
+                forgotPasswordLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    openPasswordResetModal();
+                });
+            }
+
+            // Token modal event handlers
+            const closeTokenModal = document.getElementById('closeTokenModal');
+            if (closeTokenModal) {
+                closeTokenModal.addEventListener('click', () => hideModal('tokenModal'));
+            }
+
+            const quickAddBtn = document.getElementById('quickAddBtn');
+            if (quickAddBtn) {
+                quickAddBtn.addEventListener('click', async function() {
+                    if (!currentModalUserId) return;
+                    
+                    try {
+                        showLoading('Token toevoegen...');
+                        await addTokens(currentModalUserId, 1, 'Snelle toevoeging (+1)');
+                        hideLoading();
+                        
+                        await openTokenModal(currentModalUserId);
+                        
+                    } catch (error) {
+                        hideLoading();
+                        alert('Fout bij toevoegen token: ' + error.message);
+                    }
+                });
+            }
+
+            const quickRemoveBtn = document.getElementById('quickRemoveBtn');
+            if (quickRemoveBtn) {
+                quickRemoveBtn.addEventListener('click', async function() {
+                    if (!currentModalUserId) return;
+                    
+                    try {
+                        showLoading('Token verwijderen...');
+                        await addTokens(currentModalUserId, -1, 'Snelle verwijdering (-1)');
+                        hideLoading();
+                        
+                        await openTokenModal(currentModalUserId);
+                        
+                    } catch (error) {
+                        hideLoading();
+                        alert('Fout bij verwijderen token: ' + error.message);
+                    }
+                });
+            }
+
+            // Add tokens form
+            const addTokensForm = document.getElementById('addTokensForm');
+            if (addTokensForm) {
+                addTokensForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    if (!currentModalUserId) return;
+                    
+                    const amount = parseInt(document.getElementById('tokenAmount').value);
+                    const reason = document.getElementById('tokenReason').value;
+                    
+                    if (!amount || !reason) {
+                        alert('Vul alle velden in');
+                        return;
+                    }
+                    
+                    try {
+                        showLoading('Tokens toevoegen...');
+                        await addTokens(currentModalUserId, Math.abs(amount), reason);
+                        hideLoading();
+                        
+                        // Clear form
+                        document.getElementById('tokenAmount').value = '';
+                        document.getElementById('tokenReason').value = '';
+                        
+                        await openTokenModal(currentModalUserId);
+                        
+                    } catch (error) {
+                        hideLoading();
+                        alert('Fout bij toevoegen tokens: ' + error.message);
+                    }
+                });
+            }
+
+            // Remove tokens button
+            const removeTokensBtn = document.getElementById('removeTokensBtn');
+            if (removeTokensBtn) {
+                removeTokensBtn.addEventListener('click', async function() {
+                    if (!currentModalUserId) return;
+                    
+                    const amount = parseInt(document.getElementById('tokenAmount').value);
+                    const reason = document.getElementById('tokenReason').value;
+                    
+                    if (!amount || !reason) {
+                        alert('Vul alle velden in');
+                        return;
+                    }
+                    
+                    try {
+                        showLoading('Tokens verwijderen...');
+                        await addTokens(currentModalUserId, -Math.abs(amount), reason);
+                        hideLoading();
+                        
+                        // Clear form
+                        document.getElementById('tokenAmount').value = '';
+                        document.getElementById('tokenReason').value = '';
+                        
+                        await openTokenModal(currentModalUserId);
+                        
+                    } catch (error) {
+                        hideLoading();
+                        alert('Fout bij verwijderen tokens: ' + error.message);
+                    }
+                });
+            }
+
+            // Add work day button
+            const addWorkDayBtn = document.getElementById('addWorkDayBtn');
+            if (addWorkDayBtn) {
+                addWorkDayBtn.addEventListener('click', async function() {
+                    if (!currentModalUserId) return;
+                    
+                    try {
+                        showLoading('Werkdag registreren...');
+                        await addWorkDay(currentModalUserId);
+                        hideLoading();
+                        
+                        await openTokenModal(currentModalUserId);
+                        
+                    } catch (error) {
+                        hideLoading();
+                        alert('Fout bij registreren werkdag: ' + error.message);
+                    }
+                });
+            }
+
+            // Delete user button
+            const deleteUserBtn = document.getElementById('deleteUserBtn');
+            if (deleteUserBtn) {
+                deleteUserBtn.addEventListener('click', async function() {
+                    if (!currentModalUserId) return;
+                    
+                    try {
+                        showLoading('Gebruiker verwijderen...');
+                        await deleteUser(currentModalUserId);
+                        hideLoading();
+                        
+                        hideModal('tokenModal');
+                        
+                    } catch (error) {
+                        hideLoading();
+                        alert('Fout bij verwijderen gebruiker: ' + error.message);
+                    }
+                });
+            }
+
+            // Add user modal handlers
+            const closeAddUserModal = document.getElementById('closeAddUserModal');
+            if (closeAddUserModal) {
+                closeAddUserModal.addEventListener('click', () => hideModal('addUserModal'));
+            }
+
+            const addUserForm = document.getElementById('addUserForm');
+            if (addUserForm) {
+                addUserForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const name = document.getElementById('addUserName').value;
+                    
+                    if (!name) {
+                        showAlert(document.getElementById('addUserAlert'), 'Vul een naam in');
+                        return;
+                    }
+                    
+                    try {
+                        showLoading('Gebruiker toevoegen...');
+                        const result = await addNewUser(name);
+                        hideLoading();
+                        
+                        hideModal('addUserModal');
+                        document.getElementById('addUserName').value = '';
+                        
+                        alert(`Gebruiker ${name} toegevoegd!\nCode: ${result.userCode}`);
+                        
+                    } catch (error) {
+                        hideLoading();
+                        showAlert(document.getElementById('addUserAlert'), 'Fout bij toevoegen gebruiker: ' + error.message);
+                    }
+                });
+            }
+
+            // Password reset modal handlers
+            const closePasswordResetModal = document.getElementById('closePasswordResetModal');
+            if (closePasswordResetModal) {
+                closePasswordResetModal.addEventListener('click', () => hideModal('passwordResetModal'));
+            }
+
+            const passwordResetForm = document.getElementById('passwordResetForm');
+            if (passwordResetForm) {
+                passwordResetForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const email = document.getElementById('resetEmail').value;
+                    
+                    if (!email) {
+                        showAlert(document.getElementById('passwordResetAlert'), 'Vul een e-mailadres in');
+                        return;
+                    }
+                    
+                    try {
+                        await auth.sendPasswordResetEmail(email);
+                        showAlert(document.getElementById('passwordResetSuccessAlert'), 'Herstel e-mail verzonden! Controleer je inbox.');
+                        document.getElementById('resetEmail').value = '';
+                        
+                    } catch (error) {
+                        let errorMessage = 'Fout bij versturen herstel e-mail: ';
+                        if (error.code === 'auth/user-not-found') {
+                            errorMessage += 'E-mailadres niet gevonden';
+                        } else {
+                            errorMessage += error.message;
+                        }
+                        showAlert(document.getElementById('passwordResetAlert'), errorMessage);
+                    }
+                });
+            }
+
+            // Account settings modal handlers
+            const closeAccountSettingsModal = document.getElementById('closeAccountSettingsModal');
+            if (closeAccountSettingsModal) {
+                closeAccountSettingsModal.addEventListener('click', () => hideModal('accountSettingsModal'));
+            }
+
+            const changeUsernameForm = document.getElementById('changeUsernameForm');
+            if (changeUsernameForm) {
+                changeUsernameForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const newUsername = document.getElementById('newUsername').value;
+                    
+                    if (!newUsername || !currentUser) {
+                        showAlert(document.getElementById('accountSettingsAlert'), 'Vul een gebruikersnaam in');
+                        return;
+                    }
+                    
+                    try {
+                        await database.ref(`users/${currentUser.id}/name`).set(newUsername);
+                        currentUser.name = newUsername;
+                        
+                        document.getElementById('userName').textContent = newUsername;
+                        showAlert(document.getElementById('accountSettingsSuccessAlert'), 'Gebruikersnaam bijgewerkt!');
+                        
+                    } catch (error) {
+                        showAlert(document.getElementById('accountSettingsAlert'), 'Fout bij bijwerken gebruikersnaam: ' + error.message);
+                    }
+                });
+            }
+
+            // Admin password modal handlers
+            const closeAdminPasswordModal = document.getElementById('closeAdminPasswordModal');
+            if (closeAdminPasswordModal) {
+                closeAdminPasswordModal.addEventListener('click', () => hideModal('adminPasswordModal'));
+            }
+
+            const adminPasswordForm = document.getElementById('adminPasswordForm');
+            if (adminPasswordForm) {
+                adminPasswordForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const currentPassword = document.getElementById('adminCurrentPassword').value;
+                    const newPassword = document.getElementById('adminNewPassword').value;
+                    
+                    if (!currentPassword || !newPassword) {
+                        showAlert(document.getElementById('adminPasswordAlert'), 'Vul alle velden in');
+                        return;
+                    }
+                    
+                    if (newPassword.length < 6) {
+                        showAlert(document.getElementById('adminPasswordAlert'), 'Nieuw wachtwoord moet minimaal 6 tekens zijn');
+                        return;
+                    }
+                    
+                    try {
+                        const user = auth.currentUser;
+                        const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPassword);
+                        
+                        await user.reauthenticateWithCredential(credential);
+                        await user.updatePassword(newPassword);
+                        
+                        showAlert(document.getElementById('adminPasswordSuccessAlert'), 'Wachtwoord gewijzigd!');
+                        document.getElementById('adminCurrentPassword').value = '';
+                        document.getElementById('adminNewPassword').value = '';
+                        
+                    } catch (error) {
+                        let errorMessage = 'Fout bij wijzigen wachtwoord: ';
+                        if (error.code === 'auth/wrong-password') {
+                            errorMessage += 'Huidig wachtwoord is onjuist';
+                        } else {
+                            errorMessage += error.message;
+                        }
+                        showAlert(document.getElementById('adminPasswordAlert'), errorMessage);
+                    }
+                });
+            }
+
+            // Add admin modal handlers
+            const closeAddAdminModal = document.getElementById('closeAddAdminModal');
+            if (closeAddAdminModal) {
+                closeAddAdminModal.addEventListener('click', () => hideModal('addAdminModal'));
+            }
+
+            const addAdminForm = document.getElementById('addAdminForm');
+            if (addAdminForm) {
+                addAdminForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const email = document.getElementById('addAdminEmail').value;
+                    const password = document.getElementById('addAdminPassword').value;
+                    const level = document.getElementById('addAdminLevel').value;
+                    
+                    if (!email || !password || !level) {
+                        showAlert(document.getElementById('addAdminAlert'), 'Vul alle velden in');
+                        return;
+                    }
+                    
+                    if (password.length < 6) {
+                        showAlert(document.getElementById('addAdminAlert'), 'Wachtwoord moet minimaal 6 tekens zijn');
+                        return;
+                    }
+                    
+                    // Veiligheidscheck: super admins kunnen nooit een nieuwe super admin aanmaken
+                    if (level === 'super') {
+                        showAlert(document.getElementById('addAdminAlert'), 'Je kunt geen super beheerder aanmaken via de interface.');
+                        return;
+                    }
+                    
+                    showLoading('Beheerder aanmaken...');
+                    
+                    // Gebruik een tweede Firebase app-instantie zodat de huidige admin ingelogd blijft
+                    let secondaryApp;
+                    try {
+                        secondaryApp = firebase.app('secondary');
+                    } catch (e) {
+                        secondaryApp = firebase.initializeApp(firebaseConfig, 'secondary');
+                    }
+                    const secondaryAuth = secondaryApp.auth();
+                    
+                    try {
+                        // Maak het nieuwe Firebase Auth account aan
+                        const result = await secondaryAuth.createUserWithEmailAndPassword(email, password);
+                        const newUid = result.user.uid;
+                        
+                        // Log de nieuwe gebruiker direct uit de secundaire app
+                        await secondaryAuth.signOut();
+                        
+                        // Sla de beheerder op in de database
+                        await database.ref(`admins/${newUid}`).set({
+                            level: level,
+                            email: email,
+                            createdAt: new Date().toISOString(),
+                            createdBy: auth.currentUser?.uid || 'unknown'
+                        });
+                        
+                        hideLoading();
+                        document.getElementById('addAdminEmail').value = '';
+                        document.getElementById('addAdminPassword').value = '';
+                        document.getElementById('addAdminLevel').value = '';
+                        
+                        showAlert(document.getElementById('addAdminSuccessAlert'),
+                            `Beheerder ${email} succesvol aangemaakt als ${level === 'super' ? 'Super Beheerder' : 'Gewone Beheerder'}!`);
+                        
+                    } catch (error) {
+                        await secondaryAuth.signOut().catch(() => {});
+                        hideLoading();
+                        
+                        let errorMessage = 'Fout bij toevoegen beheerder: ';
+                        if (error.code === 'auth/email-already-in-use') {
+                            errorMessage += 'Dit e-mailadres is al in gebruik';
+                        } else if (error.code === 'auth/invalid-email') {
+                            errorMessage += 'Ongeldig e-mailadres';
+                        } else if (error.code === 'auth/weak-password') {
+                            errorMessage += 'Wachtwoord is te zwak';
+                        } else {
+                            errorMessage += error.message;
+                        }
+                        showAlert(document.getElementById('addAdminAlert'), errorMessage);
+                    }
+                });
+            }
+
+            // Close modals when clicking outside
+            window.addEventListener('click', function(event) {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    if (event.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            });
+
+            // Firebase connection status
+            const connectedRef = database.ref('.info/connected');
+            connectedRef.on('value', (snap) => {
+                const statusElement = document.getElementById('connectionStatus');
+                if (snap.val() === true) {
+                    statusElement.textContent = 'Verbonden';
+                    statusElement.className = 'status-connected';
+                } else {
+                    statusElement.textContent = 'Offline';
+                    statusElement.className = 'status-disconnected';
+                }
+            });
+
+            // Firebase auth state listener
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    console.log('🔥 Auth state changed: User logged in:', user.email);
+                    
+                    const adminSnapshot = await database.ref(`admins/${user.uid}`).once('value');
+                    if (adminSnapshot.exists()) {
+                        const adminData = adminSnapshot.val();
+                        console.log('✅ Admin state restored for:', user.email);
+                        
+                        // First show the container, then initialize
+                        showContainer('admin');
+                        
+                        // Wait a moment for the DOM to update
+                        setTimeout(async () => {
+                            await initializeAdminPanel(adminData);
+                        }, 200);
+                    }
+                } else {
+                    console.log('🔓 Auth state changed: User logged out');
+                    currentAdminData = null;
+                    showContainer('auth');
+                    showUserAccess();
+                }
+            });
+
+            // Check for URL parameters (QR code scans)
+            const profileId = getURLParameter('profile');
+            if (profileId) {
+                console.log('🔗 Profile parameter detected:', profileId);
+                setTimeout(async () => {
+                    await loadPublicProfile(profileId);
+                }, 500);
+                return;
+            }
+
+            // Check for stored user code on page load
+            const storedCode = localStorage.getItem('ohk_user_code');
+            if (storedCode) {
+                console.log('📱 Found stored user code, attempting auto-login...');
+                
+                setTimeout(async () => {
+                    try {
+                        await loginWithUserCode(storedCode, true);
+                        console.log('✅ Auto-login successful');
+                    } catch (error) {
+                        console.log('❌ Auto-login failed:', error.message);
+                        localStorage.removeItem('ohk_user_code');
+                        showUserAccess();
+                    }
+                }, 1000);
+            } else {
+                showUserAccess();
+            }
+            
+            console.log('🎉 OHK Wallet setup complete!');
+        });
+
+        // Global function exports
+        window.openTokenModal = openTokenModal;
+        window.exportData = exportData;
+        window.openAddUserModal = openAddUserModal;
+        window.openAdminPasswordModal = openAdminPasswordModal;
+        window.openAddAdminModal = openAddAdminModal;
+        window.adminLogout = adminLogout;
+        window.userLogout = userLogout;
+        window.forgetDevice = forgetDevice;
+        window.goToLogin = goToLogin;
+    </script>
+</body>
+</html>
