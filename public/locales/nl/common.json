@@ -382,8 +382,17 @@
     "sensation_severity": "Sensaties naar ernst",
     "sensation_severity_desc": "Gemiddelde intensiteit wanneer deze sensatie aanwezig was",
     "day_of_week": "Verdeling per weekdag",
+    "day_of_week_desc": "Aantal entries gelogd per dag van de week",
     "week": "Week",
     "month": "Maand",
-    "all": "Alles"
+    "all": "Alles",
+    "ai_title": "AI-reflectie op je dagboek",
+    "ai_disclaimer": "Dit is geen therapie of diagnose — enkel een patroonreflectie ter ondersteuning.",
+    "ai_generate": "Genereer reflectie",
+    "ai_regenerate": "Hergeneer reflectie",
+    "ai_generating": "Analyseren...",
+    "ai_error": "Er liep iets mis bij het genereren. Probeer het opnieuw.",
+    "ai_empty": "Klik op 'Genereer reflectie' om een AI-inzicht te ontvangen op basis van je entries voor deze periode.",
+    "ai_generated_at": "Gegenereerd op {date} op basis van {n} entries."
   }
 }

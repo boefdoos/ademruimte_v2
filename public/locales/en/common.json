@@ -382,8 +382,17 @@
     "sensation_severity": "Sensations by severity",
     "sensation_severity_desc": "Average intensity when this sensation was present",
     "day_of_week": "Distribution by weekday",
+    "day_of_week_desc": "Number of entries logged per day of the week",
     "week": "Week",
     "month": "Month",
-    "all": "All"
+    "all": "All",
+    "ai_title": "AI reflection on your journal",
+    "ai_disclaimer": "This is not therapy or diagnosis — only a pattern reflection for support.",
+    "ai_generate": "Generate reflection",
+    "ai_regenerate": "Regenerate reflection",
+    "ai_generating": "Analysing...",
+    "ai_error": "Something went wrong generating the reflection. Please try again.",
+    "ai_empty": "Click 'Generate reflection' to receive an AI insight based on your entries for this period.",
+    "ai_generated_at": "Generated on {date} based on {n} entries."
   }
 }

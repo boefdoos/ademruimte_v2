@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { db } from '@/lib/firebase/config';
-import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
+import { collection, query, where, orderBy, getDocs, doc, setDoc, getDoc } from 'firebase/firestore';
 
 interface JournalEntry {
   id: string;
@@ -17,7 +17,12 @@ interface JournalEntry {
 
 type Period = 'week' | 'month' | 'all';
 
-const DAY_KEYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+interface SavedInsight {
+  text: string;
+  generatedAt: string;
+  period: string;
+  entryCount: number;
+}
 
 export function JournalAnalysis() {
   const { currentUser } = useAuth();
@@ -25,6 +30,10 @@ export function JournalAnalysis() {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<Period>('month');
+  const [insight, setInsight] = useState<SavedInsight | null>(null);
+  const [insightLoading, setInsightLoading] = useState(false);
+  const [insightError, setInsightError] = useState(false);
+  const insightRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -56,6 +65,74 @@ export function JournalAnalysis() {
     load();
   }, [currentUser]);
 
+  // Filter entries by period — computed here so generateInsight can use it
+  const now = new Date();
+  const filtered = entries.filter(e => {
+    if (period === 'week') return (now.getTime() - e.timestamp.getTime()) < 7 * 86400000;
+    if (period === 'month') return (now.getTime() - e.timestamp.getTime()) < 30 * 86400000;
+    return true;
+  });
+
+  // Load saved insight from Firestore when period changes
+  useEffect(() => {
+    if (!currentUser) return;
+    const loadInsight = async () => {
+      try {
+        const ref = doc(db, 'users', currentUser.uid, 'journalInsights', period);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          setInsight(snap.data() as SavedInsight);
+        } else {
+          setInsight(null);
+        }
+      } catch (e) {
+        console.error('Error loading insight:', e);
+      }
+    };
+    loadInsight();
+  }, [currentUser, period]);
+
+  const generateInsight = async () => {
+    if (!currentUser || filtered.length === 0) return;
+    setInsightLoading(true);
+    setInsightError(false);
+    try {
+      const payload = {
+        entries: filtered.map(e => ({
+          triggers: e.triggers,
+          intensiteit: e.intensiteit,
+          sensaties: e.sensaties,
+          notities: e.notities,
+          timestamp: e.timestamp.toISOString(),
+        })),
+        period,
+        locale,
+      };
+      const res = await fetch('/api/journal-insight', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('API error');
+      const data = await res.json();
+      const saved: SavedInsight = {
+        text: data.insight,
+        generatedAt: data.generatedAt,
+        period,
+        entryCount: filtered.length,
+      };
+      // Persist to Firestore
+      await setDoc(doc(db, 'users', currentUser.uid, 'journalInsights', period), saved);
+      setInsight(saved);
+      setTimeout(() => insightRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    } catch (e) {
+      console.error('Insight generation error:', e);
+      setInsightError(true);
+    } finally {
+      setInsightLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -76,14 +153,6 @@ export function JournalAnalysis() {
       </div>
     );
   }
-
-  // Filter by period
-  const now = new Date();
-  const filtered = entries.filter(e => {
-    if (period === 'week') return (now.getTime() - e.timestamp.getTime()) < 7 * 86400000;
-    if (period === 'month') return (now.getTime() - e.timestamp.getTime()) < 30 * 86400000;
-    return true;
-  });
 
   // --- 1. Trigger frequency ---
   const triggerCount: Record<string, number> = {};
@@ -343,9 +412,10 @@ export function JournalAnalysis() {
 
         {/* Day of week distribution */}
         <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-slate-700">
-          <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+          <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-1 flex items-center gap-2">
             <span className="text-indigo-500">📅</span>{t('journal_analysis.day_of_week')}
           </h3>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">{t('journal_analysis.day_of_week_desc')}</p>
           <div className="flex items-end gap-1 h-24">
             {dayCount.map((count, i) => {
               const heightPct = maxDay > 0 ? (count / maxDay) * 100 : 0;
@@ -391,6 +461,53 @@ export function JournalAnalysis() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* AI Insight Section */}
+      <div ref={insightRef} className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-slate-700">
+        <div className="flex items-start justify-between gap-4 mb-3">
+          <div>
+            <h3 className="font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+              <span>✨</span>{t('journal_analysis.ai_title')}
+            </h3>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{t('journal_analysis.ai_disclaimer')}</p>
+          </div>
+          <button
+            onClick={generateInsight}
+            disabled={insightLoading || filtered.length === 0}
+            className="flex-shrink-0 px-4 py-2 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors flex items-center gap-2"
+          >
+            {insightLoading
+              ? <><span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full"></span>{t('journal_analysis.ai_generating')}</>
+              : <><span>🔍</span>{insight ? t('journal_analysis.ai_regenerate') : t('journal_analysis.ai_generate')}</>
+            }
+          </button>
+        </div>
+
+        {insightError && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-3 text-sm text-red-700 dark:text-red-300">
+            {t('journal_analysis.ai_error')}
+          </div>
+        )}
+
+        {insight && !insightError && (
+          <div className="space-y-3">
+            <div className="bg-gradient-to-br from-teal-50 to-blue-50 dark:from-teal-900/20 dark:to-blue-900/20 border border-teal-100 dark:border-teal-800 rounded-xl p-4">
+              <div className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-200 leading-relaxed whitespace-pre-line text-sm">
+                {insight.text}
+              </div>
+            </div>
+            <p className="text-xs text-gray-400 dark:text-gray-500">
+              {t('journal_analysis.ai_generated_at')
+                .replace('{date}', new Date(insight.generatedAt).toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'long', year: 'numeric' }))
+                .replace('{n}', String(insight.entryCount))}
+            </p>
+          </div>
+        )}
+
+        {!insight && !insightError && !insightLoading && (
+          <p className="text-sm text-gray-400 dark:text-gray-500 italic">{t('journal_analysis.ai_empty')}</p>
+        )}
       </div>
     </div>
   );
