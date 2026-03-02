@@ -93,12 +93,14 @@ export function JournalAnalysis() {
   }, [currentUser, period]);
 
   const generateInsight = async () => {
-    if (!currentUser || filtered.length === 0) return;
+    if (!currentUser || entries.length === 0) return;
+    // If the selected period has no entries, fall back to all entries
+    const entriesToAnalyze = filtered.length > 0 ? filtered : entries;
     setInsightLoading(true);
     setInsightError(false);
     try {
       const payload = {
-        entries: filtered.map(e => ({
+        entries: entriesToAnalyze.map(e => ({
           triggers: e.triggers,
           intensiteit: e.intensiteit,
           sensaties: e.sensaties,
@@ -122,7 +124,7 @@ export function JournalAnalysis() {
         text: data.insight,
         generatedAt: data.generatedAt,
         period,
-        entryCount: filtered.length,
+        entryCount: entriesToAnalyze.length,
       };
       // Show insight immediately regardless of Firestore result
       setInsight(saved);
@@ -480,16 +482,23 @@ export function JournalAnalysis() {
             </h3>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{t('journal_analysis.ai_disclaimer')}</p>
           </div>
-          <button
-            onClick={generateInsight}
-            disabled={insightLoading || filtered.length === 0}
-            className="flex-shrink-0 px-4 py-2 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors flex items-center gap-2"
-          >
-            {insightLoading
-              ? <><span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full"></span>{t('journal_analysis.ai_generating')}</>
-              : <><span>🔍</span>{insight ? t('journal_analysis.ai_regenerate') : t('journal_analysis.ai_generate')}</>
-            }
-          </button>
+          <div className="flex flex-col items-end gap-1">
+            <button
+              onClick={generateInsight}
+              disabled={insightLoading || entries.length === 0}
+              className="flex-shrink-0 px-4 py-2 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors flex items-center gap-2"
+            >
+              {insightLoading
+                ? <><span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full"></span>{t('journal_analysis.ai_generating')}</>
+                : <><span>🔍</span>{insight ? t('journal_analysis.ai_regenerate') : t('journal_analysis.ai_generate')}</>
+              }
+            </button>
+            {filtered.length > 0 && filtered.length < entries.length && (
+              <span className="text-xs text-gray-400 dark:text-gray-500">
+                {locale === 'nl' ? `op basis van ${filtered.length} entries in deze periode` : `based on ${filtered.length} entries in this period`}
+              </span>
+            )}
+          </div>
         </div>
 
         {insightError && (
