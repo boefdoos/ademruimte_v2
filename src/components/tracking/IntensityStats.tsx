@@ -22,6 +22,7 @@ export function IntensityStats() {
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'all'>('month');
   const [activeBar, setActiveBar] = useState<number | null>(null);
+  const [activeStatCard, setActiveStatCard] = useState<'avg' | 'min' | 'max' | null>(null);
 
   useEffect(() => {
     const loadEntries = async () => {
@@ -127,6 +128,9 @@ export function IntensityStats() {
   );
   const maxIntensity = Math.max(...intensities);
   const minIntensity = Math.min(...intensities);
+  // Most recent entry with max/min intensity (entries are DESC order = newest first)
+  const maxEntry = entriesWithIntensity.find(e => e.intensiteit === maxIntensity);
+  const minEntry = entriesWithIntensity.find(e => e.intensiteit === minIntensity);
 
   // Trend analysis (compare first half vs second half)
   const midPoint = Math.floor(entriesWithIntensity.length / 2);
@@ -232,18 +236,45 @@ export function IntensityStats() {
 
       {/* Summary Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-900/20 p-4 sm:p-6 rounded-xl text-center transition-colors">
+        {/* Avg — tappable */}
+        <div
+          className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-900/20 p-4 sm:p-6 rounded-xl text-center transition-colors relative cursor-pointer select-none"
+          onClick={() => setActiveStatCard(prev => prev === 'avg' ? null : 'avg')}
+        >
           <div className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">{t('intensity.avg')}</div>
           <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-blue-700 dark:text-blue-300">{avgIntensity}/10</div>
           <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">{getIntensityLabel(avgIntensity)}</div>
+          {activeStatCard === 'avg' && (
+            <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1.5 px-2 whitespace-nowrap z-20 pointer-events-none shadow-lg">
+              {locale === 'en' ? `Average of ${intensities.length} entries` : `Gemiddelde van ${intensities.length} metingen`}
+            </div>
+          )}
         </div>
-        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-900/20 p-4 sm:p-6 rounded-xl text-center transition-colors">
+        {/* Min — tappable with date */}
+        <div
+          className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-900/20 p-4 sm:p-6 rounded-xl text-center transition-colors relative cursor-pointer select-none"
+          onClick={() => setActiveStatCard(prev => prev === 'min' ? null : 'min')}
+        >
           <div className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">{t('intensity.lowest')}</div>
           <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-green-700 dark:text-green-300">{minIntensity}/10</div>
+          {activeStatCard === 'min' && minEntry && (
+            <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1.5 px-2 whitespace-nowrap z-20 pointer-events-none shadow-lg">
+              {minEntry.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </div>
+          )}
         </div>
-        <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-900/20 p-4 sm:p-6 rounded-xl text-center transition-colors">
+        {/* Max — tappable with date */}
+        <div
+          className="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-900/20 p-4 sm:p-6 rounded-xl text-center transition-colors relative cursor-pointer select-none"
+          onClick={() => setActiveStatCard(prev => prev === 'max' ? null : 'max')}
+        >
           <div className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">{t('intensity.highest')}</div>
           <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-red-700 dark:text-red-300">{maxIntensity}/10</div>
+          {activeStatCard === 'max' && maxEntry && (
+            <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1.5 px-2 whitespace-nowrap z-20 pointer-events-none shadow-lg">
+              {maxEntry.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </div>
+          )}
         </div>
         <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-900/20 p-4 sm:p-6 rounded-xl text-center transition-colors">
           <div className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">{t('intensity.trend')}</div>
@@ -273,7 +304,12 @@ export function IntensityStats() {
       {/* Timeline Chart */}
       <div className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-6 transition-colors">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-3">
-          <h3 className="font-bold text-base sm:text-lg text-gray-800 dark:text-gray-100">{t('intensity.chart_title')}</h3>
+          <div>
+            <h3 className="font-bold text-base sm:text-lg text-gray-800 dark:text-gray-100">{t('intensity.chart_title')}</h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              {locale === 'en' ? 'Each bar = 1 entry · newest on right' : 'Elke balk = 1 meting · nieuwste rechts'}
+            </p>
+          </div>
           {/* Legend */}
           <div className="flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm">
             <div className="flex items-center gap-1.5">
@@ -297,7 +333,11 @@ export function IntensityStats() {
 
         {/* Chart with Y-axis and X-axis */}
         {(() => {
-          const chartEntries = entriesWithIntensity.slice().reverse().slice(-20);
+          // Sort oldest→newest (left→right), take last 20 most-recent entries
+          const chartEntries = entriesWithIntensity
+            .slice()
+            .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+            .slice(-20);
           const firstDate = chartEntries[0]?.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short' });
           const lastDate = chartEntries[chartEntries.length - 1]?.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short' });
           return (

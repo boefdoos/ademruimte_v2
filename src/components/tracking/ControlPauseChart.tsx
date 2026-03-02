@@ -23,7 +23,10 @@ export function ControlPauseChart() {
   const [goalInput, setGoalInput] = useState('');
   const [editingGoal, setEditingGoal] = useState(false);
   const [activeBar, setActiveBar] = useState<string | null>(null);
+  const [activeStatCard, setActiveStatCard] = useState<'max' | 'avg' | 'min' | null>(null);
   const chartScrollRef = useRef<HTMLDivElement>(null);
+  const avgLabelRef = useRef<HTMLSpanElement>(null);
+  const goalLabelRef = useRef<HTMLSpanElement>(null);
 
   // Load/save personal goal from localStorage
   useEffect(() => {
@@ -46,9 +49,21 @@ export function ControlPauseChart() {
     }
   };
 
+  // Keeps Gem./Doel labels pinned to the visible left edge as user scrolls right
+  const handleChartScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const sl = e.currentTarget.scrollLeft;
+    if (avgLabelRef.current) avgLabelRef.current.style.left = `${sl + 2}px`;
+    if (goalLabelRef.current) goalLabelRef.current.style.left = `${sl + 2}px`;
+  };
+
   useLayoutEffect(() => {
     if (chartScrollRef.current) {
-      chartScrollRef.current.scrollLeft = chartScrollRef.current.scrollWidth;
+      const el = chartScrollRef.current;
+      el.scrollLeft = el.scrollWidth;
+      // Set initial label positions to match the scrolled-to-end position
+      const sl = Math.max(0, el.scrollWidth - el.clientWidth);
+      if (avgLabelRef.current) avgLabelRef.current.style.left = `${sl + 2}px`;
+      if (goalLabelRef.current) goalLabelRef.current.style.left = `${sl + 2}px`;
     }
   }, [records.length]);
 
@@ -153,6 +168,9 @@ export function ControlPauseChart() {
     return t('common.level_excellent');
   };
 
+  const maxRecord = records.reduce((best, r) => r.seconds > best.seconds ? r : best, records[0]);
+  const minRecord = records.reduce((worst, r) => r.seconds < worst.seconds ? r : worst, records[0]);
+
   return (
     <div className="space-y-6">
       {/* Time Range Selector */}
@@ -189,22 +207,46 @@ export function ControlPauseChart() {
         </button>
       </div>
 
-      {/* Stats Summary */}
+      {/* Stats Summary — tappable for date detail */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-green-50 dark:bg-green-900/30 p-4 rounded-xl text-center transition-colors">
+        <div
+          className="bg-green-50 dark:bg-green-900/30 p-4 rounded-xl text-center transition-colors relative cursor-pointer select-none"
+          onClick={() => setActiveStatCard(prev => prev === 'max' ? null : 'max')}
+        >
           <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">{t('intensity.highest')}</div>
           <div className="text-3xl font-bold text-green-700 dark:text-green-400 transition-colors">{maxCP}s</div>
           <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 transition-colors">{getLevel(maxCP)}</div>
+          {activeStatCard === 'max' && (
+            <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1.5 px-2 whitespace-nowrap z-20 pointer-events-none shadow-lg">
+              {maxRecord.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </div>
+          )}
         </div>
-        <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-xl text-center transition-colors">
+        <div
+          className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-xl text-center transition-colors relative cursor-pointer select-none"
+          onClick={() => setActiveStatCard(prev => prev === 'avg' ? null : 'avg')}
+        >
           <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">{t('common.level_average')}</div>
           <div className="text-3xl font-bold text-blue-700 dark:text-blue-400 transition-colors">{avgCP}s</div>
           <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 transition-colors">{getLevel(avgCP)}</div>
+          {activeStatCard === 'avg' && (
+            <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1.5 px-2 whitespace-nowrap z-20 pointer-events-none shadow-lg">
+              {locale === 'en' ? `Average of ${records.length} measurements` : `Gemiddelde van ${records.length} metingen`}
+            </div>
+          )}
         </div>
-        <div className="bg-orange-50 dark:bg-orange-900/30 p-4 rounded-xl text-center transition-colors">
+        <div
+          className="bg-orange-50 dark:bg-orange-900/30 p-4 rounded-xl text-center transition-colors relative cursor-pointer select-none"
+          onClick={() => setActiveStatCard(prev => prev === 'min' ? null : 'min')}
+        >
           <div className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1 transition-colors">{t('intensity.lowest')}</div>
           <div className="text-3xl font-bold text-orange-700 dark:text-orange-400 transition-colors">{minCP}s</div>
           <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 transition-colors">{getLevel(minCP)}</div>
+          {activeStatCard === 'min' && (
+            <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1.5 px-2 whitespace-nowrap z-20 pointer-events-none shadow-lg">
+              {minRecord.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </div>
+          )}
         </div>
       </div>
 
@@ -285,30 +327,11 @@ export function ControlPauseChart() {
                 </span>
               );
             })}
-            {/* Average marker — always visible, not inside scroll */}
-            <div
-              className="absolute left-0 right-0 border-t-2 border-dashed border-gray-400 dark:border-gray-500"
-              style={{ bottom: `calc(2rem + ${(avgCP / 60) * 18}rem)` }}
-            >
-              <span className="absolute -top-3 right-0 text-xs font-bold text-gray-600 dark:text-gray-400 bg-white dark:bg-slate-800 px-0.5 leading-none">
-                {locale === 'nl' ? 'Gem.' : 'Avg.'}
-              </span>
-            </div>
-            {/* Goal marker — always visible, not inside scroll */}
-            {cpGoal && cpGoal <= 60 && (
-              <div
-                className="absolute left-0 right-0 border-t-2 border-dashed border-green-500 dark:border-green-400"
-                style={{ bottom: `calc(2rem + ${(cpGoal / 60) * 18}rem)` }}
-              >
-                <span className="absolute -top-3 right-0 text-xs font-bold text-green-600 dark:text-green-400 bg-white dark:bg-slate-800 px-0.5 leading-none">
-                  {locale === 'nl' ? 'Doel' : 'Goal'}
-                </span>
-              </div>
-            )}
+            {/* Labels for avg/goal are on the lines inside the scroll area (see below) */}
           </div>
 
           {/* Scrollable chart area */}
-          <div ref={chartScrollRef} className="flex-1 relative overflow-x-auto overflow-y-hidden touch-pan-x">
+          <div ref={chartScrollRef} className="flex-1 relative overflow-x-auto overflow-y-hidden touch-pan-x" onScroll={handleChartScroll}>
           <div className="relative h-full" style={{ minWidth: records.length > 20 ? `${records.length * 24}px` : '100%' }}>
 
             {/* Chart area with bars */}
@@ -319,18 +342,34 @@ export function ControlPauseChart() {
               <div className="absolute left-0 right-0 border-t-2 border-dashed border-orange-200 dark:border-orange-900/50 transition-colors" style={{ bottom: '33.33%' }}></div>
               <div className="absolute left-0 right-0 border-t-2 border-dashed border-red-200 dark:border-red-900/50 transition-colors" style={{ bottom: '16.67%' }}></div>
               
-              {/* Average line — label is in y-axis, no floating label here */}
+              {/* Average line — label tracks scroll via ref (pinned to visible left edge) */}
               <div
                 className="absolute left-0 right-0 border-t-2 border-dashed border-gray-400 dark:border-gray-500 z-10 transition-colors"
                 style={{ bottom: `${(avgCP / 60) * 100}%` }}
-              />
+              >
+                <span
+                  ref={avgLabelRef}
+                  className="absolute -top-4 text-xs font-bold text-gray-600 dark:text-gray-400 bg-white/90 dark:bg-slate-800/90 px-1 rounded pointer-events-none"
+                  style={{ left: '2px' }}
+                >
+                  {locale === 'nl' ? 'Gem.' : 'Avg.'}
+                </span>
+              </div>
 
-              {/* Personal goal line — label is in y-axis */}
+              {/* Personal goal line — label tracks scroll via ref */}
               {cpGoal && cpGoal <= 60 && (
                 <div
                   className="absolute left-0 right-0 border-t-2 border-dashed border-green-500 dark:border-green-400 z-10 transition-colors"
                   style={{ bottom: `${(cpGoal / 60) * 100}%` }}
-                />
+                >
+                  <span
+                    ref={goalLabelRef}
+                    className="absolute -top-4 text-xs font-bold text-green-600 dark:text-green-400 bg-white/90 dark:bg-slate-800/90 px-1 rounded pointer-events-none"
+                    style={{ left: '2px' }}
+                  >
+                    {locale === 'nl' ? 'Doel' : 'Goal'}
+                  </span>
+                </div>
               )}
 
               {/* Bars */}
