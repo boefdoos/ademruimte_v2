@@ -168,7 +168,7 @@ export async function POST(request: NextRequest) {
 
     const message = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 600,
+      max_tokens: 1024,
       system: buildSystemPrompt(locale),
       messages: [{ role: 'user', content: userPrompt }],
     });

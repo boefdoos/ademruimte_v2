@@ -22,6 +22,7 @@ export function ControlPauseChart() {
   const [cpGoal, setCpGoal] = useState<number | null>(null);
   const [goalInput, setGoalInput] = useState('');
   const [editingGoal, setEditingGoal] = useState(false);
+  const [activeBar, setActiveBar] = useState<string | null>(null);
   const chartScrollRef = useRef<HTMLDivElement>(null);
 
   // Load/save personal goal from localStorage
@@ -245,8 +246,12 @@ export function ControlPauseChart() {
         {cpGoal && records.length > 0 && (
           <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             {maxCP >= cpGoal
-              ? `✅ Doel bereikt! Je beste meting (${maxCP}s) ligt boven je doel.`
-              : `Je bent ${cpGoal - maxCP}s verwijderd van je doel van ${cpGoal}s.`
+              ? (locale === 'nl'
+                  ? `✅ Doel bereikt! Je beste meting (${maxCP}s) ligt boven je doel.`
+                  : `✅ Goal reached! Your best measurement (${maxCP}s) is above your goal.`)
+              : (locale === 'nl'
+                  ? `Je bent ${cpGoal - maxCP}s verwijderd van je doel van ${cpGoal}s.`
+                  : `You are ${cpGoal - maxCP}s away from your goal of ${cpGoal}s.`)
             }
           </div>
         )}
@@ -261,15 +266,45 @@ export function ControlPauseChart() {
 
         {/* Chart Container — y-axis is sticky (outside scroll), bars scroll */}
         <div className="flex h-80">
-          {/* Y-axis — fixed, never scrolls */}
-          <div className="flex-shrink-0 w-10 sm:w-12 flex flex-col justify-between text-xs sm:text-sm text-gray-600 dark:text-gray-300 pr-1 sm:pr-2 transition-colors font-medium pb-8">
-            <span>60s</span>
-            <span>50s</span>
-            <span className="font-semibold text-green-600 dark:text-green-400 transition-colors">40s</span>
-            <span className="font-semibold text-yellow-600 dark:text-yellow-400 transition-colors">30s</span>
-            <span className="font-semibold text-orange-600 dark:text-orange-400 transition-colors">20s</span>
-            <span className="font-semibold text-red-600 dark:text-red-400 transition-colors">10s</span>
-            <span>0s</span>
+          {/* Y-axis — fixed, never scrolls. Uses relative+absolute so avg/goal labels stay visible */}
+          <div className="flex-shrink-0 w-12 sm:w-14 relative overflow-visible pb-8">
+            {/* Scale tick labels */}
+            {([60, 50, 40, 30, 20, 10, 0] as const).map((val) => {
+              const colorClass = val >= 40 ? 'text-green-600 dark:text-green-400'
+                : val >= 30 ? 'text-yellow-600 dark:text-yellow-400'
+                : val >= 20 ? 'text-orange-600 dark:text-orange-400'
+                : val >= 10 ? 'text-red-600 dark:text-red-400'
+                : 'text-gray-500 dark:text-gray-400';
+              return (
+                <span
+                  key={val}
+                  className={`absolute right-1 text-xs sm:text-sm font-medium transition-colors ${colorClass}`}
+                  style={{ bottom: `calc(2rem + ${(val / 60) * 18}rem)`, transform: 'translateY(50%)' }}
+                >
+                  {val}s
+                </span>
+              );
+            })}
+            {/* Average marker — always visible, not inside scroll */}
+            <div
+              className="absolute left-0 right-0 border-t-2 border-dashed border-gray-400 dark:border-gray-500"
+              style={{ bottom: `calc(2rem + ${(avgCP / 60) * 18}rem)` }}
+            >
+              <span className="absolute -top-3 right-0 text-xs font-bold text-gray-600 dark:text-gray-400 bg-white dark:bg-slate-800 px-0.5 leading-none">
+                {locale === 'nl' ? 'Gem.' : 'Avg.'}
+              </span>
+            </div>
+            {/* Goal marker — always visible, not inside scroll */}
+            {cpGoal && cpGoal <= 60 && (
+              <div
+                className="absolute left-0 right-0 border-t-2 border-dashed border-green-500 dark:border-green-400"
+                style={{ bottom: `calc(2rem + ${(cpGoal / 60) * 18}rem)` }}
+              >
+                <span className="absolute -top-3 right-0 text-xs font-bold text-green-600 dark:text-green-400 bg-white dark:bg-slate-800 px-0.5 leading-none">
+                  {locale === 'nl' ? 'Doel' : 'Goal'}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Scrollable chart area */}
@@ -284,26 +319,18 @@ export function ControlPauseChart() {
               <div className="absolute left-0 right-0 border-t-2 border-dashed border-orange-200 dark:border-orange-900/50 transition-colors" style={{ bottom: '33.33%' }}></div>
               <div className="absolute left-0 right-0 border-t-2 border-dashed border-red-200 dark:border-red-900/50 transition-colors" style={{ bottom: '16.67%' }}></div>
               
-              {/* Average line */}
+              {/* Average line — label is in y-axis, no floating label here */}
               <div
                 className="absolute left-0 right-0 border-t-2 border-dashed border-gray-400 dark:border-gray-500 z-10 transition-colors"
                 style={{ bottom: `${(avgCP / 60) * 100}%` }}
-              >
-                <span className="absolute right-0 -top-4 text-xs font-semibold text-gray-600 dark:text-gray-400 bg-white dark:bg-slate-800 px-1">
-                  Gem.
-                </span>
-              </div>
+              />
 
-              {/* Personal goal line */}
-              {cpGoal && (
+              {/* Personal goal line — label is in y-axis */}
+              {cpGoal && cpGoal <= 60 && (
                 <div
                   className="absolute left-0 right-0 border-t-2 border-dashed border-green-500 dark:border-green-400 z-10 transition-colors"
                   style={{ bottom: `${(cpGoal / 60) * 100}%` }}
-                >
-                  <span className="absolute right-0 -top-4 text-xs font-semibold text-green-600 dark:text-green-400 bg-white dark:bg-slate-800 px-1">
-                    Doel
-                  </span>
-                </div>
+                />
               )}
 
               {/* Bars */}
@@ -323,14 +350,15 @@ export function ControlPauseChart() {
                       key={record.id}
                       className="flex-1 flex flex-col items-center justify-end h-full group relative"
                       style={{ minWidth: '20px' }}
+                      onClick={() => setActiveBar(prev => prev === record.id ? null : record.id)}
                     >
                       <div
                         className={`w-full bg-gradient-to-t ${colorClass} rounded-t transition-all hover:opacity-80 cursor-pointer dark:opacity-90 dark:hover:opacity-100`}
                         style={{ height: `${height}%` }}
                       >
-                        {/* Tooltip */}
-                        <div className="opacity-0 group-hover:opacity-100 absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-slate-900 text-white text-xs rounded py-2 px-3 whitespace-nowrap transition-opacity pointer-events-none z-20">
-                          <div className="font-bold">{record.seconds}s</div>
+                        {/* Tooltip — hover on desktop, tap on mobile */}
+                        <div className={`${activeBar === record.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-slate-900 text-white text-xs rounded py-2 px-3 whitespace-nowrap transition-opacity pointer-events-none z-20`}>
+                          <div className="font-bold">{record.seconds}s — {getLevel(record.seconds)}</div>
                           <div className="text-gray-300 dark:text-gray-400 transition-colors">
                             {record.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', {
                               day: 'numeric',
@@ -338,7 +366,6 @@ export function ControlPauseChart() {
                               year: 'numeric',
                             })}
                           </div>
-                          <div className="text-gray-300 dark:text-gray-400 transition-colors">{getLevel(record.seconds)}</div>
                         </div>
                       </div>
                     </div>
@@ -353,7 +380,7 @@ export function ControlPauseChart() {
                 {records[0]?.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short' })}
               </span>
               <span className="text-gray-500 dark:text-gray-400 transition-colors hidden sm:inline">
-                {records.length} metingen
+                {records.length} {locale === 'nl' ? 'metingen' : 'measurements'}
               </span>
               <span>
                 {records[records.length - 1]?.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', {
@@ -406,28 +433,28 @@ export function ControlPauseChart() {
               {t('common.insights_title')}
             </h4>
             <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300 transition-colors">
-              <li>📈 {records.length} meting{records.length !== 1 ? 'en' : ''} in deze periode</li>
+              <li>📈 {records.length} {locale === 'nl' ? `meting${records.length !== 1 ? 'en' : ''} in deze periode` : `measurement${records.length !== 1 ? 's' : ''} in this period`}</li>
 
               {/* Trend vs baseline — only show when enough data */}
               {records.length >= 4 && (
                 <li>
-                  {trendUp && `⬆️ ${t('cp.insights_positive')} Recente gem. ${recentAvg}s vs basislijn ${baseline}s (+${diff}s)`}
-                  {trendDown && `⬇️ ${t('cp.insights_decline')} recente gem. ${recentAvg}s vs basislijn ${baseline}s (${diff}s). Normaal bij stress of slaaptekort.`}
-                  {trendStable && `➡️ ${t('cp.insights_stable')} recente gem. ${recentAvg}s — vergelijkbaar met je basislijn van ${baseline}s.`}
+                  {trendUp && `⬆️ ${t('cp.insights_positive')} ${locale === 'nl' ? `Recente gem. ${recentAvg}s vs basislijn ${baseline}s (+${diff}s)` : `Recent avg. ${recentAvg}s vs baseline ${baseline}s (+${diff}s)`}`}
+                  {trendDown && `⬇️ ${t('cp.insights_decline')} ${locale === 'nl' ? `recente gem. ${recentAvg}s vs basislijn ${baseline}s (${diff}s). Normaal bij stress of slaaptekort.` : `recent avg. ${recentAvg}s vs baseline ${baseline}s (${diff}s). Normal with stress or poor sleep.`}`}
+                  {trendStable && `➡️ ${t('cp.insights_stable')} ${locale === 'nl' ? `recente gem. ${recentAvg}s — vergelijkbaar met je basislijn van ${baseline}s.` : `recent avg. ${recentAvg}s — comparable to your baseline of ${baseline}s.`}`}
                 </li>
               )}
               {records.length < 4 && records.length >= 2 && (
-                <li>📊 Meet nog {4 - records.length}× meer voor een betrouwbare trendanalyse.</li>
+                <li>📊 {locale === 'nl' ? `Meet nog ${4 - records.length}× meer voor een betrouwbare trendanalyse.` : `Measure ${4 - records.length} more times for a reliable trend analysis.`}</li>
               )}
 
               {/* Level feedback */}
-              {maxCP >= 40 && <li>✅ Uitstekend! Je beste meting ({maxCP}s) duidt op een gezonde ademhaling.</li>}
+              {maxCP >= 40 && <li>✅ {locale === 'nl' ? `Uitstekend! Je beste meting (${maxCP}s) duidt op een gezonde ademhaling.` : `Excellent! Your best measurement (${maxCP}s) indicates healthy breathing.`}</li>}
               {avgCP >= 30 && avgCP < 40 && <li>{t('cp.insights_good').replace('{n}', String(avgCP))}</li>}
-              {avgCP < 20 && <li>💪 Blijf oefenen! Elke seconde verbetering telt — dat zal je merken in je klachten.</li>}
+              {avgCP < 20 && <li>💪 {locale === 'nl' ? 'Blijf oefenen! Elke seconde verbetering telt — dat zal je merken in je klachten.' : 'Keep practicing! Every second of improvement counts — you will notice it in your symptoms.'}</li>}
 
               {/* Goal progress */}
               {cpGoal && maxCP < cpGoal && (
-                <li>🎯 Doel van {cpGoal}s: je bent er al op {Math.round((maxCP / cpGoal) * 100)}%.</li>
+                <li>🎯 {locale === 'nl' ? `Doel van ${cpGoal}s: je bent er al op ${Math.round((maxCP / cpGoal) * 100)}%.` : `Goal of ${cpGoal}s: you're already at ${Math.round((maxCP / cpGoal) * 100)}%.`}</li>
               )}
             </ul>
           </div>
@@ -442,7 +469,9 @@ export function ControlPauseChart() {
             {t('cp.recent_measurements')}
           </h4>
           <span className="text-sm text-gray-500 dark:text-gray-400">
-            Laatste {Math.min(records.length, 15)} van {records.length}
+            {locale === 'nl'
+              ? `Laatste ${Math.min(records.length, 15)} van ${records.length}`
+              : `Last ${Math.min(records.length, 15)} of ${records.length}`}
           </span>
         </div>
         <div className="space-y-2">

@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { db } from '@/lib/firebase/config';
-import { collection, addDoc, doc, setDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, setDoc, getDoc } from 'firebase/firestore';
 import { useWakeLock } from '@/hooks/useWakeLock';
 
 type BreathPhase = 'inhale' | 'hold' | 'exhale' | 'idle';
@@ -40,7 +40,7 @@ const patterns: BreathPattern[] = [
 
 export function ResonantBreathing() {
   const { currentUser } = useAuth();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { requestWakeLock, releaseWakeLock } = useWakeLock();
   const [selectedPattern, setSelectedPattern] = useState(patterns[0]);
   const [customHoldDuration, setCustomHoldDuration] = useState(3);
@@ -57,6 +57,9 @@ export function ResonantBreathing() {
   const [intensiteitScore, setIntensiteitScore] = useState<number | null>(null);
   const [selectedTriggers, setSelectedTriggers] = useState<string[]>([]);
   const [selectedSensations, setSelectedSensations] = useState<string[]>([]);
+  const [customTriggers, setCustomTriggers] = useState<string[]>([]);
+  const [customSensations, setCustomSensations] = useState<string[]>([]);
+  const [cpScore, setCpScore] = useState('');
   const [isMounted, setIsMounted] = useState(false);
 
 const COMMON_TRIGGERS = [
@@ -75,6 +78,25 @@ const COMMON_SENSATIONS = [
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Load custom triggers/sensations from Firestore (same as manual journal entry)
+  useEffect(() => {
+    if (!currentUser) return;
+    const load = async () => {
+      try {
+        const ref = doc(db, 'users', currentUser.uid, 'customTags', 'default');
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const data = snap.data();
+          setCustomTriggers(data.triggers || []);
+          setCustomSensations(data.sensaties || []);
+        }
+      } catch (e) {
+        console.error('Error loading custom tags:', e);
+      }
+    };
+    load();
+  }, [currentUser]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const colorClasses = {
@@ -312,7 +334,7 @@ const COMMON_SENSATIONS = [
 
     try {
       const entriesRef = collection(db, 'dagboekEntries');
-      await addDoc(entriesRef, {
+      const entry: Record<string, unknown> = {
         userId: currentUser.uid,
         techniekGebruikt: selectedPattern.name,
         notities: journalNotes,
@@ -320,13 +342,18 @@ const COMMON_SENSATIONS = [
         triggers: selectedTriggers,
         sensaties: selectedSensations,
         timestamp: new Date(),
-      });
+      };
+      if (cpScore && !isNaN(parseInt(cpScore))) {
+        entry.cpScore = parseInt(cpScore);
+      }
+      await addDoc(entriesRef, entry);
 
       setShowJournalModal(false);
       setJournalNotes('');
       setIntensiteitScore(null);
       setSelectedTriggers([]);
       setSelectedSensations([]);
+      setCpScore('');
     } catch (error) {
       console.error('Error saving journal entry:', error);
       alert(t('journal_form.save_error'));
@@ -339,6 +366,7 @@ const COMMON_SENSATIONS = [
     setIntensiteitScore(null);
     setSelectedTriggers([]);
     setSelectedSensations([]);
+    setCpScore('');
   };
 
   const getPhaseText = () => {
@@ -765,7 +793,7 @@ const COMMON_SENSATIONS = [
                 {t('journal_form.triggers_label')} <span className="font-normal text-gray-400">({t('common.optional')})</span>
               </label>
               <div className="flex flex-wrap gap-2">
-                {COMMON_TRIGGERS.map(trigger => (
+                {[...COMMON_TRIGGERS, ...customTriggers].map(trigger => (
                   <button
                     key={trigger}
                     type="button"
@@ -775,6 +803,8 @@ const COMMON_SENSATIONS = [
                     className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
                       selectedTriggers.includes(trigger)
                         ? 'bg-orange-500 text-white border-orange-500'
+                        : customTriggers.includes(trigger)
+                        ? 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800 hover:border-orange-400'
                         : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-slate-500 hover:border-orange-400'
                     }`}
                   >
@@ -790,7 +820,7 @@ const COMMON_SENSATIONS = [
                 {t('journal_form.sensations_label')} <span className="font-normal text-gray-400">({t('common.optional')})</span>
               </label>
               <div className="flex flex-wrap gap-2">
-                {COMMON_SENSATIONS.map(sensation => (
+                {[...COMMON_SENSATIONS, ...customSensations].map(sensation => (
                   <button
                     key={sensation}
                     type="button"
@@ -800,6 +830,8 @@ const COMMON_SENSATIONS = [
                     className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
                       selectedSensations.includes(sensation)
                         ? 'bg-blue-500 text-white border-blue-500'
+                        : customSensations.includes(sensation)
+                        ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800 hover:border-blue-400'
                         : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-slate-500 hover:border-blue-400'
                     }`}
                   >
@@ -809,6 +841,7 @@ const COMMON_SENSATIONS = [
               </div>
             </div>
 
+            {/* Notes */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
                 {t('journal_form.notes_label')} <span className="font-normal text-gray-400">({t('common.optional')})</span>
@@ -819,6 +852,21 @@ const COMMON_SENSATIONS = [
                 placeholder={t('resonant.notes_placeholder')}
                 rows={3}
                 className="w-full px-4 py-2 border-2 border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+              />
+            </div>
+
+            {/* CP Score (optional) */}
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
+                {t('journal_form.cp_label')} <span className="font-normal text-gray-400">({t('common.optional')})</span>
+              </label>
+              <input
+                type="number"
+                value={cpScore}
+                onChange={(e) => setCpScore(e.target.value)}
+                placeholder={t('journal_form.cp_placeholder')}
+                min={1} max={120}
+                className="w-28 px-3 py-2 border-2 border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
               />
             </div>
 

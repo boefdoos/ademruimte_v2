@@ -21,6 +21,7 @@ export function IntensityStats() {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'all'>('month');
+  const [activeBar, setActiveBar] = useState<number | null>(null);
 
   useEffect(() => {
     const loadEntries = async () => {
@@ -324,16 +325,22 @@ export function IntensityStats() {
                     {chartEntries.map((entry, index) => {
                       const height = (entry.intensiteit! / 10) * 100;
                       return (
-                        <div key={index} className="flex-1 flex flex-col items-center justify-end h-full group relative min-w-0">
+                        <div
+                          key={index}
+                          className="flex-1 flex flex-col items-center justify-end h-full group relative min-w-0"
+                          onClick={() => setActiveBar(prev => prev === index ? null : index)}
+                        >
                           <div
                             className={`w-full bg-gradient-to-t ${getIntensityColor(entry.intensiteit!)} rounded-t transition-all hover:opacity-80 cursor-pointer`}
                             style={{ height: `${height}%` }}
                           >
-                            {/* Tooltip */}
-                            <div className="opacity-0 group-hover:opacity-100 absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-slate-900 text-white text-xs rounded py-2 px-3 whitespace-nowrap transition-opacity pointer-events-none z-10">
+                            {/* Tooltip — visible on hover (desktop) or tap (mobile) */}
+                            <div className={`${activeBar === index ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-slate-900 text-white text-xs rounded py-2 px-3 whitespace-nowrap transition-opacity pointer-events-none z-10`}>
                               <div className="font-bold">{entry.intensiteit}/10</div>
                               <div>{entry.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short' })}</div>
-                              <div className="text-gray-300 dark:text-gray-400">{entry.techniekGebruikt}</div>
+                              {entry.techniekGebruikt && entry.techniekGebruikt !== 'Unknown' && (
+                                <div className="text-gray-300 dark:text-gray-400">{entry.techniekGebruikt}</div>
+                              )}
                             </div>
                           </div>
                         </div>
