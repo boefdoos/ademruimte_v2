@@ -113,7 +113,10 @@ export function JournalAnalysis() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error('API error');
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(`API error ${res.status}: ${errBody?.error ?? 'unknown'}`);
+      }
       const data = await res.json();
       const saved: SavedInsight = {
         text: data.insight,
@@ -121,10 +124,15 @@ export function JournalAnalysis() {
         period,
         entryCount: filtered.length,
       };
-      // Persist to Firestore
-      await setDoc(doc(db, 'users', currentUser.uid, 'journalInsights', period), saved);
+      // Show insight immediately regardless of Firestore result
       setInsight(saved);
       setTimeout(() => insightRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+      // Persist to Firestore (non-critical — don't fail the UX if this errors)
+      try {
+        await setDoc(doc(db, 'users', currentUser.uid, 'journalInsights', period), saved);
+      } catch (firestoreErr) {
+        console.warn('Could not persist insight to Firestore:', firestoreErr);
+      }
     } catch (e) {
       console.error('Insight generation error:', e);
       setInsightError(true);
