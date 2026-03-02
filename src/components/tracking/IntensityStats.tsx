@@ -304,12 +304,7 @@ export function IntensityStats() {
       {/* Timeline Chart */}
       <div className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-6 transition-colors">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-3">
-          <div>
-            <h3 className="font-bold text-base sm:text-lg text-gray-800 dark:text-gray-100">{t('intensity.chart_title')}</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-              {locale === 'en' ? 'Each bar = 1 entry · newest on right' : 'Elke balk = 1 meting · nieuwste rechts'}
-            </p>
-          </div>
+          <h3 className="font-bold text-base sm:text-lg text-gray-800 dark:text-gray-100">{t('intensity.chart_title')}</h3>
           {/* Legend */}
           <div className="flex flex-wrap gap-2 sm:gap-3 text-xs sm:text-sm">
             <div className="flex items-center gap-1.5">
@@ -361,28 +356,30 @@ export function IntensityStats() {
                     ))}
                   </div>
                   {/* Bars */}
-                  <div className="absolute inset-0 flex items-end justify-between gap-1 pb-0">
+                  <div className="absolute inset-0 flex items-end justify-between gap-1">
                     {chartEntries.map((entry, index) => {
                       const height = (entry.intensiteit! / 10) * 100;
                       return (
                         <div
                           key={index}
-                          className="flex-1 flex flex-col items-center justify-end h-full group relative min-w-0"
+                          className="flex-1 flex flex-col items-center justify-end h-full relative min-w-0 cursor-pointer"
                           onClick={() => setActiveBar(prev => prev === index ? null : index)}
                         >
-                          <div
-                            className={`w-full bg-gradient-to-t ${getIntensityColor(entry.intensiteit!)} rounded-t transition-all hover:opacity-80 cursor-pointer`}
-                            style={{ height: `${height}%` }}
-                          >
-                            {/* Tooltip — visible on hover (desktop) or tap (mobile) */}
-                            <div className={`${activeBar === index ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 dark:bg-slate-900 text-white text-xs rounded py-2 px-3 whitespace-nowrap transition-opacity pointer-events-none z-10`}>
+                          {/* Tooltip — conditional render, sibling above bar */}
+                          {activeBar === index && (
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 bg-gray-800 dark:bg-slate-900 text-white text-xs rounded py-1.5 px-2 whitespace-nowrap pointer-events-none z-30 shadow-lg">
                               <div className="font-bold">{entry.intensiteit}/10</div>
                               <div>{entry.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short' })}</div>
                               {entry.techniekGebruikt && entry.techniekGebruikt !== 'Unknown' && (
                                 <div className="text-gray-300 dark:text-gray-400">{entry.techniekGebruikt}</div>
                               )}
                             </div>
-                          </div>
+                          )}
+                          {/* Bar */}
+                          <div
+                            className={`w-full bg-gradient-to-t ${getIntensityColor(entry.intensiteit!)} rounded-t`}
+                            style={{ height: `${height}%` }}
+                          />
                         </div>
                       );
                     })}
