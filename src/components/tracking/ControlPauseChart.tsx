@@ -294,8 +294,8 @@ export function ControlPauseChart() {
 
         {/* Chart Container — y-axis is sticky (outside scroll), bars scroll */}
         <div className="flex h-80">
-          {/* Y-axis — fixed, never scrolls. Uses relative+absolute so avg/goal labels stay visible */}
-          <div className="flex-shrink-0 w-12 sm:w-14 relative overflow-visible pb-8">
+          {/* Y-axis — fixed, never scrolls. Tick labels only. */}
+          <div className="flex-shrink-0 w-12 sm:w-14 relative pb-8">
             {/* Scale tick labels */}
             {([60, 50, 40, 30, 20, 10, 0] as const).map((val) => {
               const colorClass = val >= 40 ? 'text-green-600 dark:text-green-400'
@@ -313,30 +313,32 @@ export function ControlPauseChart() {
                 </span>
               );
             })}
-            {/* Average line + label — in y-axis so always visible when scrolling */}
-            <div
-              className="absolute left-0 right-[-2px] border-t-2 border-dashed border-gray-400 dark:border-gray-500 z-10"
-              style={{ bottom: `calc(2rem + ${(avgCP / 60) * 18}rem)` }}
-            >
-              <span className="absolute right-0.5 -top-3.5 text-xs font-bold text-gray-600 dark:text-gray-400 bg-white dark:bg-slate-800 whitespace-nowrap leading-none">
-                {locale === 'nl' ? 'Gem.' : 'Avg.'}
-              </span>
-            </div>
-            {/* Goal line + label — in y-axis so always visible when scrolling */}
-            {cpGoal && cpGoal <= 60 && (
-              <div
-                className="absolute left-0 right-[-2px] border-t-2 border-dashed border-green-500 dark:border-green-400 z-10"
-                style={{ bottom: `calc(2rem + ${(cpGoal / 60) * 18}rem)` }}
-              >
-                <span className="absolute right-0.5 -top-3.5 text-xs font-bold text-green-600 dark:text-green-400 bg-white dark:bg-slate-800 whitespace-nowrap leading-none">
-                  {locale === 'nl' ? 'Doel' : 'Goal'}
-                </span>
-              </div>
-            )}
           </div>
 
+          {/* Chart wrapper — relative so non-scrolling overlay can be positioned over scroll area */}
+          <div className="flex-1 relative">
+            {/* Non-scrolling Gem./Doel labels — float over scroll area, never scroll */}
+            <div className="absolute left-0 top-0 bottom-8 z-20 pointer-events-none">
+              {/* Average label */}
+              <div
+                className="absolute left-1 text-xs font-bold text-gray-600 dark:text-gray-400 bg-white/95 dark:bg-slate-800/95 whitespace-nowrap px-1 rounded leading-none"
+                style={{ bottom: `${(avgCP / 60) * 100}%`, transform: 'translateY(50%)' }}
+              >
+                {locale === 'nl' ? 'Gem.' : 'Avg.'}
+              </div>
+              {/* Goal label */}
+              {cpGoal && cpGoal <= 60 && (
+                <div
+                  className="absolute left-1 text-xs font-bold text-green-600 dark:text-green-400 bg-white/95 dark:bg-slate-800/95 whitespace-nowrap px-1 rounded leading-none"
+                  style={{ bottom: `${(cpGoal / 60) * 100}%`, transform: 'translateY(50%)' }}
+                >
+                  {locale === 'nl' ? 'Doel' : 'Goal'}
+                </div>
+              )}
+            </div>
+
           {/* Scrollable chart area */}
-          <div ref={chartScrollRef} className="flex-1 relative overflow-x-auto overflow-y-hidden touch-pan-x">
+          <div ref={chartScrollRef} className="h-full overflow-x-auto overflow-y-hidden touch-pan-x">
           <div className="relative h-full" style={{ minWidth: records.length > 20 ? `${records.length * 24}px` : '100%' }}>
 
             {/* Chart area with bars */}
@@ -421,6 +423,7 @@ export function ControlPauseChart() {
             </div>
           </div>
           </div>{/* end scrollable area */}
+          </div>{/* end chart wrapper */}
         </div>{/* end flex row */}
 
         {/* Mobile scroll hint */}
@@ -463,28 +466,28 @@ export function ControlPauseChart() {
               {t('common.insights_title')}
             </h4>
             <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300 transition-colors">
-              <li>📈 {records.length} {locale === 'nl' ? `meting${records.length !== 1 ? 'en' : ''} in deze periode` : `measurement${records.length !== 1 ? 's' : ''} in this period`}</li>
+              <li>{records.length} {locale === 'nl' ? `meting${records.length !== 1 ? 'en' : ''} in deze periode` : `measurement${records.length !== 1 ? 's' : ''} in this period`}</li>
 
               {/* Trend vs baseline — only show when enough data */}
               {records.length >= 4 && (
                 <li>
-                  {trendUp && `⬆️ ${t('cp.insights_positive')} ${locale === 'nl' ? `Recente gem. ${recentAvg}s vs basislijn ${baseline}s (+${diff}s)` : `Recent avg. ${recentAvg}s vs baseline ${baseline}s (+${diff}s)`}`}
-                  {trendDown && `⬇️ ${t('cp.insights_decline')} ${locale === 'nl' ? `recente gem. ${recentAvg}s vs basislijn ${baseline}s (${diff}s). Normaal bij stress of slaaptekort.` : `recent avg. ${recentAvg}s vs baseline ${baseline}s (${diff}s). Normal with stress or poor sleep.`}`}
-                  {trendStable && `➡️ ${t('cp.insights_stable')} ${locale === 'nl' ? `recente gem. ${recentAvg}s — vergelijkbaar met je basislijn van ${baseline}s.` : `recent avg. ${recentAvg}s — comparable to your baseline of ${baseline}s.`}`}
+                  {trendUp && `${t('cp.insights_positive')} ${locale === 'nl' ? `Recente gem. ${recentAvg}s vs basislijn ${baseline}s (+${diff}s).` : `Recent avg. ${recentAvg}s vs baseline ${baseline}s (+${diff}s).`}`}
+                  {trendDown && `${t('cp.insights_decline')} ${locale === 'nl' ? `recente gem. ${recentAvg}s vs basislijn ${baseline}s (${diff}s). Normaal bij stress of slaaptekort.` : `recent avg. ${recentAvg}s vs baseline ${baseline}s (${diff}s). Normal with stress or poor sleep.`}`}
+                  {trendStable && `${t('cp.insights_stable')} ${locale === 'nl' ? `recente gem. ${recentAvg}s — vergelijkbaar met je basislijn van ${baseline}s.` : `recent avg. ${recentAvg}s — comparable to your baseline of ${baseline}s.`}`}
                 </li>
               )}
               {records.length < 4 && records.length >= 2 && (
-                <li>📊 {locale === 'nl' ? `Meet nog ${4 - records.length}× meer voor een betrouwbare trendanalyse.` : `Measure ${4 - records.length} more times for a reliable trend analysis.`}</li>
+                <li>{locale === 'nl' ? `Meet nog ${4 - records.length}× meer voor een betrouwbare trendanalyse.` : `Measure ${4 - records.length} more times for a reliable trend analysis.`}</li>
               )}
 
               {/* Level feedback */}
-              {maxCP >= 40 && <li>✅ {locale === 'nl' ? `Uitstekend! Je beste meting (${maxCP}s) duidt op een gezonde ademhaling.` : `Excellent! Your best measurement (${maxCP}s) indicates healthy breathing.`}</li>}
+              {maxCP >= 40 && <li>{locale === 'nl' ? `Uitstekend — je beste meting (${maxCP}s) duidt op een gezonde ademhaling.` : `Excellent — your best measurement (${maxCP}s) indicates healthy breathing.`}</li>}
               {avgCP >= 30 && avgCP < 40 && <li>{t('cp.insights_good').replace('{n}', String(avgCP))}</li>}
-              {avgCP < 20 && <li>💪 {locale === 'nl' ? 'Blijf oefenen! Elke seconde verbetering telt — dat zal je merken in je klachten.' : 'Keep practicing! Every second of improvement counts — you will notice it in your symptoms.'}</li>}
+              {avgCP < 20 && <li>{locale === 'nl' ? 'Blijf oefenen — elke seconde verbetering telt en zal je merken in je klachten.' : 'Keep practicing — every second of improvement counts and you will notice it in your symptoms.'}</li>}
 
               {/* Goal progress */}
               {cpGoal && maxCP < cpGoal && (
-                <li>🎯 {locale === 'nl' ? `Doel van ${cpGoal}s: je bent er al op ${Math.round((maxCP / cpGoal) * 100)}%.` : `Goal of ${cpGoal}s: you're already at ${Math.round((maxCP / cpGoal) * 100)}%.`}</li>
+                <li>{locale === 'nl' ? `Doel van ${cpGoal}s: je bent er al op ${Math.round((maxCP / cpGoal) * 100)}%.` : `Goal of ${cpGoal}s: you're already at ${Math.round((maxCP / cpGoal) * 100)}%.`}</li>
               )}
             </ul>
           </div>

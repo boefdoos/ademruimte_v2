@@ -54,7 +54,7 @@ export function ResonantBreathing() {
   const [cycles, setCycles] = useState(0);
   const [showJournalModal, setShowJournalModal] = useState(false);
   const [journalNotes, setJournalNotes] = useState('');
-  const [intensiteitScore, setIntensiteitScore] = useState<number | null>(null);
+  const [intensiteitScore, setIntensiteitScore] = useState<number>(5);
   const [selectedTriggers, setSelectedTriggers] = useState<string[]>([]);
   const [selectedSensations, setSelectedSensations] = useState<string[]>([]);
   const [customTriggers, setCustomTriggers] = useState<string[]>([]);
@@ -350,7 +350,7 @@ const COMMON_SENSATIONS = [
 
       setShowJournalModal(false);
       setJournalNotes('');
-      setIntensiteitScore(null);
+      setIntensiteitScore(5);
       setSelectedTriggers([]);
       setSelectedSensations([]);
       setCpScore('');
@@ -363,7 +363,7 @@ const COMMON_SENSATIONS = [
   const skipJournal = () => {
     setShowJournalModal(false);
     setJournalNotes('');
-    setIntensiteitScore(null);
+    setIntensiteitScore(5);
     setSelectedTriggers([]);
     setSelectedSensations([]);
     setCpScore('');
@@ -747,44 +747,41 @@ const COMMON_SENSATIONS = [
               </div>
             </div>
 
-            {/* Intensiteit score */}
+            {/* Intensiteit score — matches manual journal style */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                {t('resonant.mood_before_label')}
+                {locale === 'nl' ? 'Intensiteit voor de sessie' : 'Intensity before session'}
               </label>
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-green-600 dark:text-green-400 font-medium w-10">{t('resonant.mood_calm')}</span>
-                <input
-                  type="range"
-                  min={1}
-                  max={10}
-                  step={1}
-                  value={intensiteitScore ?? 5}
-                  onChange={(e) => setIntensiteitScore(Number(e.target.value))}
-                  className="flex-1 accent-blue-600"
+              {/* Value badge + gradient track */}
+              <div className="flex items-center gap-4 mb-3">
+                <div
+                  className="flex-1 h-3 rounded-full bg-gradient-to-r from-green-400 via-yellow-400 via-orange-400 to-red-500"
+                  style={{ opacity: 0.3 }}
                 />
-                <span className="text-xs text-red-600 dark:text-red-400 font-medium w-10 text-right">{t('resonant.mood_tense')}</span>
-              </div>
-              {intensiteitScore !== null && (
-                <div className="text-center mt-1">
-                  <span className="text-lg font-bold text-blue-600 dark:text-blue-400">{intensiteitScore}</span>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">/10</span>
-                  <button
-                    onClick={() => setIntensiteitScore(null)}
-                    className="ml-3 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 underline"
-                  >
-                    {t('common.clear')}
-                  </button>
-                </div>
-              )}
-              {intensiteitScore === null && (
-                <button
-                  onClick={() => setIntensiteitScore(5)}
-                  className="mt-1 text-xs text-blue-500 hover:text-blue-700 dark:text-blue-400 underline"
+                <div
+                  className={`px-4 py-2 rounded-lg font-bold text-lg min-w-[80px] text-center transition-all ${
+                    intensiteitScore <= 3 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                    intensiteitScore <= 5 ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                    intensiteitScore <= 7 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
+                    'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                  }`}
                 >
-                  {t('resonant.score_enter')}
-                </button>
-              )}
+                  {intensiteitScore}
+                </div>
+              </div>
+              <input
+                type="range"
+                min={1}
+                max={10}
+                step={1}
+                value={intensiteitScore}
+                onChange={(e) => setIntensiteitScore(Number(e.target.value))}
+                className="w-full accent-blue-600"
+              />
+              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <span>1 — {locale === 'nl' ? 'rustig' : 'calm'}</span>
+                <span>10 — {locale === 'nl' ? 'gespannen' : 'tense'}</span>
+              </div>
             </div>
 
             {/* Triggers */}

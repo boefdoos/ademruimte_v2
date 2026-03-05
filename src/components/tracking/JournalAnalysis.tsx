@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { db } from '@/lib/firebase/config';
-import { collection, query, where, orderBy, getDocs, doc, setDoc, getDoc } from 'firebase/firestore';
+import { collection, query, where, orderBy, limit, getDocs, doc, setDoc, getDoc } from 'firebase/firestore';
 
 interface JournalEntry {
   id: string;
@@ -42,7 +42,8 @@ export function JournalAnalysis() {
         const q = query(
           collection(db, 'dagboekEntries'),
           where('userId', '==', currentUser.uid),
-          orderBy('timestamp', 'desc')
+          orderBy('timestamp', 'desc'),
+          limit(300)
         );
         const snap = await getDocs(q);
         setEntries(snap.docs.map(doc => {
@@ -219,21 +220,32 @@ export function JournalAnalysis() {
 
   // --- 6. Intensity trend (weekly buckets) ---
   const withScore = filtered.filter(e => e.intensiteit !== null);
-  const weekBuckets: Record<string, number[]> = {};
+  // Use a Map with numeric timestamp as key to guarantee chronological sorting
+  const weekBucketsMap = new Map<number, { label: string; vals: number[] }>();
   withScore.forEach(e => {
     const d = new Date(e.timestamp);
     d.setHours(0, 0, 0, 0);
-    const dow = (d.getDay() + 6) % 7;
-    d.setDate(d.getDate() - dow);
-    const key = d.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short' });
-    if (!weekBuckets[key]) weekBuckets[key] = [];
-    weekBuckets[key].push(e.intensiteit as number);
+    const dow = (d.getDay() + 6) % 7; // Monday = 0
+    d.setDate(d.getDate() - dow); // snap to Monday of that week
+    const weekTimestamp = d.getTime();
+    if (!weekBucketsMap.has(weekTimestamp)) {
+      weekBucketsMap.set(weekTimestamp, {
+        label: d.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short' }),
+        vals: [],
+      });
+    }
+    weekBucketsMap.get(weekTimestamp)!.vals.push(e.intensiteit as number);
   });
-  const trendPoints = Object.entries(weekBuckets)
-    .map(([label, vals]) => ({ label, avg: Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 10) / 10 }))
+  // Sort oldest → newest, then take last 8 weeks
+  const trendPoints = Array.from(weekBucketsMap.entries())
+    .sort(([a], [b]) => a - b)
+    .map(([, { label, vals }]) => ({
+      label,
+      avg: Math.round((vals.reduce((s, v) => s + v, 0) / vals.length) * 10) / 10,
+    }))
     .slice(-8);
 
-  // Trend direction
+  // Trend direction — trendPoints is now oldest→newest, so slice(-half) = truly recent
   let trendKey = 'journal_analysis.insight_trend_stable';
   if (trendPoints.length >= 3) {
     const half = Math.floor(trendPoints.length / 2);
@@ -308,8 +320,8 @@ export function JournalAnalysis() {
 
         {/* Top Triggers by frequency */}
         <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-slate-700">
-          <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-            <span className="text-orange-500">⚡</span>{t('journal_analysis.top_triggers')}
+          <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-4">
+            {t('journal_analysis.top_triggers')}
           </h3>
           {topTriggers.length === 0 ? (
             <p className="text-sm text-gray-400">{t('journal_analysis.no_triggers')}</p>
@@ -332,8 +344,8 @@ export function JournalAnalysis() {
 
         {/* Top Sensations by frequency */}
         <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-slate-700">
-          <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-            <span className="text-blue-500">🫁</span>{t('journal_analysis.top_sensations')}
+          <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-4">
+            {t('journal_analysis.top_sensations')}
           </h3>
           {topSensations.length === 0 ? (
             <p className="text-sm text-gray-400">{t('journal_analysis.no_sensations')}</p>
@@ -361,8 +373,8 @@ export function JournalAnalysis() {
 
           {/* Triggers ranked by average intensity */}
           <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-slate-700">
-            <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-1 flex items-center gap-2">
-              <span className="text-red-500">🔥</span>{t('journal_analysis.trigger_severity')}
+            <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-1">
+              {t('journal_analysis.trigger_severity')}
             </h3>
             <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">{t('journal_analysis.trigger_severity_desc')}</p>
             <div className="space-y-2.5">
@@ -387,8 +399,8 @@ export function JournalAnalysis() {
 
           {/* Sensations ranked by average intensity */}
           <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-slate-700">
-            <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-1 flex items-center gap-2">
-              <span className="text-purple-500">💢</span>{t('journal_analysis.sensation_severity')}
+            <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-1">
+              {t('journal_analysis.sensation_severity')}
             </h3>
             <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">{t('journal_analysis.sensation_severity_desc')}</p>
             {sensationSeverity.length === 0 ? (
@@ -422,8 +434,8 @@ export function JournalAnalysis() {
 
         {/* Day of week distribution */}
         <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-slate-700">
-          <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-1 flex items-center gap-2">
-            <span className="text-indigo-500">📅</span>{t('journal_analysis.day_of_week')}
+          <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-1">
+            {t('journal_analysis.day_of_week')}
           </h3>
           <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">{t('journal_analysis.day_of_week_desc')}</p>
           <div className="flex items-end gap-1 h-24">
@@ -446,8 +458,8 @@ export function JournalAnalysis() {
 
         {/* Intensity trend */}
         <div className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-slate-700">
-          <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
-            <span className="text-purple-500">📈</span>{t('journal_analysis.intensity_trend')}
+          <h3 className="font-bold text-gray-800 dark:text-gray-100 mb-4">
+            {t('journal_analysis.intensity_trend')}
           </h3>
           {trendPoints.length < 2 ? (
             <p className="text-sm text-gray-400">{t('journal_analysis.no_trend_data')}</p>
@@ -477,8 +489,8 @@ export function JournalAnalysis() {
       <div ref={insightRef} className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-slate-700">
         <div className="flex items-start justify-between gap-4 mb-3">
           <div>
-            <h3 className="font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-              <span>✨</span>{t('journal_analysis.ai_title')}
+            <h3 className="font-bold text-gray-800 dark:text-gray-100">
+              {t('journal_analysis.ai_title')}
             </h3>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{t('journal_analysis.ai_disclaimer')}</p>
           </div>
@@ -490,7 +502,7 @@ export function JournalAnalysis() {
             >
               {insightLoading
                 ? <><span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full"></span>{t('journal_analysis.ai_generating')}</>
-                : <><span>🔍</span>{insight ? t('journal_analysis.ai_regenerate') : t('journal_analysis.ai_generate')}</>
+                : <>{insight ? t('journal_analysis.ai_regenerate') : t('journal_analysis.ai_generate')}</>
               }
             </button>
             {filtered.length > 0 && filtered.length < entries.length && (
