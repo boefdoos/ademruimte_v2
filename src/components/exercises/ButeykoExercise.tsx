@@ -94,8 +94,9 @@ export function ButeykoExercise() {
         setLastCP(seconds);
         setHistory(prev => [{ seconds, timestamp: new Date() }, ...prev.slice(0, 4)]);
 
-        // Auto-complete today's goal
-        const today = new Date().toISOString().split('T')[0];
+        // Auto-complete today's goal (local timezone)
+        const d = new Date();
+        const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         const goalsRef = doc(db, 'users', currentUser.uid, 'goals', today);
         await setDoc(goalsRef, { cp: true }, { merge: true });
 

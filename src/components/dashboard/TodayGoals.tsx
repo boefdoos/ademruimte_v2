@@ -23,10 +23,10 @@ export function TodayGoals() {
   ]);
   const [loading, setLoading] = useState(true);
 
-  // Get today's date string (YYYY-MM-DD)
+  // Get today's date string (YYYY-MM-DD) using local timezone
   const getTodayString = () => {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   };
 
   // Load today's goals from Firestore

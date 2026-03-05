@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { db } from '@/lib/firebase/config';
-import { collection, addDoc, doc, setDoc, getDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
 import { useWakeLock } from '@/hooks/useWakeLock';
 
 type BreathPhase = 'inhale' | 'hold' | 'exhale' | 'idle';
@@ -283,11 +283,6 @@ const COMMON_SENSATIONS = [
           cycles,
           timestamp: new Date(),
         });
-
-        // Auto-complete today's goal
-        const today = new Date().toISOString().split('T')[0];
-        const goalsRef = doc(db, 'users', currentUser.uid, 'goals', today);
-        await setDoc(goalsRef, { hrv: true }, { merge: true });
 
         // Pre-fill journal notes with session info
         let prefilledNotes = `Patroon: ${selectedPattern.name}\n`;
