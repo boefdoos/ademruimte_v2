@@ -18,7 +18,7 @@ interface JournalEntry {
   cpScore?: number;
 }
 
-const TECHNIQUES = [
+const TECHNIQUES_NL = [
   'Resonant Breathing',
   'Control Pause',
   '4-7-8 Ademhaling',
@@ -27,7 +27,16 @@ const TECHNIQUES = [
   'Andere'
 ];
 
-const COMMON_TRIGGERS = [
+const TECHNIQUES_EN = [
+  'Resonant Breathing',
+  'Control Pause',
+  '4-7-8 Breathing',
+  'Box Breathing',
+  'Belly Breathing',
+  'Other'
+];
+
+const COMMON_TRIGGERS_NL = [
   'Stress',
   'Angst',
   'Piekergedachten',
@@ -49,7 +58,29 @@ const COMMON_TRIGGERS = [
   'Geen duidelijke trigger'
 ];
 
-const COMMON_SENSATIONS = [
+const COMMON_TRIGGERS_EN = [
+  'Stress',
+  'Anxiety',
+  'Worrying thoughts',
+  'Hypervigilance',
+  'Physical exertion',
+  'Social situations',
+  'Work/Study',
+  'Relationships',
+  'Financial worries',
+  'Fatigue',
+  'Sleep deprivation',
+  'Heat/Cold',
+  'Busy environment',
+  'Allergy',
+  'Food/Drink',
+  'Emotions',
+  'Conflict',
+  'Change/Uncertainty',
+  'No clear trigger'
+];
+
+const COMMON_SENSATIONS_NL = [
   'Kortademigheid',
   'Hyperventilatie',
   'Snelle ademhaling',
@@ -69,6 +100,26 @@ const COMMON_SENSATIONS = [
   'Gevoelloosheid'
 ];
 
+const COMMON_SENSATIONS_EN = [
+  'Shortness of breath',
+  'Hyperventilation',
+  'Rapid breathing',
+  'Tightness in chest',
+  'Chest tension',
+  'Heart palpitations',
+  'Tingling',
+  'Dizziness',
+  'Light-headedness',
+  'Restlessness',
+  'Panic',
+  'Tension',
+  'Irritability',
+  'Fatigue',
+  'Difficulty concentrating',
+  'Low mood',
+  'Numbness'
+];
+
 interface JournalEntriesProps {
   limit?: number;
 }
@@ -76,6 +127,9 @@ interface JournalEntriesProps {
 export function JournalEntries({ limit }: JournalEntriesProps = {}) {
   const { currentUser } = useAuth();
   const { t, locale } = useI18n();
+  const TECHNIQUES = locale === 'en' ? TECHNIQUES_EN : TECHNIQUES_NL;
+  const COMMON_TRIGGERS = locale === 'en' ? COMMON_TRIGGERS_EN : COMMON_TRIGGERS_NL;
+  const COMMON_SENSATIONS = locale === 'en' ? COMMON_SENSATIONS_EN : COMMON_SENSATIONS_NL;
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);

@@ -507,7 +507,7 @@ export function JournalAnalysis() {
             </button>
             {filtered.length > 0 && filtered.length < entries.length && (
               <span className="text-xs text-gray-400 dark:text-gray-500">
-                {locale === 'nl' ? `op basis van ${filtered.length} entries in deze periode` : `based on ${filtered.length} entries in this period`}
+                {t('journal_analysis.based_on_period').replace('{n}', String(filtered.length))}
               </span>
             )}
           </div>

@@ -38,6 +38,7 @@
     "level_low": "Low",
     "level_average": "Average",
     "level_good": "Good",
+    "avg_of_n_entries": "Average of {n} entries",
     "level_excellent": "Excellent",
     "level_invalid": "Invalid",
     "insights_title": "Insights",
@@ -169,7 +170,21 @@
     "alert_invalid": "Please enter a valid number",
     "alert_range": "CP value must be between 1 and 300 seconds",
     "save_success_msg": "✅ CP measurement saved!",
-    "save_error_msg": "❌ Error saving"
+    "save_error_msg": "❌ Error saving",
+    "avg_n_measurements": "Average of {n} measurements",
+    "goal_reached_detail": "Goal reached! Your best measurement ({max}s) is above your goal.",
+    "goal_distance": "You are {diff}s away from your goal of {goal}s.",
+    "seconds_unit": "seconds",
+    "gem_abbr": "Avg.",
+    "doel_label": "Goal",
+    "trend_up_detail": "Recent avg. {recent}s vs baseline {baseline}s (+{diff}s).",
+    "trend_down_detail": "recent avg. {recent}s vs baseline {baseline}s ({diff}s). Normal with stress or poor sleep.",
+    "trend_stable_detail": "recent avg. {recent}s — comparable to your baseline of {baseline}s.",
+    "need_more_measurements": "Measure {n} more times for a reliable trend analysis.",
+    "excellent_measurement_detail": "Excellent — your best measurement ({n}s) indicates healthy breathing.",
+    "keep_practicing": "Keep practicing — every second of improvement counts and you will notice it in your symptoms.",
+    "goal_progress": "Goal of {goal}s: you're already at {pct}%.",
+    "last_n_of_total": "Last {shown} of {total}"
   },
   "hrv": {
     "title": "HRV Measurement",
@@ -319,7 +334,13 @@
     "tip_buteyko_5": "Measure your Control Pause (CP) regularly to track progress",
     "duration": "Duration",
     "skip": "Skip",
-    "notes_placeholder": "e.g. Felt relaxed, slight dizziness at the start..."
+    "notes_placeholder": "e.g. Felt relaxed, slight dizziness at the start...",
+    "intensity_label": "Intensity before session",
+    "intensity_calm": "calm",
+    "intensity_tense": "tense",
+    "prefill_pattern": "Pattern",
+    "prefill_breathpause": "Breath pause",
+    "prefill_breathtime": "Breathing time"
   },
   "onboarding": {
     "ready_title": "Ready to begin!",
@@ -393,6 +414,7 @@
     "ai_generating": "Analysing...",
     "ai_error": "Something went wrong generating the reflection. Please try again.",
     "ai_empty": "Click 'Generate reflection' to receive an AI insight based on your entries for this period.",
-    "ai_generated_at": "Generated on {date} based on {n} entries."
+    "ai_generated_at": "Generated on {date} based on {n} entries.",
+    "based_on_period": "based on {n} entries in this period"
   }
 }

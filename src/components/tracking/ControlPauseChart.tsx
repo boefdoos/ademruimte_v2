@@ -217,7 +217,7 @@ export function ControlPauseChart() {
           <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 transition-colors">{getLevel(avgCP)}</div>
           {activeStatCard === 'avg' && (
             <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1.5 px-2 whitespace-nowrap z-20 pointer-events-none shadow-lg">
-              {locale === 'en' ? `Average of ${records.length} measurements` : `Gemiddelde van ${records.length} metingen`}
+              {t('cp.avg_n_measurements').replace('{n}', String(records.length))}
             </div>
           )}
         </div>
@@ -255,7 +255,7 @@ export function ControlPauseChart() {
                 onChange={e => setGoalInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && saveGoal()}
                 min={5} max={120}
-                placeholder="seconden"
+                placeholder={t('cp.seconds_unit')}
                 className="w-24 px-3 py-1.5 border-2 border-blue-400 rounded-lg text-sm font-semibold text-center dark:bg-slate-700 dark:text-gray-100 dark:border-blue-500"
               />
               <button onClick={saveGoal} className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">
@@ -274,12 +274,8 @@ export function ControlPauseChart() {
         {cpGoal && records.length > 0 && (
           <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             {maxCP >= cpGoal
-              ? (locale === 'nl'
-                  ? `✅ Doel bereikt! Je beste meting (${maxCP}s) ligt boven je doel.`
-                  : `✅ Goal reached! Your best measurement (${maxCP}s) is above your goal.`)
-              : (locale === 'nl'
-                  ? `Je bent ${cpGoal - maxCP}s verwijderd van je doel van ${cpGoal}s.`
-                  : `You are ${cpGoal - maxCP}s away from your goal of ${cpGoal}s.`)
+              ? t('cp.goal_reached_detail').replace('{max}', String(maxCP))
+              : t('cp.goal_distance').replace('{diff}', String(cpGoal - maxCP)).replace('{goal}', String(cpGoal))
             }
           </div>
         )}
@@ -324,7 +320,7 @@ export function ControlPauseChart() {
                 className="absolute left-1 text-xs font-bold text-gray-600 dark:text-gray-400 bg-white/95 dark:bg-slate-800/95 whitespace-nowrap px-1 rounded leading-none"
                 style={{ bottom: `${(avgCP / 60) * 100}%`, transform: 'translateY(50%)' }}
               >
-                {locale === 'nl' ? 'Gem.' : 'Avg.'}
+                {t('cp.gem_abbr')}
               </div>
               {/* Goal label */}
               {cpGoal && cpGoal <= 60 && (
@@ -332,7 +328,7 @@ export function ControlPauseChart() {
                   className="absolute left-1 text-xs font-bold text-green-600 dark:text-green-400 bg-white/95 dark:bg-slate-800/95 whitespace-nowrap px-1 rounded leading-none"
                   style={{ bottom: `${(cpGoal / 60) * 100}%`, transform: 'translateY(50%)' }}
                 >
-                  {locale === 'nl' ? 'Doel' : 'Goal'}
+                  {t('cp.doel_label')}
                 </div>
               )}
             </div>
@@ -412,7 +408,7 @@ export function ControlPauseChart() {
                 {records[0]?.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short' })}
               </span>
               <span className="text-gray-500 dark:text-gray-400 transition-colors hidden sm:inline">
-                {records.length} {locale === 'nl' ? 'metingen' : 'measurements'}
+                {locale === 'nl' ? 'metingen' : 'measurements'}
               </span>
               <span>
                 {records[records.length - 1]?.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', {
@@ -471,23 +467,23 @@ export function ControlPauseChart() {
               {/* Trend vs baseline — only show when enough data */}
               {records.length >= 4 && (
                 <li>
-                  {trendUp && `${t('cp.insights_positive')} ${locale === 'nl' ? `Recente gem. ${recentAvg}s vs basislijn ${baseline}s (+${diff}s).` : `Recent avg. ${recentAvg}s vs baseline ${baseline}s (+${diff}s).`}`}
-                  {trendDown && `${t('cp.insights_decline')} ${locale === 'nl' ? `recente gem. ${recentAvg}s vs basislijn ${baseline}s (${diff}s). Normaal bij stress of slaaptekort.` : `recent avg. ${recentAvg}s vs baseline ${baseline}s (${diff}s). Normal with stress or poor sleep.`}`}
-                  {trendStable && `${t('cp.insights_stable')} ${locale === 'nl' ? `recente gem. ${recentAvg}s — vergelijkbaar met je basislijn van ${baseline}s.` : `recent avg. ${recentAvg}s — comparable to your baseline of ${baseline}s.`}`}
+                  {trendUp && `${t('cp.insights_positive')} ${t('cp.trend_up_detail').replace('{recent}', String(recentAvg)).replace('{baseline}', String(baseline)).replace('{diff}', String(diff))}`}
+                  {trendDown && `${t('cp.insights_decline')} ${t('cp.trend_down_detail').replace('{recent}', String(recentAvg)).replace('{baseline}', String(baseline)).replace('{diff}', String(diff))}`}
+                  {trendStable && `${t('cp.insights_stable')} ${t('cp.trend_stable_detail').replace('{recent}', String(recentAvg)).replace('{baseline}', String(baseline))}`}
                 </li>
               )}
               {records.length < 4 && records.length >= 2 && (
-                <li>{locale === 'nl' ? `Meet nog ${4 - records.length}× meer voor een betrouwbare trendanalyse.` : `Measure ${4 - records.length} more times for a reliable trend analysis.`}</li>
+                <li>{t('cp.need_more_measurements').replace('{n}', String(4 - records.length))}</li>
               )}
 
               {/* Level feedback */}
-              {maxCP >= 40 && <li>{locale === 'nl' ? `Uitstekend — je beste meting (${maxCP}s) duidt op een gezonde ademhaling.` : `Excellent — your best measurement (${maxCP}s) indicates healthy breathing.`}</li>}
+              {maxCP >= 40 && <li>{t('cp.excellent_measurement_detail').replace('{n}', String(maxCP))}</li>}
               {avgCP >= 30 && avgCP < 40 && <li>{t('cp.insights_good').replace('{n}', String(avgCP))}</li>}
-              {avgCP < 20 && <li>{locale === 'nl' ? 'Blijf oefenen — elke seconde verbetering telt en zal je merken in je klachten.' : 'Keep practicing — every second of improvement counts and you will notice it in your symptoms.'}</li>}
+              {avgCP < 20 && <li>{t('cp.keep_practicing')}</li>}
 
               {/* Goal progress */}
               {cpGoal && maxCP < cpGoal && (
-                <li>{locale === 'nl' ? `Doel van ${cpGoal}s: je bent er al op ${Math.round((maxCP / cpGoal) * 100)}%.` : `Goal of ${cpGoal}s: you're already at ${Math.round((maxCP / cpGoal) * 100)}%.`}</li>
+                <li>{t('cp.goal_progress').replace('{goal}', String(cpGoal)).replace('{pct}', String(Math.round((maxCP / cpGoal) * 100)))}</li>
               )}
             </ul>
           </div>
@@ -502,9 +498,7 @@ export function ControlPauseChart() {
             {t('cp.recent_measurements')}
           </h4>
           <span className="text-sm text-gray-500 dark:text-gray-400">
-            {locale === 'nl'
-              ? `Laatste ${Math.min(records.length, 15)} van ${records.length}`
-              : `Last ${Math.min(records.length, 15)} of ${records.length}`}
+            {t('cp.last_n_of_total').replace('{shown}', String(Math.min(records.length, 15))).replace('{total}', String(records.length))}
           </span>
         </div>
         <div className="space-y-2">

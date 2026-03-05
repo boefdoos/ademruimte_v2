@@ -62,16 +62,29 @@ export function ResonantBreathing() {
   const [cpScore, setCpScore] = useState('');
   const [isMounted, setIsMounted] = useState(false);
 
-const COMMON_TRIGGERS = [
+const COMMON_TRIGGERS_NL = [
   'Stress','Angst','Piekergedachten','Hyperwaakzaamheid','Lichamelijke inspanning',
   'Sociale situaties','Werk/Studie','Vermoeidheid','Slaaptekort','Emoties',
   'Geen duidelijke trigger'
 ];
-const COMMON_SENSATIONS = [
+const COMMON_TRIGGERS_EN = [
+  'Stress','Anxiety','Worrying thoughts','Hypervigilance','Physical exertion',
+  'Social situations','Work/Study','Fatigue','Sleep deprivation','Emotions',
+  'No clear trigger'
+];
+const COMMON_SENSATIONS_NL = [
   'Kortademigheid','Hyperventilatie','Beklemmend gevoel','Spanning in borst',
   'Hartkloppingen','Tintelingen','Duizeligheid','Onrust','Gespannenheid',
   'Vermoeidheid','Concentratieproblemen','Neerslachtigheid'
 ];
+const COMMON_SENSATIONS_EN = [
+  'Shortness of breath','Hyperventilation','Tightness in chest','Chest tension',
+  'Heart palpitations','Tingling','Dizziness','Restlessness','Tension',
+  'Fatigue','Difficulty concentrating','Low mood'
+];
+  const COMMON_TRIGGERS = locale === 'en' ? COMMON_TRIGGERS_EN : COMMON_TRIGGERS_NL;
+  const COMMON_SENSATIONS = locale === 'en' ? COMMON_SENSATIONS_EN : COMMON_SENSATIONS_NL;
+
   // Ref keeps totalSeconds always up-to-date inside async/callback closures
   const totalSecondsRef = useRef(0);
 
@@ -285,14 +298,14 @@ const COMMON_SENSATIONS = [
         });
 
         // Pre-fill journal notes with session info
-        let prefilledNotes = `Patroon: ${selectedPattern.name}\n`;
-        prefilledNotes += `Duur: ${formatTime(finalSeconds)}\n`;
-        prefilledNotes += `Cycli: ${cycles}\n`;
+        let prefilledNotes = `${t('resonant.prefill_pattern')}: ${selectedPattern.name}\n`;
+        prefilledNotes += `${t('resonant.duration')}: ${formatTime(finalSeconds)}\n`;
+        prefilledNotes += `${t('resonant.cycles')}: ${cycles}\n`;
 
         if (selectedPattern.name === 'Buteyko - Extended Breath Hold') {
-          prefilledNotes += `Adempauze: ${customHoldDuration}s\n`;
+          prefilledNotes += `${t('resonant.prefill_breathpause')}: ${customHoldDuration}s\n`;
         } else if (selectedPattern.name === 'Resonant Breathing') {
-          prefilledNotes += `Ademhalingstijd: ${coherentDuration}s in/uit\n`;
+          prefilledNotes += `${t('resonant.prefill_breathtime')}: ${coherentDuration}s in/uit\n`;
         }
 
         // Include recent CP measurement if available
@@ -745,7 +758,7 @@ const COMMON_SENSATIONS = [
             {/* Intensiteit score — matches manual journal style */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                {locale === 'nl' ? 'Intensiteit voor de sessie' : 'Intensity before session'}
+                {t('resonant.intensity_label')}
               </label>
               {/* Value badge + gradient track */}
               <div className="flex items-center gap-4 mb-3">
@@ -774,8 +787,8 @@ const COMMON_SENSATIONS = [
                 className="w-full accent-blue-600"
               />
               <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
-                <span>1 — {locale === 'nl' ? 'rustig' : 'calm'}</span>
-                <span>10 — {locale === 'nl' ? 'gespannen' : 'tense'}</span>
+                <span>1 — {t('resonant.intensity_calm')}</span>
+                <span>10 — {t('resonant.intensity_tense')}</span>
               </div>
             </div>
 

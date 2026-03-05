@@ -246,7 +246,7 @@ export function IntensityStats() {
           <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">{getIntensityLabel(avgIntensity)}</div>
           {activeStatCard === 'avg' && (
             <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1.5 px-2 whitespace-nowrap z-20 pointer-events-none shadow-lg">
-              {locale === 'en' ? `Average of ${intensities.length} entries` : `Gemiddelde van ${intensities.length} metingen`}
+              {t('common.avg_of_n_entries').replace('{n}', String(intensities.length))}
             </div>
           )}
         </div>

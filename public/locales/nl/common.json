@@ -38,6 +38,7 @@
     "level_low": "Laag",
     "level_average": "Gemiddeld",
     "level_good": "Goed",
+    "avg_of_n_entries": "Gemiddelde van {n} metingen",
     "level_excellent": "Uitstekend",
     "level_invalid": "Ongeldig",
     "insights_title": "Inzichten",
@@ -169,7 +170,21 @@
     "alert_invalid": "Voer een geldig getal in",
     "alert_range": "CP waarde moet tussen 1 en 300 seconden zijn",
     "save_success_msg": "✅ CP meting opgeslagen!",
-    "save_error_msg": "❌ Fout bij opslaan"
+    "save_error_msg": "❌ Fout bij opslaan",
+    "avg_n_measurements": "Gemiddelde van {n} metingen",
+    "goal_reached_detail": "Doel bereikt! Je beste meting ({max}s) ligt boven je doel.",
+    "goal_distance": "Je bent {diff}s verwijderd van je doel van {goal}s.",
+    "seconds_unit": "seconden",
+    "gem_abbr": "Gem.",
+    "doel_label": "Doel",
+    "trend_up_detail": "Recente gem. {recent}s vs basislijn {baseline}s (+{diff}s).",
+    "trend_down_detail": "recente gem. {recent}s vs basislijn {baseline}s ({diff}s). Normaal bij stress of slaaptekort.",
+    "trend_stable_detail": "recente gem. {recent}s — vergelijkbaar met je basislijn van {baseline}s.",
+    "need_more_measurements": "Meet nog {n}× meer voor een betrouwbare trendanalyse.",
+    "excellent_measurement_detail": "Uitstekend — je beste meting ({n}s) duidt op een gezonde ademhaling.",
+    "keep_practicing": "Blijf oefenen — elke seconde verbetering telt en zal je merken in je klachten.",
+    "goal_progress": "Doel van {goal}s: je bent er al op {pct}%.",
+    "last_n_of_total": "Laatste {shown} van {total}"
   },
   "hrv": {
     "title": "HRV Meting",
@@ -319,7 +334,13 @@
     "tip_buteyko_5": "Meet je Control Pause (CP) regelmatig om vooruitgang te volgen",
     "duration": "Duur",
     "skip": "Overslaan",
-    "notes_placeholder": "bijv. Voelde me ontspannen, lichte duizeligheid aan het begin..."
+    "notes_placeholder": "bijv. Voelde me ontspannen, lichte duizeligheid aan het begin...",
+    "intensity_label": "Intensiteit voor de sessie",
+    "intensity_calm": "rustig",
+    "intensity_tense": "gespannen",
+    "prefill_pattern": "Patroon",
+    "prefill_breathpause": "Adempauze",
+    "prefill_breathtime": "Ademhalingstijd"
   },
   "onboarding": {
     "ready_title": "Klaar om te beginnen!",
@@ -393,6 +414,7 @@
     "ai_generating": "Analyseren...",
     "ai_error": "Er liep iets mis bij het genereren. Probeer het opnieuw.",
     "ai_empty": "Klik op 'Genereer reflectie' om een AI-inzicht te ontvangen op basis van je entries voor deze periode.",
-    "ai_generated_at": "Gegenereerd op {date} op basis van {n} entries."
+    "ai_generated_at": "Gegenereerd op {date} op basis van {n} entries.",
+    "based_on_period": "op basis van {n} entries in deze periode"
   }
 }
