@@ -328,14 +328,14 @@ export function IntensityStats() {
 
         {/* Chart with Y-axis and X-axis */}
         {(() => {
-          // Sort oldest→newest (left→right), take last 20 most-recent entries
+          // Sort oldest→newest (left→right), show all entries
           const chartEntries = entriesWithIntensity
             .slice()
-            .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
-            .slice(-20);
+            .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
           const firstDate = chartEntries[0]?.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short' });
           const lastDate = chartEntries[chartEntries.length - 1]?.timestamp.toLocaleDateString(locale === 'en' ? 'en-GB' : 'nl-NL', { day: 'numeric', month: 'short' });
           return (
+            <>
             <div className="flex gap-2">
               {/* Y-axis labels */}
               <div className="flex flex-col justify-between text-xs font-medium text-gray-500 dark:text-gray-400 pb-6 w-6 shrink-0 text-right">
@@ -346,8 +346,9 @@ export function IntensityStats() {
                 <span>0</span>
               </div>
 
-              {/* Chart area */}
-              <div className="flex-1 min-w-0">
+              {/* Chart area — scrollable when there are many entries */}
+              <div className="flex-1 min-w-0 overflow-x-auto touch-pan-x">
+                <div style={{ minWidth: chartEntries.length > 20 ? `${chartEntries.length * 24}px` : '100%' }}>
                 <div className="relative h-56">
                   {/* Horizontal gridlines */}
                   <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
@@ -397,8 +398,16 @@ export function IntensityStats() {
                     <span>{lastDate}</span>
                   </div>
                 )}
-              </div>
+                </div>{/* end minWidth inner div */}
+              </div>{/* end overflow-x-auto */}
             </div>
+            {chartEntries.length > 20 && (
+              <div className="text-center text-xs text-gray-500 dark:text-gray-400 mt-2 md:hidden transition-colors">
+                <i className="fas fa-hand-pointer mr-1"></i>
+                {t('hrv.scroll_hint')}
+              </div>
+            )}
+            </>
           );
         })()}
       </div>

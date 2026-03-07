@@ -309,29 +309,28 @@ export function ControlPauseChart() {
                 </span>
               );
             })}
-          </div>
-
-          {/* Chart wrapper — relative so non-scrolling overlay can be positioned over scroll area */}
-          <div className="flex-1 relative">
-            {/* Non-scrolling Gem./Doel labels — float over scroll area, never scroll */}
-            <div className="absolute left-0 top-0 bottom-8 z-20 pointer-events-none">
-              {/* Average label */}
-              <div
-                className="absolute left-1 text-xs font-bold text-gray-600 dark:text-gray-400 bg-white/95 dark:bg-slate-800/95 whitespace-nowrap px-1 rounded leading-none"
-                style={{ bottom: `${(avgCP / 60) * 100}%`, transform: 'translateY(50%)' }}
+            {/* Average label — anchored in y-axis so it stays visible when scrolling */}
+            {records.length > 0 && (
+              <span
+                className="absolute right-1 text-xs font-bold text-gray-500 dark:text-gray-400 bg-white/95 dark:bg-slate-800/95 whitespace-nowrap px-0.5 rounded leading-none transition-colors z-10"
+                style={{ bottom: `calc(2rem + ${(avgCP / 60) * 18}rem)`, transform: 'translateY(50%)' }}
               >
                 {t('cp.gem_abbr')}
-              </div>
-              {/* Goal label */}
-              {cpGoal && cpGoal <= 60 && (
-                <div
-                  className="absolute left-1 text-xs font-bold text-green-600 dark:text-green-400 bg-white/95 dark:bg-slate-800/95 whitespace-nowrap px-1 rounded leading-none"
-                  style={{ bottom: `${(cpGoal / 60) * 100}%`, transform: 'translateY(50%)' }}
-                >
-                  {t('cp.doel_label')}
-                </div>
-              )}
-            </div>
+              </span>
+            )}
+            {/* Goal label — anchored in y-axis so it stays visible when scrolling */}
+            {cpGoal && cpGoal <= 60 && (
+              <span
+                className="absolute right-1 text-xs font-bold text-green-600 dark:text-green-400 bg-white/95 dark:bg-slate-800/95 whitespace-nowrap px-0.5 rounded leading-none transition-colors z-10"
+                style={{ bottom: `calc(2rem + ${(cpGoal / 60) * 18}rem)`, transform: 'translateY(50%)' }}
+              >
+                {t('cp.doel_label')}
+              </span>
+            )}
+          </div>
+
+          {/* Chart wrapper */}
+          <div className="flex-1 relative">
 
           {/* Scrollable chart area */}
           <div ref={chartScrollRef} className="h-full overflow-x-auto overflow-y-hidden touch-pan-x">

@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { db } from '@/lib/firebase/config';
-import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
+import { JournalEntryModal } from '@/components/tracking/JournalEntryModal';
 import { useWakeLock } from '@/hooks/useWakeLock';
 
 type BreathPhase = 'inhale' | 'hold' | 'exhale' | 'idle';
@@ -40,7 +40,7 @@ const patterns: BreathPattern[] = [
 
 export function ResonantBreathing() {
   const { currentUser } = useAuth();
-  const { t, locale } = useI18n();
+  const { t } = useI18n();
   const { requestWakeLock, releaseWakeLock } = useWakeLock();
   const [selectedPattern, setSelectedPattern] = useState(patterns[0]);
   const [customHoldDuration, setCustomHoldDuration] = useState(3);
@@ -53,63 +53,11 @@ export function ResonantBreathing() {
   const [totalSeconds, setTotalSeconds] = useState(0);
   const [cycles, setCycles] = useState(0);
   const [showJournalModal, setShowJournalModal] = useState(false);
-  const [journalNotes, setJournalNotes] = useState('');
-  const [intensiteitScore, setIntensiteitScore] = useState<number>(5);
-  const [selectedTriggers, setSelectedTriggers] = useState<string[]>([]);
-  const [selectedSensations, setSelectedSensations] = useState<string[]>([]);
-  const [customTriggers, setCustomTriggers] = useState<string[]>([]);
-  const [customSensations, setCustomSensations] = useState<string[]>([]);
-  const [cpScore, setCpScore] = useState('');
-  const [isMounted, setIsMounted] = useState(false);
-
-const COMMON_TRIGGERS_NL = [
-  'Stress','Angst','Piekergedachten','Hyperwaakzaamheid','Lichamelijke inspanning',
-  'Sociale situaties','Werk/Studie','Vermoeidheid','Slaaptekort','Emoties',
-  'Geen duidelijke trigger'
-];
-const COMMON_TRIGGERS_EN = [
-  'Stress','Anxiety','Worrying thoughts','Hypervigilance','Physical exertion',
-  'Social situations','Work/Study','Fatigue','Sleep deprivation','Emotions',
-  'No clear trigger'
-];
-const COMMON_SENSATIONS_NL = [
-  'Kortademigheid','Hyperventilatie','Beklemmend gevoel','Spanning in borst',
-  'Hartkloppingen','Tintelingen','Duizeligheid','Onrust','Gespannenheid',
-  'Vermoeidheid','Concentratieproblemen','Neerslachtigheid'
-];
-const COMMON_SENSATIONS_EN = [
-  'Shortness of breath','Hyperventilation','Tightness in chest','Chest tension',
-  'Heart palpitations','Tingling','Dizziness','Restlessness','Tension',
-  'Fatigue','Difficulty concentrating','Low mood'
-];
-  const COMMON_TRIGGERS = locale === 'en' ? COMMON_TRIGGERS_EN : COMMON_TRIGGERS_NL;
-  const COMMON_SENSATIONS = locale === 'en' ? COMMON_SENSATIONS_EN : COMMON_SENSATIONS_NL;
+  const [prefilledNotes, setPrefilledNotes] = useState('');
 
   // Ref keeps totalSeconds always up-to-date inside async/callback closures
   const totalSecondsRef = useRef(0);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Load custom triggers/sensations from Firestore (same as manual journal entry)
-  useEffect(() => {
-    if (!currentUser) return;
-    const load = async () => {
-      try {
-        const ref = doc(db, 'users', currentUser.uid, 'customTags', 'default');
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
-          const data = snap.data();
-          setCustomTriggers(data.triggers || []);
-          setCustomSensations(data.sensaties || []);
-        }
-      } catch (e) {
-        console.error('Error loading custom tags:', e);
-      }
-    };
-    load();
-  }, [currentUser]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const colorClasses = {
@@ -327,7 +275,7 @@ const COMMON_SENSATIONS_EN = [
         }
 
         prefilledNotes += `\n`;
-        setJournalNotes(prefilledNotes);
+        setPrefilledNotes(prefilledNotes);
 
         // Open journal modal
         setShowJournalModal(true);
@@ -335,46 +283,6 @@ const COMMON_SENSATIONS_EN = [
         console.error('Error saving session:', error);
       }
     }
-  };
-
-  const saveJournalEntry = async () => {
-    if (!currentUser) return;
-
-    try {
-      const entriesRef = collection(db, 'dagboekEntries');
-      const entry: Record<string, unknown> = {
-        userId: currentUser.uid,
-        techniekGebruikt: selectedPattern.name,
-        notities: journalNotes,
-        intensiteit: intensiteitScore,
-        triggers: selectedTriggers,
-        sensaties: selectedSensations,
-        timestamp: new Date(),
-      };
-      if (cpScore && !isNaN(parseInt(cpScore))) {
-        entry.cpScore = parseInt(cpScore);
-      }
-      await addDoc(entriesRef, entry);
-
-      setShowJournalModal(false);
-      setJournalNotes('');
-      setIntensiteitScore(5);
-      setSelectedTriggers([]);
-      setSelectedSensations([]);
-      setCpScore('');
-    } catch (error) {
-      console.error('Error saving journal entry:', error);
-      alert(t('journal_form.save_error'));
-    }
-  };
-
-  const skipJournal = () => {
-    setShowJournalModal(false);
-    setJournalNotes('');
-    setIntensiteitScore(5);
-    setSelectedTriggers([]);
-    setSelectedSensations([]);
-    setCpScore('');
   };
 
   const getPhaseText = () => {
@@ -733,168 +641,15 @@ const COMMON_SENSATIONS_EN = [
         </div>
       )}
 
-      {/* Journal Modal — rendered via Portal to avoid PWA overflow clipping */}
-      {showJournalModal && isMounted && createPortal(
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[9999]">
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-5 sm:p-6 max-w-lg w-full shadow-2xl transition-colors max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4 transition-colors">
-              <i className="fas fa-book text-blue-600 dark:text-blue-400 mr-2 transition-colors"></i>
-              {t('resonant.session_complete')}
-            </h3>
-
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-lg p-4 mb-4 border border-blue-200 dark:border-blue-700 transition-colors">
-              <div className="grid grid-cols-2 gap-4 text-center">
-                <div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">{t('resonant.cycles')}</div>
-                  <div className="text-2xl font-bold text-gray-800 dark:text-gray-100 transition-colors">{cycles}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">{t('resonant.duration')}</div>
-                  <div className="text-2xl font-bold text-gray-800 dark:text-gray-100 transition-colors">{formatTime(totalSeconds)}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Intensiteit score — matches manual journal style */}
-            <div className="mb-4">
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                {t('resonant.intensity_label')}
-              </label>
-              {/* Value badge + gradient track */}
-              <div className="flex items-center gap-4 mb-3">
-                <div
-                  className="flex-1 h-3 rounded-full bg-gradient-to-r from-green-400 via-yellow-400 via-orange-400 to-red-500"
-                  style={{ opacity: 0.3 }}
-                />
-                <div
-                  className={`px-4 py-2 rounded-lg font-bold text-lg min-w-[80px] text-center transition-all ${
-                    intensiteitScore <= 3 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-                    intensiteitScore <= 5 ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
-                    intensiteitScore <= 7 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' :
-                    'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                  }`}
-                >
-                  {intensiteitScore}
-                </div>
-              </div>
-              <input
-                type="range"
-                min={1}
-                max={10}
-                step={1}
-                value={intensiteitScore}
-                onChange={(e) => setIntensiteitScore(Number(e.target.value))}
-                className="w-full accent-blue-600"
-              />
-              <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
-                <span>1 — {t('resonant.intensity_calm')}</span>
-                <span>10 — {t('resonant.intensity_tense')}</span>
-              </div>
-            </div>
-
-            {/* Triggers */}
-            <div className="mb-4">
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                {t('journal_form.triggers_label')} <span className="font-normal text-gray-400">({t('common.optional')})</span>
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {[...COMMON_TRIGGERS, ...customTriggers].map(trigger => (
-                  <button
-                    key={trigger}
-                    type="button"
-                    onClick={() => setSelectedTriggers(prev =>
-                      prev.includes(trigger) ? prev.filter(x => x !== trigger) : [...prev, trigger]
-                    )}
-                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
-                      selectedTriggers.includes(trigger)
-                        ? 'bg-orange-500 text-white border-orange-500'
-                        : customTriggers.includes(trigger)
-                        ? 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800 hover:border-orange-400'
-                        : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-slate-500 hover:border-orange-400'
-                    }`}
-                  >
-                    {trigger}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Sensations */}
-            <div className="mb-4">
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                {t('journal_form.sensations_label')} <span className="font-normal text-gray-400">({t('common.optional')})</span>
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {[...COMMON_SENSATIONS, ...customSensations].map(sensation => (
-                  <button
-                    key={sensation}
-                    type="button"
-                    onClick={() => setSelectedSensations(prev =>
-                      prev.includes(sensation) ? prev.filter(x => x !== sensation) : [...prev, sensation]
-                    )}
-                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
-                      selectedSensations.includes(sensation)
-                        ? 'bg-blue-500 text-white border-blue-500'
-                        : customSensations.includes(sensation)
-                        ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800 hover:border-blue-400'
-                        : 'bg-white dark:bg-slate-700 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-slate-500 hover:border-blue-400'
-                    }`}
-                  >
-                    {sensation}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Notes */}
-            <div className="mb-4">
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                {t('journal_form.notes_label')} <span className="font-normal text-gray-400">({t('common.optional')})</span>
-              </label>
-              <textarea
-                value={journalNotes}
-                onChange={(e) => setJournalNotes(e.target.value)}
-                placeholder={t('resonant.notes_placeholder')}
-                rows={3}
-                className="w-full px-4 py-2 border-2 border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-              />
-            </div>
-
-            {/* CP Score (optional) */}
-            <div className="mb-4">
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 transition-colors">
-                {t('journal_form.cp_label')} <span className="font-normal text-gray-400">({t('common.optional')})</span>
-              </label>
-              <input
-                type="number"
-                value={cpScore}
-                onChange={(e) => setCpScore(e.target.value)}
-                placeholder={t('journal_form.cp_placeholder')}
-                min={1} max={120}
-                className="w-28 px-3 py-2 border-2 border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-              />
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={saveJournalEntry}
-                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-              >
-                <i className="fas fa-save mr-2"></i>
-                {t('resonant.save')}
-              </button>
-              <button
-                onClick={skipJournal}
-                className="flex-1 px-4 py-3 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-gray-200 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-slate-500 transition-colors"
-              >
-                <i className="fas fa-times mr-2"></i>
-                {t('resonant.skip')}
-              </button>
-            </div>
-          </div>
-        </div>,
-        document.body
-      )}
+      {/* Journal Modal — shared component, identical to manual journal entry */}
+      <JournalEntryModal
+        isOpen={showJournalModal}
+        onClose={() => setShowJournalModal(false)}
+        onSaved={() => setShowJournalModal(false)}
+        initialNotes={prefilledNotes}
+        initialTechnique={selectedPattern.name}
+        sessionInfo={{ cycles, durationFormatted: formatTime(totalSeconds) }}
+      />
     </div>
   );
 }
