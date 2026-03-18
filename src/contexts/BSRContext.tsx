@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/firebase/config';
-import { collection, addDoc, query, where, getDocs, Timestamp, orderBy, limit } from 'firebase/firestore';
+import { collection, addDoc, query, where, getDocs, Timestamp } from 'firebase/firestore';
 
 interface BSREntry {
   score: number;
@@ -85,14 +85,18 @@ export function BSRProvider({ children }: { children: React.ReactNode }) {
 
     const sync = async () => {
       try {
+        // Simple query: only filter by userId — no composite index needed
+        // Sort client-side instead
         const q = query(
           collection(db, 'bsrEntries'),
-          where('userId', '==', currentUser.uid),
-          orderBy('timestamp', 'desc'),
-          limit(200)
+          where('userId', '==', currentUser.uid)
         );
         const snap = await getDocs(q);
-        if (snap.empty) return;
+        console.log(`[BSR] Firestore returned ${snap.size} docs`);
+        if (snap.empty) {
+          console.log('[BSR] No entries in Firestore yet');
+          return;
+        }
 
         const remote: BSREntry[] = snap.docs.map(d => ({
           score: d.data().score,
@@ -100,6 +104,8 @@ export function BSRProvider({ children }: { children: React.ReactNode }) {
           context: d.data().context || null,
           timestamp: d.data().timestamp?.toDate?.()?.getTime?.() || Date.now(),
         }));
+        // Sort client-side (no orderBy in query to avoid composite index requirement)
+        remote.sort((a, b) => b.timestamp - a.timestamp);
 
         // Merge: use remote as truth, but keep any local entries not yet in remote
         // (entries from the last few seconds that haven't synced yet)
@@ -121,7 +127,11 @@ export function BSRProvider({ children }: { children: React.ReactNode }) {
 
         console.log(`[BSR] Synced ${snap.size} entries from Firestore`);
       } catch (err: any) {
-        console.warn('[BSR] Firestore sync failed (using local data):', err?.message || err);
+        console.error('[BSR] ❌ Firestore sync failed:', err);
+        // If index error, show the link prominently
+        if (err?.message?.includes('index')) {
+          console.error('[BSR] 👆 COMPOSITE INDEX NEEDED — click the link above to create it');
+        }
       }
     };
 
@@ -151,8 +161,10 @@ export function BSRProvider({ children }: { children: React.ReactNode }) {
         reflex,
         context,
         timestamp: Timestamp.now(),
+      }).then(() => {
+        console.log('[BSR] ✅ Saved to Firestore');
       }).catch(err => {
-        console.warn('[BSR] Firestore write failed:', err?.message || err);
+        console.error('[BSR] ❌ Firestore write failed:', err);
       });
     }
   }, [currentUser]);
