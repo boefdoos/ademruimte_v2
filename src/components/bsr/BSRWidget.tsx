@@ -2,11 +2,10 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/contexts/I18nContext';
+import { useBSR } from '@/contexts/BSRContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { usePathname } from 'next/navigation';
-import { db } from '@/lib/firebase/config';
-import { collection, addDoc, query, where, getDocs, Timestamp, orderBy, limit } from 'firebase/firestore';
 import { BSROnboarding } from './BSROnboarding';
 
 const REFLEX_TYPES = [
@@ -24,21 +23,10 @@ const CONTEXTS = [
   { id: 'session', emoji: '🫁' },
 ];
 
-interface BSREntry {
-  score: number;
-  reflex: string | null;
-  context: string | null;
-  timestamp: Date;
-}
-
-function calcBSR(entries: BSREntry[]): number | null {
-  if (!entries.length) return null;
-  return Math.round(entries.reduce((s, e) => s + e.score, 0) / (entries.length * 2) * 100);
-}
-
 export function BSRWidget() {
   const { currentUser } = useAuth();
   const { locale } = useI18n();
+  const { logEntry, bsr4h, contextBSR, recentCount } = useBSR();
   const pathname = usePathname();
   const [isMounted, setIsMounted] = useState(false);
 
@@ -49,11 +37,7 @@ export function BSRWidget() {
   const [pendingScore, setPendingScore] = useState<number | null>(null);
   const [selectedReflex, setSelectedReflex] = useState<string | null>(null);
   const [flash, setFlash] = useState<number | null>(null);
-  const [entries, setEntries] = useState<BSREntry[]>([]);
-  const [contextBSR, setContextBSR] = useState<Record<string, number | null>>({});
-  const [firebaseOk, setFirebaseOk] = useState(true);
   const timer = useRef<NodeJS.Timeout | null>(null);
-  const hasLoaded = useRef(false);
 
   useEffect(() => { setIsMounted(true); }, []);
 
@@ -63,88 +47,12 @@ export function BSRWidget() {
     }
   }, []);
 
-  // Load existing entries from Firestore on mount — simple query, no composite index needed
-  useEffect(() => {
-    if (!currentUser || hasLoaded.current) return;
-    hasLoaded.current = true;
-
-    const load = async () => {
-      try {
-        // Simple query: just userId + orderBy timestamp — requires only a single-field index
-        const q = query(
-          collection(db, 'bsrEntries'),
-          where('userId', '==', currentUser.uid),
-          orderBy('timestamp', 'desc'),
-          limit(100)
-        );
-        const snap = await getDocs(q);
-        const loaded: BSREntry[] = snap.docs.map(d => ({
-          score: d.data().score,
-          reflex: d.data().reflex || null,
-          context: d.data().context || null,
-          timestamp: d.data().timestamp?.toDate?.() || new Date(),
-        }));
-        setEntries(loaded);
-        console.log(`[BSR] Loaded ${loaded.length} entries from Firestore`);
-
-        // Calculate per-context BSR
-        const ctxMap: Record<string, BSREntry[]> = {};
-        loaded.forEach(e => {
-          if (e.context) {
-            if (!ctxMap[e.context]) ctxMap[e.context] = [];
-            ctxMap[e.context].push(e);
-          }
-        });
-        const ctxBSR: Record<string, number | null> = {};
-        CONTEXTS.forEach(c => {
-          ctxBSR[c.id] = ctxMap[c.id]?.length >= 3 ? calcBSR(ctxMap[c.id]) : null;
-        });
-        setContextBSR(ctxBSR);
-      } catch (err: any) {
-        console.warn('[BSR] Firestore load failed — using local-only mode:', err?.message || err);
-        // If the index link is in the error, log it prominently
-        if (err?.message?.includes('index')) {
-          console.warn('[BSR] 👆 Klik de link hierboven om de Firestore index aan te maken');
-        }
-        setFirebaseOk(false);
-      }
-    };
-
-    load();
-  }, [currentUser]);
-
-  // Log a BSR entry — optimistic local update + background Firestore write
   const log = useCallback((contextId: string | null) => {
     if (pendingScore === null) return;
 
-    const score = pendingScore;
-    const reflex = selectedReflex;
+    logEntry(pendingScore, selectedReflex, contextId);
 
-    // 1. Optimistic local state update — UI responds immediately
-    const newEntry: BSREntry = {
-      score,
-      reflex,
-      context: contextId,
-      timestamp: new Date(),
-    };
-    setEntries(prev => [newEntry, ...prev]);
-
-    // Update context BSR locally
-    if (contextId) {
-      setContextBSR(prev => {
-        const all = entries.filter(e => e.context === contextId);
-        all.push(newEntry);
-        return {
-          ...prev,
-          [contextId]: all.length >= 3 ? calcBSR(all) : null,
-        };
-      });
-    }
-
-    // 2. Flash the FAB
-    setFlash(score);
-
-    // 3. Reset widget state
+    setFlash(pendingScore);
     setPhase('score');
     setPendingScore(null);
     setSelectedReflex(null);
@@ -152,22 +60,7 @@ export function BSRWidget() {
 
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => setFlash(null), 1500);
-
-    // 4. Background Firestore write (fire-and-forget, don't block UI)
-    if (currentUser) {
-      addDoc(collection(db, 'bsrEntries'), {
-        userId: currentUser.uid,
-        score,
-        reflex,
-        context: contextId,
-        timestamp: Timestamp.now(),
-      }).then(() => {
-        console.log('[BSR] Entry saved to Firestore');
-      }).catch((err) => {
-        console.warn('[BSR] Firestore write failed (entry kept locally):', err?.message || err);
-      });
-    }
-  }, [currentUser, pendingScore, selectedReflex, entries]);
+  }, [pendingScore, selectedReflex, logEntry]);
 
   const cancel = () => {
     setPhase('score');
@@ -194,10 +87,7 @@ export function BSRWidget() {
   if (!currentUser || !isMounted) return null;
   if (pathname === '/' || pathname === '/auth' || pathname === '/privacy') return null;
 
-  // Calculate BSR from last 4 hours
-  const fourHoursAgo = Date.now() - 4 * 60 * 60 * 1000;
-  const recentEntries = entries.filter(e => e.timestamp.getTime() > fourHoursAgo);
-  const bsr = calcBSR(recentEntries);
+  const bsr = bsr4h;
   const bsrColor = bsr === null ? 'text-gray-400 dark:text-gray-500'
     : bsr >= 60 ? 'text-green-500 dark:text-green-400'
     : bsr >= 30 ? 'text-yellow-500 dark:text-yellow-400'
@@ -247,8 +137,7 @@ export function BSRWidget() {
                 ))}
               </div>
               <p className="text-[10px] text-gray-400 dark:text-gray-500 text-center mt-2.5 transition-colors">
-                {recentEntries.length} {locale === 'nl' ? 'registraties afgelopen 4u' : 'entries last 4h'}
-                {!firebaseOk && <span className="text-yellow-500"> (lokaal)</span>}
+                {recentCount} {locale === 'nl' ? 'registraties afgelopen 4u' : 'entries last 4h'}
               </p>
             </>
           )}
