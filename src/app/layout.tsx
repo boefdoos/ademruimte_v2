@@ -5,6 +5,7 @@ import { I18nProvider } from "@/contexts/I18nContext";
 import { DarkModeProvider } from "@/contexts/DarkModeContext";
 import { GDPRBanner } from "@/components/layout/GDPRBanner";
 import { PWAInstall } from "@/components/pwa/PWAInstall";
+import { BSRWidget } from "@/components/bsr/BSRWidget";
 
 export const metadata: Metadata = {
   title: "Ademruimte | Evidence-based hulp bij hyperventilatie",
@@ -47,6 +48,7 @@ export default function RootLayout({
               {children}
               <GDPRBanner />
               <PWAInstall />
+              <BSRWidget />
             </AuthProvider>
           </I18nProvider>
         </DarkModeProvider>
