@@ -25,7 +25,7 @@ const CONTEXTS = [
 ];
 
 interface BSREntry {
-  score: number; // 0, 1, or 2
+  score: number;
   reflex: string | null;
   context: string | null;
   timestamp: Date;
@@ -38,7 +38,7 @@ function calcBSR(entries: BSREntry[]): number | null {
 
 export function BSRWidget() {
   const { currentUser } = useAuth();
-  const { t, locale } = useI18n();
+  const { locale } = useI18n();
   const pathname = usePathname();
   const [isMounted, setIsMounted] = useState(false);
 
@@ -49,96 +49,102 @@ export function BSRWidget() {
   const [pendingScore, setPendingScore] = useState<number | null>(null);
   const [selectedReflex, setSelectedReflex] = useState<string | null>(null);
   const [flash, setFlash] = useState<number | null>(null);
-  const [recentEntries, setRecentEntries] = useState<BSREntry[]>([]);
+  const [entries, setEntries] = useState<BSREntry[]>([]);
   const [contextBSR, setContextBSR] = useState<Record<string, number | null>>({});
+  const [firebaseOk, setFirebaseOk] = useState(true);
   const timer = useRef<NodeJS.Timeout | null>(null);
+  const hasLoaded = useRef(false);
 
   useEffect(() => { setIsMounted(true); }, []);
 
-  // Check if onboarding was completed
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const done = localStorage.getItem('bsr_onboarding_done');
-      setOnboardingDone(done === 'true');
+      setOnboardingDone(localStorage.getItem('bsr_onboarding_done') === 'true');
     }
   }, []);
 
-  // Load recent entries from Firestore
+  // Load existing entries from Firestore on mount — simple query, no composite index needed
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser || hasLoaded.current) return;
+    hasLoaded.current = true;
 
-    const loadRecent = async () => {
+    const load = async () => {
       try {
-        const fourHoursAgo = new Date(Date.now() - 4 * 60 * 60 * 1000);
+        // Simple query: just userId + orderBy timestamp — requires only a single-field index
         const q = query(
           collection(db, 'bsrEntries'),
           where('userId', '==', currentUser.uid),
-          where('timestamp', '>=', Timestamp.fromDate(fourHoursAgo)),
           orderBy('timestamp', 'desc'),
-          limit(50)
+          limit(100)
         );
         const snap = await getDocs(q);
-        const entries: BSREntry[] = snap.docs.map(d => ({
+        const loaded: BSREntry[] = snap.docs.map(d => ({
           score: d.data().score,
-          reflex: d.data().reflex,
-          context: d.data().context,
-          timestamp: d.data().timestamp.toDate(),
+          reflex: d.data().reflex || null,
+          context: d.data().context || null,
+          timestamp: d.data().timestamp?.toDate?.() || new Date(),
         }));
-        setRecentEntries(entries);
+        setEntries(loaded);
+        console.log(`[BSR] Loaded ${loaded.length} entries from Firestore`);
 
-        // Calculate per-context BSR from all recent data
+        // Calculate per-context BSR
         const ctxMap: Record<string, BSREntry[]> = {};
-        // Load more entries for context stats
-        const allQ = query(
-          collection(db, 'bsrEntries'),
-          where('userId', '==', currentUser.uid),
-          orderBy('timestamp', 'desc'),
-          limit(200)
-        );
-        const allSnap = await getDocs(allQ);
-        allSnap.docs.forEach(d => {
-          const ctx = d.data().context;
-          if (ctx) {
-            if (!ctxMap[ctx]) ctxMap[ctx] = [];
-            ctxMap[ctx].push({
-              score: d.data().score,
-              reflex: d.data().reflex,
-              context: ctx,
-              timestamp: d.data().timestamp.toDate(),
-            });
+        loaded.forEach(e => {
+          if (e.context) {
+            if (!ctxMap[e.context]) ctxMap[e.context] = [];
+            ctxMap[e.context].push(e);
           }
         });
         const ctxBSR: Record<string, number | null> = {};
         CONTEXTS.forEach(c => {
-          ctxBSR[c.id] = ctxMap[c.id] && ctxMap[c.id].length >= 3
-            ? calcBSR(ctxMap[c.id])
-            : null;
+          ctxBSR[c.id] = ctxMap[c.id]?.length >= 3 ? calcBSR(ctxMap[c.id]) : null;
         });
         setContextBSR(ctxBSR);
-      } catch (err) {
-        console.error('Error loading BSR entries:', err);
+      } catch (err: any) {
+        console.warn('[BSR] Firestore load failed — using local-only mode:', err?.message || err);
+        // If the index link is in the error, log it prominently
+        if (err?.message?.includes('index')) {
+          console.warn('[BSR] 👆 Klik de link hierboven om de Firestore index aan te maken');
+        }
+        setFirebaseOk(false);
       }
     };
 
-    loadRecent();
-  }, [currentUser, flash]); // Reload after new entry (flash changes)
+    load();
+  }, [currentUser]);
 
-  const log = useCallback(async (contextId: string | null) => {
-    if (!currentUser || pendingScore === null) return;
+  // Log a BSR entry — optimistic local update + background Firestore write
+  const log = useCallback((contextId: string | null) => {
+    if (pendingScore === null) return;
 
-    try {
-      await addDoc(collection(db, 'bsrEntries'), {
-        userId: currentUser.uid,
-        score: pendingScore,
-        reflex: selectedReflex,
-        context: contextId,
-        timestamp: Timestamp.now(),
+    const score = pendingScore;
+    const reflex = selectedReflex;
+
+    // 1. Optimistic local state update — UI responds immediately
+    const newEntry: BSREntry = {
+      score,
+      reflex,
+      context: contextId,
+      timestamp: new Date(),
+    };
+    setEntries(prev => [newEntry, ...prev]);
+
+    // Update context BSR locally
+    if (contextId) {
+      setContextBSR(prev => {
+        const all = entries.filter(e => e.context === contextId);
+        all.push(newEntry);
+        return {
+          ...prev,
+          [contextId]: all.length >= 3 ? calcBSR(all) : null,
+        };
       });
-    } catch (err) {
-      console.error('Error saving BSR entry:', err);
     }
 
-    setFlash(pendingScore);
+    // 2. Flash the FAB
+    setFlash(score);
+
+    // 3. Reset widget state
     setPhase('score');
     setPendingScore(null);
     setSelectedReflex(null);
@@ -146,7 +152,22 @@ export function BSRWidget() {
 
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => setFlash(null), 1500);
-  }, [currentUser, pendingScore, selectedReflex]);
+
+    // 4. Background Firestore write (fire-and-forget, don't block UI)
+    if (currentUser) {
+      addDoc(collection(db, 'bsrEntries'), {
+        userId: currentUser.uid,
+        score,
+        reflex,
+        context: contextId,
+        timestamp: Timestamp.now(),
+      }).then(() => {
+        console.log('[BSR] Entry saved to Firestore');
+      }).catch((err) => {
+        console.warn('[BSR] Firestore write failed (entry kept locally):', err?.message || err);
+      });
+    }
+  }, [currentUser, pendingScore, selectedReflex, entries]);
 
   const cancel = () => {
     setPhase('score');
@@ -167,13 +188,15 @@ export function BSRWidget() {
     localStorage.setItem('bsr_onboarding_done', 'true');
     setOnboardingDone(true);
     setShowOnboarding(false);
-    setOpen(true); // Open widget right after onboarding
+    setOpen(true);
   };
 
-  // Don't render on auth, landing, or privacy pages
   if (!currentUser || !isMounted) return null;
   if (pathname === '/' || pathname === '/auth' || pathname === '/privacy') return null;
 
+  // Calculate BSR from last 4 hours
+  const fourHoursAgo = Date.now() - 4 * 60 * 60 * 1000;
+  const recentEntries = entries.filter(e => e.timestamp.getTime() > fourHoursAgo);
   const bsr = calcBSR(recentEntries);
   const bsrColor = bsr === null ? 'text-gray-400 dark:text-gray-500'
     : bsr >= 60 ? 'text-green-500 dark:text-green-400'
@@ -185,17 +208,9 @@ export function BSRWidget() {
     : flash === 0 ? 'bg-red-500 border-red-500'
     : '';
 
-  const labels = {
-    yawn: locale === 'nl' ? 'Gaap' : 'Yawn',
-    sigh: locale === 'nl' ? 'Zucht' : 'Sigh',
-    both: locale === 'nl' ? 'Beide' : 'Both',
-    rest: locale === 'nl' ? 'Rust' : 'Rest',
-    work: locale === 'nl' ? 'Werk' : 'Work',
-    social: locale === 'nl' ? 'Sociaal' : 'Social',
-    walk: locale === 'nl' ? 'Beweging' : 'Movement',
-    eat: locale === 'nl' ? 'Eten' : 'Eating',
-    session: locale === 'nl' ? 'Ademsessie' : 'Session',
-  };
+  const labels: Record<string, string> = locale === 'nl'
+    ? { yawn: 'Gaap', sigh: 'Zucht', both: 'Beide', rest: 'Rust', work: 'Werk', social: 'Sociaal', walk: 'Beweging', eat: 'Eten', session: 'Ademsessie' }
+    : { yawn: 'Yawn', sigh: 'Sigh', both: 'Both', rest: 'Rest', work: 'Work', social: 'Social', walk: 'Movement', eat: 'Eating', session: 'Session' };
 
   const scoreOptions = [
     { s: 2, e: '😌', l: locale === 'nl' ? 'Ja' : 'Yes', ring: 'hover:border-green-400 dark:hover:border-green-500' },
@@ -207,7 +222,6 @@ export function BSRWidget() {
     <>
       {showOnboarding && <BSROnboarding onComplete={completeOnboarding} />}
 
-      {/* Popup panel */}
       {open && (
         <div className="fixed z-[60] bottom-24 md:bottom-6 right-4 w-[272px] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 shadow-xl dark:shadow-slate-950/60 animate-slideUp transition-colors">
 
@@ -234,13 +248,13 @@ export function BSRWidget() {
               </div>
               <p className="text-[10px] text-gray-400 dark:text-gray-500 text-center mt-2.5 transition-colors">
                 {recentEntries.length} {locale === 'nl' ? 'registraties afgelopen 4u' : 'entries last 4h'}
+                {!firebaseOk && <span className="text-yellow-500"> (lokaal)</span>}
               </p>
             </>
           )}
 
           {phase === 'context' && (
             <>
-              {/* Reflex type */}
               <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5 transition-colors">
                 {locale === 'nl' ? 'Wat was het?' : 'What was it?'}
               </p>
@@ -258,12 +272,11 @@ export function BSRWidget() {
                     <div className="text-base">{r.emoji}</div>
                     <div className={`text-[9px] mt-0.5 font-medium ${
                       selectedReflex === r.id ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'
-                    }`}>{labels[r.id as keyof typeof labels]}</div>
+                    }`}>{labels[r.id]}</div>
                   </button>
                 ))}
               </div>
 
-              {/* Context */}
               <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5 transition-colors">
                 {locale === 'nl' ? 'Waarbij?' : 'During what?'}
               </p>
@@ -278,7 +291,7 @@ export function BSRWidget() {
                     >
                       <div className="text-base">{c.emoji}</div>
                       <div className="text-[10px] text-gray-700 dark:text-gray-200 mt-0.5 transition-colors">
-                        {labels[c.id as keyof typeof labels]}
+                        {labels[c.id]}
                       </div>
                       {cb !== null && (
                         <div className={`text-[8px] font-bold mt-0.5 ${
@@ -292,7 +305,6 @@ export function BSRWidget() {
                 })}
               </div>
 
-              {/* Actions */}
               <div className="flex justify-between mt-2.5">
                 <button
                   onClick={() => { setPhase('score'); setPendingScore(null); setSelectedReflex(null); }}
@@ -313,7 +325,6 @@ export function BSRWidget() {
         </div>
       )}
 
-      {/* FAB — positioned above mobile bottom nav */}
       <button
         onClick={handleFABClick}
         className={`fixed z-[60] bottom-20 md:bottom-6 right-4 w-14 h-14 rounded-full shadow-lg dark:shadow-slate-950/50 flex flex-col items-center justify-center transition-all duration-300 ${
