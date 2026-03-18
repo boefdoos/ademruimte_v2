@@ -40,7 +40,7 @@ const patterns: BreathPattern[] = [
 
 export function ResonantBreathing() {
   const { currentUser } = useAuth();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { requestWakeLock, releaseWakeLock } = useWakeLock();
   const [selectedPattern, setSelectedPattern] = useState(patterns[0]);
   const [customHoldDuration, setCustomHoldDuration] = useState(3);
@@ -59,6 +59,7 @@ export function ResonantBreathing() {
   const totalSecondsRef = useRef(0);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const circleRef = useRef<HTMLDivElement>(null);
 
   const colorClasses = {
     blue: 'from-blue-400 to-blue-600',
@@ -219,6 +220,16 @@ export function ResonantBreathing() {
 
     // Request wake lock to keep screen on
     await requestWakeLock();
+
+    // Circle is now a fixed fullscreen overlay — no scroll needed
+  };
+
+  const handleCircleClick = () => {
+    if (isActive) {
+      stopBreathing();
+    } else {
+      startBreathing();
+    }
   };
 
   const stopBreathing = async () => {
@@ -501,88 +512,102 @@ export function ResonantBreathing() {
       )}
 
       {/* Breathing Circle */}
-      <div className="flex flex-col items-center justify-center mb-8 px-4 overflow-hidden">
-        {/* Circle container - Perfect square for perfect circle */}
-        <div className="w-full max-w-[280px] sm:max-w-sm md:max-w-md lg:max-w-lg relative">
-          {/* Padding trick for perfect square */}
-          <div className="w-full" style={{ paddingBottom: '100%' }}>
-            <div className="absolute inset-0 p-12 sm:p-16 md:p-20">
-              <div
-                className={`w-full h-full rounded-full bg-gradient-to-br ${
-                  colorClasses[selectedPattern.color as keyof typeof colorClasses]
-                } flex items-center justify-center shadow-2xl transition-transform ease-in-out will-change-transform`}
-                style={{
-                  transitionDuration: `${
-                    phase === 'inhale'
-                      ? getEffectivePattern().inhale
-                      : phase === 'exhale'
-                      ? getEffectivePattern().exhale
-                      : 1
-                  }s`,
-                  transform:
-                    phase === 'inhale'
-                      ? 'scale(1.5)'
-                      : phase === 'exhale'
-                      ? 'scale(0.75)'
-                      : 'scale(1)',
-                }}
-              >
-                <div className="text-center text-white px-2">
-                  <div className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-1">
-                    {timeLeft ? Math.ceil(timeLeft) : '—'}
-                  </div>
-                  <div className="text-xs sm:text-sm md:text-base font-semibold whitespace-nowrap">
-                    {getPhaseText()}
-                  </div>
+      {isActive ? (
+        /* Active: fullscreen breathing view — no scrolling needed */
+        <div
+          ref={circleRef}
+          className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 transition-colors"
+        >
+          {/* Circle container — large enough to contain scale(1.4) */}
+          <div
+            className="relative w-52 h-52 sm:w-64 sm:h-64 md:w-72 md:h-72 cursor-pointer select-none"
+            onClick={handleCircleClick}
+            role="button"
+            aria-label={t('resonant.stop_save')}
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleCircleClick(); }}
+          >
+            <div
+              className={`absolute inset-[10%] rounded-full bg-gradient-to-br ${
+                colorClasses[selectedPattern.color as keyof typeof colorClasses]
+              } flex items-center justify-center shadow-2xl transition-transform ease-in-out will-change-transform`}
+              style={{
+                transitionDuration: `${
+                  phase === 'inhale'
+                    ? getEffectivePattern().inhale
+                    : phase === 'exhale'
+                    ? getEffectivePattern().exhale
+                    : 1
+                }s`,
+                transform:
+                  phase === 'inhale'
+                    ? 'scale(1.25)'
+                    : phase === 'exhale'
+                    ? 'scale(0.7)'
+                    : 'scale(1)',
+              }}
+            >
+              <div className="text-center text-white px-2">
+                <div className="text-5xl sm:text-6xl md:text-7xl font-bold mb-1">
+                  {timeLeft ? Math.ceil(timeLeft) : '—'}
+                </div>
+                <div className="text-sm sm:text-base font-semibold whitespace-nowrap">
+                  {getPhaseText()}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats below circle */}
+          <div className="mt-6 grid grid-cols-3 gap-4 sm:gap-8 w-full max-w-sm px-4">
+            <div className="text-center">
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5 transition-colors">{t('resonant.cycles')}</div>
+              <div className="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 transition-colors">{cycles}</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5 transition-colors">{t('resonant.elapsed')}</div>
+              <div className="text-lg sm:text-xl font-bold text-gray-800 dark:text-gray-100 transition-colors">{formatTime(totalSeconds)}</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5 transition-colors">{t('resonant.remaining')}</div>
+              <div className="text-lg sm:text-xl font-bold text-green-600">
+                {formatTime(Math.max(0, sessionDuration * 60 - totalSeconds))}
+              </div>
+            </div>
+          </div>
+
+          {/* Tap hint */}
+          <p className="mt-4 text-xs text-gray-400 dark:text-gray-500 transition-colors">
+            <i className="fas fa-hand-pointer mr-1" />
+            {locale === 'nl' ? 'Tik op de cirkel om te stoppen' : 'Tap the circle to stop'}
+          </p>
+        </div>
+      ) : (
+        /* Idle: circle as start button, centered in flow */
+        <div ref={circleRef} className="flex flex-col items-center justify-center py-6 px-4 mb-8">
+          <div
+            className="relative w-44 h-44 sm:w-52 sm:h-52 md:w-56 md:h-56 cursor-pointer select-none"
+            onClick={handleCircleClick}
+            role="button"
+            aria-label={t('resonant.start')}
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleCircleClick(); }}
+          >
+            <div
+              className={`absolute inset-0 rounded-full bg-gradient-to-br ${
+                colorClasses[selectedPattern.color as keyof typeof colorClasses]
+              } flex items-center justify-center shadow-2xl hover:shadow-blue-300/40 dark:hover:shadow-blue-500/20 transition-all hover:scale-105 active:scale-95`}
+            >
+              <div className="text-center text-white px-2">
+                <i className="fas fa-play text-3xl sm:text-4xl mb-2 opacity-90" />
+                <div className="text-xs sm:text-sm font-semibold opacity-80">
+                  {t('resonant.start')}
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Stats - Responsive Grid */}
-        {isActive && (
-          <div className="mt-8 grid grid-cols-3 gap-3 sm:gap-6 w-full max-w-md px-2">
-            <div className="text-center">
-              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1 transition-colors">{t('resonant.cycles')}</div>
-              <div className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 transition-colors">{cycles}</div>
-            </div>
-            <div className="text-center">
-              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1 transition-colors">{t('resonant.elapsed')}</div>
-              <div className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 transition-colors">{formatTime(totalSeconds)}</div>
-            </div>
-            <div className="text-center">
-              <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-1 transition-colors">{t('resonant.remaining')}</div>
-              <div className="text-lg sm:text-xl md:text-2xl font-bold text-green-600">
-                {formatTime(Math.max(0, sessionDuration * 60 - totalSeconds))}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Controls - Mobile Friendly */}
-      <div className="flex gap-4 justify-center px-4">
-        {!isActive ? (
-          <button
-            onClick={startBreathing}
-            className={`w-full sm:w-auto px-8 py-4 min-h-[56px] bg-gradient-to-r ${
-              colorClasses[selectedPattern.color as keyof typeof colorClasses]
-            } text-white rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-lg text-base sm:text-lg`}
-          >
-            <i className="fas fa-play mr-2"></i>
-            {t('resonant.start')}
-          </button>
-        ) : (
-          <button
-            onClick={stopBreathing}
-            className="w-full sm:w-auto px-8 py-4 min-h-[56px] bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors shadow-lg text-base sm:text-lg"
-          >
-            <i className="fas fa-stop mr-2"></i>
-            {t('resonant.stop_save')}
-          </button>
-        )}
-      </div>
+      )}
 
       {/* Tips */}
       {!isActive && (
