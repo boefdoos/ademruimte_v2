@@ -103,8 +103,8 @@ function BSRLineChart({ data, height = 180 }: { data: { label: string; bsr: numb
       {points.map((p, i) => (
         <g key={i}>
           <circle cx={p.x} cy={p.y} r="1.2"
-            className={`${p.bsr >= 60 ? 'fill-green-500' : p.bsr >= 30 ? 'fill-yellow-500' : 'fill-red-500'}`}
-            strokeWidth="0.3" className2="stroke-white dark:stroke-slate-800" />
+            className={`${p.bsr >= 60 ? 'fill-green-500' : p.bsr >= 30 ? 'fill-yellow-500' : 'fill-red-500'} stroke-white dark:stroke-slate-800`}
+            strokeWidth="0.3" />
           {/* X label — show every Nth label to avoid crowding */}
           {(i === 0 || i === data.length - 1 || i % Math.max(1, Math.floor(data.length / 5)) === 0) && (
             <text x={p.x} y={padTop + chartH + 6}
