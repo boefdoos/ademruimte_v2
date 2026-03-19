@@ -11,8 +11,9 @@ const ControlPauseChart = lazy(() => import('@/components/tracking/ControlPauseC
 const BreathingSessionsChart = lazy(() => import('@/components/tracking/BreathingSessionsChart').then(mod => ({ default: mod.BreathingSessionsChart })));
 const IntensityStats = lazy(() => import('@/components/tracking/IntensityStats').then(mod => ({ default: mod.IntensityStats })));
 const JournalAnalysis = lazy(() => import('@/components/tracking/JournalAnalysis').then(mod => ({ default: mod.JournalAnalysis })));
+const BSRInsights = lazy(() => import('@/components/tracking/BSRInsights').then(mod => ({ default: mod.BSRInsights })));
 
-type InsightTab = 'overview' | 'measurements' | 'sessions' | 'journal';
+type InsightTab = 'overview' | 'bsr' | 'measurements' | 'sessions' | 'journal';
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center py-12">
@@ -24,7 +25,7 @@ const LoadingFallback = () => (
 );
 
 export default function InsightsPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [activeTab, setActiveTab] = useState<InsightTab>('overview');
   // Track which tabs have been visited so they stay mounted
   const [visitedTabs, setVisitedTabs] = useState<Set<InsightTab>>(new Set<InsightTab>(['overview']));
@@ -63,6 +64,17 @@ export default function InsightsPage() {
               >
                 <i className="fas fa-chart-bar mr-1 sm:mr-2"></i>
                 {t('insights.tab_overview')}
+              </button>
+              <button
+                onClick={() => handleTabChange('bsr')}
+                className={`flex-1 py-3 px-3 sm:py-4 sm:px-4 md:px-6 font-semibold text-xs sm:text-sm md:text-base transition-colors whitespace-nowrap ${
+                  activeTab === 'bsr'
+                    ? 'bg-cyan-600 text-white dark:bg-cyan-700'
+                    : 'bg-gray-50 dark:bg-slate-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-600'
+                }`}
+              >
+                <i className="fas fa-lungs mr-1 sm:mr-2"></i>
+                BSR
               </button>
               <button
                 onClick={() => handleTabChange('measurements')}
@@ -113,6 +125,25 @@ export default function InsightsPage() {
                   <ErrorBoundary>
                     <Suspense fallback={<LoadingFallback />}>
                       <IntensityStats />
+                    </Suspense>
+                  </ErrorBoundary>
+                </div>
+              )}
+
+              {visitedTabs.has('bsr') && (
+                <div className={activeTab !== 'bsr' ? 'hidden' : ''}>
+                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-cyan-600 dark:text-cyan-400 mb-3 sm:mb-4 flex items-center transition-colors">
+                    <i className="fas fa-lungs mr-2 sm:mr-3"></i>
+                    Breath Satisfaction Ratio
+                  </h2>
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-3 sm:mb-4 transition-colors">
+                    {locale === 'nl'
+                      ? 'Hoe vaak geeft een gaap of zucht daadwerkelijk verlichting? Patronen per context en over tijd.'
+                      : 'How often does a yawn or sigh actually bring relief? Patterns per context and over time.'}
+                  </p>
+                  <ErrorBoundary>
+                    <Suspense fallback={<LoadingFallback />}>
+                      <BSRInsights />
                     </Suspense>
                   </ErrorBoundary>
                 </div>
@@ -180,6 +211,7 @@ export default function InsightsPage() {
 
               {/* Loading for unvisited tabs */}
               {!visitedTabs.has('overview') && activeTab === 'overview' && <LoadingFallback />}
+              {!visitedTabs.has('bsr') && activeTab === 'bsr' && <LoadingFallback />}
               {!visitedTabs.has('measurements') && activeTab === 'measurements' && <LoadingFallback />}
               {!visitedTabs.has('sessions') && activeTab === 'sessions' && <LoadingFallback />}
               {!visitedTabs.has('journal') && activeTab === 'journal' && <LoadingFallback />}
