@@ -6,9 +6,9 @@
   --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-/* Prevent white overscroll flash on iOS PWA */
+/* Prevent overscroll colour bleed on iOS PWA */
 html {
-  background-color: #667eea;
+  background-color: #f9fafb;
   overscroll-behavior: none;
 }
 
@@ -18,16 +18,15 @@ html {
 
 body {
   font-family: var(--font-inter);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  background-attachment: fixed;
+  background-color: #f9fafb;
   min-height: 100vh;
   margin: 0;
   padding: 0;
 }
 
-/* Dark mode gradient for body */
+/* Dark mode body */
 .dark body {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background-color: #0f172a;
 }
 
 /* Mobile: Add bottom padding for fixed navigation */

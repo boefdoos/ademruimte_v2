@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     userScalable: false,
   },
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#667eea" },
+    { media: "(prefers-color-scheme: light)", color: "#f9fafb" },
     { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
   ],
 };
