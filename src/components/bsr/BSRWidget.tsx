@@ -195,17 +195,16 @@ export function BSRWidget() {
 
               <div className="flex justify-between mt-2.5">
                 <button
-                  onClick={() => { setPhase('score'); setPendingScore(null); setSelectedReflex(null); }}
-                  className="text-[10px] text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 bg-transparent border-none cursor-pointer transition-colors"
-                >
-                  <i className="fas fa-arrow-left mr-1" />
-                  {locale === 'nl' ? 'terug' : 'back'}
-                </button>
-                <button
                   onClick={() => log(null)}
                   className="text-[10px] text-gray-500 dark:text-gray-400 px-2.5 py-1 border border-gray-200 dark:border-slate-600 rounded-md bg-transparent hover:bg-gray-50 dark:hover:bg-slate-700 cursor-pointer transition-colors"
                 >
-                  {locale === 'nl' ? 'sla over →' : 'skip →'}
+                  {locale === 'nl' ? '← sla over' : '← skip'}
+                </button>
+                <button
+                  onClick={() => { setPhase('score'); setPendingScore(null); setSelectedReflex(null); }}
+                  className="text-[10px] text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 bg-transparent border-none cursor-pointer transition-colors"
+                >
+                  {locale === 'nl' ? 'terug →' : 'back →'}
                 </button>
               </div>
             </>
