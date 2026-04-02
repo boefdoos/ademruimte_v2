@@ -2,251 +2,271 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useI18n } from '@/contexts/I18nContext';
-import { Button } from '@/components/ui/Button';
 import { useRouter } from 'next/navigation';
-import { StatsCard } from '@/components/dashboard/StatsCard';
-import { TodayGoals } from '@/components/dashboard/TodayGoals';
-import { OnboardingModal } from '@/components/onboarding/OnboardingModal';
 import { Navigation } from '@/components/layout/Navigation';
+import { OnboardingModal } from '@/components/onboarding/OnboardingModal';
+import { MorningStrip } from '@/components/dashboard/MorningStrip';
 import { db } from '@/lib/firebase/config';
-import { doc, getDoc, setDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import {
+  doc, getDoc,
+  collection, query, where, orderBy, limit, getDocs,
+} from 'firebase/firestore';
+
+const getTodayString = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
+const getYesterdayString = () => {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
+function getGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return 'Goedemorgen';
+  if (h < 18) return 'Goedemiddag';
+  return 'Goedenavond';
+}
+
+function getFirstName(email: string | null | undefined): string {
+  if (!email) return '';
+  return email.split('@')[0].split('.')[0];
+}
 
 export default function DashboardPage() {
-  const { currentUser, logout, loading: authLoading } = useAuth();
-  const { t } = useI18n();
+  const { currentUser, loading: authLoading } = useAuth();
   const router = useRouter();
-  const [streak, setStreak] = useState(0);
+
   const [lastCP, setLastCP] = useState<number | null>(null);
+  const [prevCP, setPrevCP] = useState<number | null>(null);
   const [lastHRV, setLastHRV] = useState<number | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
-    const loadUserData = async () => {
+    const load = async () => {
       if (!currentUser) return;
-
       try {
-        const userRef = doc(db, 'users', currentUser.uid);
-        const userSnap = await getDoc(userRef);
-
-        if (userSnap.exists()) {
-          const data = userSnap.data();
-
-          // Calculate streak
-          const today = new Date().toISOString().split('T')[0];
-          const lastActive = data.lastActive || '';
-
-          const yesterday = new Date();
-          yesterday.setDate(yesterday.getDate() - 1);
-          const yesterdayString = yesterday.toISOString().split('T')[0];
-
-          let newStreak = 1;
-          if (lastActive === yesterdayString) {
-            newStreak = (data.streak || 0) + 1;
-          } else if (lastActive !== today) {
-            newStreak = 1;
-          } else {
-            newStreak = data.streak || 1;
-          }
-
-          setStreak(newStreak);
-
-          // Update last active and streak
-          if (lastActive !== today) {
-            await setDoc(userRef, {
-              lastActive: today,
-              streak: newStreak,
-            }, { merge: true });
-          }
-        } else {
-          // Initialize user document
-          const today = new Date().toISOString().split('T')[0];
-          await setDoc(userRef, {
-            lastActive: today,
-            streak: 1,
-          });
-          setStreak(1);
+        // Latest 2 CP measurements for delta
+        const cpQ = query(
+          collection(db, 'cpMeasurements'),
+          where('userId', '==', currentUser.uid),
+          orderBy('timestamp', 'desc'),
+          limit(2)
+        );
+        const cpSnap = await getDocs(cpQ);
+        const cpDocs = cpSnap.docs;
+        if (cpDocs.length > 0) {
+          const latest = cpDocs[0].data();
+          setLastCP(latest.seconds || latest.score || null);
+        }
+        if (cpDocs.length > 1) {
+          const prev = cpDocs[1].data();
+          setPrevCP(prev.seconds || prev.score || null);
         }
 
-        // Load latest Control Pause measurement
-        const cpRef = collection(db, 'cpMeasurements');
-        const cpQuery = query(
-          cpRef,
+        // Latest HRV
+        const hrvQ = query(
+          collection(db, 'hrv_measurements'),
           where('userId', '==', currentUser.uid),
           orderBy('timestamp', 'desc'),
           limit(1)
         );
-        const cpSnapshot = await getDocs(cpQuery);
-
-        if (!cpSnapshot.empty) {
-          const latestCP = cpSnapshot.docs[0].data();
-          // Handle V1 backwards compatibility: V1 uses "score", V2 uses "seconds"
-          setLastCP(latestCP.seconds || latestCP.score || null);
+        const hrvSnap = await getDocs(hrvQ);
+        if (!hrvSnap.empty) {
+          const d = hrvSnap.docs[0].data();
+          const val = d.value || d.rmssd || d.hrv || d.measurement || 0;
+          setLastHRV(typeof val === 'number' && val > 0 ? Math.round(val) : null);
         }
-
-        // Load latest HRV measurement
-        const hrvRef = collection(db, 'hrv_measurements');
-        const hrvQuery = query(
-          hrvRef,
-          where('userId', '==', currentUser.uid),
-          orderBy('timestamp', 'desc'),
-          limit(1)
-        );
-        const hrvSnapshot = await getDocs(hrvQuery);
-
-        if (!hrvSnapshot.empty) {
-          const latestHRV = hrvSnapshot.docs[0].data();
-          // Handle V1 backwards compatibility - try different field names
-          const value = latestHRV.value || latestHRV.rmssd || latestHRV.hrv || latestHRV.measurement || 0;
-          setLastHRV(typeof value === 'number' && value > 0 ? value : null);
-        }
-      } catch (error) {
-        console.error('Error loading user data:', error);
+      } catch (e) {
+        console.error('Dashboard load error:', e);
       }
     };
-
-    loadUserData();
+    load();
   }, [currentUser]);
 
-  const handleLogout = async () => {
-    await logout();
-    router.push('/auth');
-  };
-
-  // Show loading state while auth is initializing
   if (authLoading) {
     return (
       <>
         <Navigation />
-        <div className="min-h-screen p-8 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center transition-colors">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 dark:border-blue-400 mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-300">{t('loading')}</p>
-          </div>
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900 transition-colors">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 dark:border-blue-400" />
         </div>
       </>
     );
   }
 
+  const cpDelta = lastCP !== null && prevCP !== null ? lastCP - prevCP : null;
+  const firstName = getFirstName(currentUser?.email);
+
   return (
     <>
-      <OnboardingModal
-        forceOpen={showOnboarding}
-        onClose={() => setShowOnboarding(false)}
-      />
+      <OnboardingModal forceOpen={showOnboarding} onClose={() => setShowOnboarding(false)} />
       <Navigation />
-      <div className="min-h-screen p-4 sm:p-6 md:p-8 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-slate-900 dark:to-slate-800 transition-colors">
-        <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-4 sm:p-6 md:p-8 mb-4 sm:mb-6 transition-colors">
-          <div className="mb-4 sm:mb-6">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 transition-colors">
-              {t('dashboard.welcome_back')}
+
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
+        <div className="max-w-2xl mx-auto px-4 pt-5 pb-24 space-y-5">
+
+          {/* Greeting */}
+          <div>
+            <p className="text-sm text-gray-500 dark:text-gray-400 transition-colors">
+              {new Date().toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' })}
+            </p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-0.5 transition-colors">
+              {getGreeting()}{firstName ? `, ${firstName}` : ''}
             </h1>
-            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mt-2">{currentUser?.email}</p>
           </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <StatsCard
-              icon="fas fa-fire"
-              title="Streak"
-              value={`${streak} ${streak === 1 ? t('common.day') : t('common.days')}`}
-              subtitle={t('dashboard.keep_going')}
-              color="orange"
-            />
-            <StatsCard
-              icon="fas fa-heart-pulse"
-              title={t('dashboard.hrv_latest')}
-              value={lastHRV ? `${lastHRV}ms` : '—'}
-              subtitle={lastHRV ? t('dashboard.last_measurement') : t('dashboard.no_measurements')}
-              color="purple"
-            />
-            <StatsCard
-              icon="fas fa-stopwatch"
-              title="Control Pause"
-              value={lastCP ? `${lastCP}s` : '—'}
-              subtitle={lastCP ? t('dashboard.last_measurement') : t('dashboard.no_measurements')}
-              color="green"
-            />
+          {/* Morning strip */}
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm transition-colors">
+            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3 transition-colors">
+              Ochtendbasislijn
+            </p>
+            <MorningStrip />
           </div>
-        </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
+          {/* Primary CTA */}
           <a
             href="/exercises"
-            className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-4 sm:p-6 hover:shadow-lg transition-all text-left cursor-pointer block"
+            className="block w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-center font-semibold text-lg transition-colors shadow-sm"
           >
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xl sm:text-2xl">
-                <i className="fas fa-wind"></i>
-              </div>
-              <div>
-                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">
-                  {t('dashboard.exercises_section')}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
-                  {t('dashboard.exercises_desc')}
-                </p>
-              </div>
-            </div>
+            <i className="fas fa-wind mr-2" />
+            Start ademsessie
           </a>
 
-          <a
-            href="/insights"
-            className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-4 sm:p-6 hover:shadow-lg transition-all text-left cursor-pointer block"
-          >
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white text-xl sm:text-2xl">
-                <i className="fas fa-chart-line"></i>
+          {/* Metrics */}
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm transition-colors">
+            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3 transition-colors">
+              Vandaag
+            </p>
+            <div className="grid grid-cols-3 gap-3">
+
+              {/* BSR — live from widget */}
+              <div className="bg-gray-50 dark:bg-slate-700 rounded-xl p-3 text-center transition-colors">
+                <div className="text-xl font-bold text-gray-800 dark:text-gray-100 transition-colors" id="bsr-dashboard-val">
+                  —
+                </div>
+                <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 transition-colors">BSR 4u</div>
               </div>
-              <div>
-                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">
-                  {t('dashboard.insights_section')}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
-                  {t('dashboard.insights_desc')}
-                </p>
+
+              {/* Control Pause */}
+              <div className="bg-gray-50 dark:bg-slate-700 rounded-xl p-3 text-center transition-colors">
+                <div className="text-xl font-bold text-gray-800 dark:text-gray-100 transition-colors">
+                  {lastCP !== null ? `${lastCP}s` : '—'}
+                </div>
+                {cpDelta !== null && (
+                  <div className={`text-[10px] font-semibold mt-0.5 transition-colors ${
+                    cpDelta > 0 ? 'text-emerald-600 dark:text-emerald-400' :
+                    cpDelta < 0 ? 'text-red-500 dark:text-red-400' :
+                    'text-gray-400 dark:text-gray-500'
+                  }`}>
+                    {cpDelta > 0 ? `+${cpDelta}s ↑` : cpDelta < 0 ? `${cpDelta}s ↓` : '= gelijk'}
+                  </div>
+                )}
+                <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 transition-colors">
+                  Control Pause
+                </div>
+              </div>
+
+              {/* HRV */}
+              <div className="bg-gray-50 dark:bg-slate-700 rounded-xl p-3 text-center transition-colors">
+                <div className="text-xl font-bold text-gray-800 dark:text-gray-100 transition-colors">
+                  {lastHRV !== null ? `${lastHRV}ms` : '—'}
+                </div>
+                <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 transition-colors">HRV</div>
               </div>
             </div>
-          </a>
+          </div>
 
-          <a
-            href="/journal"
-            className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-4 sm:p-6 hover:shadow-lg transition-all text-left cursor-pointer block"
-          >
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-xl sm:text-2xl">
-                <i className="fas fa-clipboard-list"></i>
-              </div>
-              <div>
-                <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">
-                  {t('dashboard.tracking_section')}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
-                  {t('dashboard.tracking_desc')}
-                </p>
-              </div>
+          {/* Quick actions */}
+          <div>
+            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3 transition-colors">
+              Acties
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <a href="/insights" className="flex items-center gap-3 bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0 transition-colors">
+                  <i className="fas fa-chart-line text-blue-600 dark:text-blue-400 text-sm" />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-gray-800 dark:text-gray-100 transition-colors">Inzichten</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Trends & patronen</div>
+                </div>
+              </a>
+
+              <a href="/journal?tab=symptomen" className="flex items-center gap-3 bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
+                <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0 transition-colors">
+                  <i className="fas fa-notes-medical text-amber-600 dark:text-amber-400 text-sm" />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-gray-800 dark:text-gray-100 transition-colors">Journal</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Symptomen loggen</div>
+                </div>
+              </a>
+
+              <a href="/journal?tab=hrv" className="flex items-center gap-3 bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0 transition-colors">
+                  <i className="fas fa-heart-pulse text-emerald-600 dark:text-emerald-400 text-sm" />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-gray-800 dark:text-gray-100 transition-colors">HRV loggen</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors">RMSSD meting</div>
+                </div>
+              </a>
+
+              <a href="/journal?tab=cp" className="flex items-center gap-3 bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
+                <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0 transition-colors">
+                  <i className="fas fa-stopwatch text-purple-600 dark:text-purple-400 text-sm" />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-gray-800 dark:text-gray-100 transition-colors">Control Pause</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Meting loggen</div>
+                </div>
+              </a>
             </div>
-          </a>
-        </div>
+          </div>
 
-        {/* Today's Goals */}
-        <TodayGoals />
+          {/* Onboarding link — discreet */}
+          <div className="text-center pt-2">
+            <button
+              onClick={() => setShowOnboarding(true)}
+              className="text-xs text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+            >
+              <i className="fas fa-info-circle mr-1" />
+              Introductie herbekijken
+            </button>
+          </div>
 
-        {/* Onboarding herbekijken */}
-        <div className="mt-8 text-center">
-          <button
-            onClick={() => setShowOnboarding(true)}
-            className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors inline-flex items-center gap-2"
-          >
-            <i className="fas fa-info-circle"></i>
-            {t('dashboard.restart_intro')}
-          </button>
-        </div>
         </div>
       </div>
+
+      {/* BSR live sync — reads from BSR widget state via localStorage */}
+      <BsrDashboardSync />
     </>
   );
+}
+
+function BsrDashboardSync() {
+  useEffect(() => {
+    const update = () => {
+      try {
+        const raw = localStorage.getItem('bsr_entries');
+        if (!raw) return;
+        const entries: Array<{ score: number; timestamp: number }> = JSON.parse(raw);
+        const fourHoursAgo = Date.now() - 4 * 60 * 60 * 1000;
+        const recent = entries.filter(e => e.timestamp > fourHoursAgo);
+        const el = document.getElementById('bsr-dashboard-val');
+        if (!el) return;
+        if (recent.length === 0) { el.textContent = '—'; return; }
+        const bsr = Math.round(recent.reduce((s, e) => s + e.score, 0) / (recent.length * 2) * 100);
+        el.textContent = `${bsr}%`;
+        el.style.color = bsr >= 60 ? '#0F6E56' : bsr >= 30 ? '#BA7517' : '#A32D2D';
+      } catch {}
+    };
+    update();
+    const interval = setInterval(update, 10000);
+    return () => clearInterval(interval);
+  }, []);
+  return null;
 }
