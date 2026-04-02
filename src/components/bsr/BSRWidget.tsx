@@ -112,7 +112,7 @@ export function BSRWidget() {
       {showOnboarding && <BSROnboarding onComplete={completeOnboarding} />}
 
       {open && (
-        <div className="fixed z-[60] bottom-24 md:bottom-6 right-4 w-[300px] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-5 shadow-xl dark:shadow-slate-950/60 animate-slideUp transition-colors">
+        <div className="fixed z-[60] bottom-36 md:bottom-6 right-4 w-[300px] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-5 shadow-xl dark:shadow-slate-950/60 animate-slideUp transition-colors">
 
           {phase === 'score' && (
             <>
