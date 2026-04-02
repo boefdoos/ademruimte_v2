@@ -52,8 +52,8 @@ export default function InsightsPage() {
           </div>
 
           {/* Tabs */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg mb-4 sm:mb-6 transition-colors">
-            <div className="flex border-b border-gray-200 dark:border-slate-600 overflow-x-auto transition-colors">
+          <div className="mb-4 sm:mb-6">
+            <div className="flex border-b border-gray-200 dark:border-slate-600 overflow-x-auto bg-white dark:bg-slate-800 rounded-t-xl transition-colors">
               <button
                 onClick={() => handleTabChange('overview')}
                 className={`flex-1 py-3 px-3 sm:py-4 sm:px-4 md:px-6 font-semibold text-xs sm:text-sm md:text-base transition-colors whitespace-nowrap ${
@@ -111,7 +111,7 @@ export default function InsightsPage() {
               </button>
             </div>
 
-            <div className="p-4 sm:p-6 md:p-8">
+            <div className="pt-4 sm:pt-6">
               {/* Keep components mounted once visited; hide inactive with CSS */}
               {visitedTabs.has('overview') && (
                 <div className={activeTab !== 'overview' ? 'hidden' : ''}>

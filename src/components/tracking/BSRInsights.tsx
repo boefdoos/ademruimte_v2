@@ -43,8 +43,8 @@ function BSRLineChart({ data, height = 180 }: { data: { label: string; bsr: numb
   const h = height;
   const padTop = 20;
   const padBottom = 28;
-  const padLeft = 32;
-  const padRight = 8;
+  const padLeft = 14;
+  const padRight = 4;
   const chartW = w - padLeft - padRight;
   const chartH = h - padTop - padBottom;
 

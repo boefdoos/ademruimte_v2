@@ -450,11 +450,6 @@ export function IntensityStats() {
           {avgIntensity <= 5 && (
             <li>{t('intensity.trend_stable')}</li>
           )}
-          {techniqueStats.length > 0 && (
-            <li>
-              {t('intensity.best_technique', { technique: techniqueStats[0].technique, avg: techniqueStats[0].avg })}
-            </li>
-          )}
           <li>{t('intensity.entries_analyzed', { n: entriesWithIntensity.length })}</li>
         </ul>
       </div>
