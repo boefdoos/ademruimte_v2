@@ -7,6 +7,7 @@ import { useI18n } from '@/contexts/I18nContext';
 
 // Lazy load heavy chart components
 const HRVChart = lazy(() => import('@/components/tracking/HRVChart').then(mod => ({ default: mod.HRVChart })));
+const MorningTrends = lazy(() => import('@/components/tracking/MorningTrends').then(mod => ({ default: mod.MorningTrends })));
 const ControlPauseChart = lazy(() => import('@/components/tracking/ControlPauseChart').then(mod => ({ default: mod.ControlPauseChart })));
 const BreathingSessionsChart = lazy(() => import('@/components/tracking/BreathingSessionsChart').then(mod => ({ default: mod.BreathingSessionsChart })));
 const IntensityStats = lazy(() => import('@/components/tracking/IntensityStats').then(mod => ({ default: mod.IntensityStats })));
@@ -153,6 +154,17 @@ export default function InsightsPage() {
                 <div className={activeTab !== 'measurements' ? 'hidden' : ''}>
                   <div className="space-y-6 sm:space-y-8">
                     <div>
+                      <h2 className="text-lg sm:text-xl font-bold text-amber-600 dark:text-amber-400 mb-3 flex items-center transition-colors">
+                        <i className="fas fa-sun mr-2"></i>
+                        Ochtendtrends
+                      </h2>
+                      <ErrorBoundary>
+                        <Suspense fallback={<LoadingFallback />}>
+                          <MorningTrends />
+                        </Suspense>
+                      </ErrorBoundary>
+                    </div>
+                    <div className="border-t border-gray-200 dark:border-slate-700 pt-6 transition-colors">
                       <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-purple-600 dark:text-purple-400 mb-3 sm:mb-4 flex items-center transition-colors">
                         <i className="fas fa-heart-pulse mr-2 sm:mr-3"></i>
                         {t('insights.hrv_title')}
