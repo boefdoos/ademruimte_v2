@@ -246,18 +246,20 @@ export function MorningStrip() {
         {/* Gevoel form */}
         {open === 'gevoel' && (
           <div className="mt-3 bg-gray-50 dark:bg-slate-700 rounded-xl p-4 transition-colors">
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-              Hoe voel je je nu — vóór koffie, vóór je dag begint.
-            </p>
+            <style>{`
+              .gevoel-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 10px; border-radius: 5px; outline: none; cursor: pointer; background: linear-gradient(to right, #ef4444, #f97316, #eab308, #84cc16, #22c55e); }
+              .gevoel-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: white; border: 3px solid #6b7280; box-shadow: 0 2px 6px rgba(0,0,0,0.2); cursor: pointer; transition: border-color .15s; }
+              .gevoel-slider::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: white; border: 3px solid #6b7280; box-shadow: 0 2px 6px rgba(0,0,0,0.2); cursor: pointer; }
+            `}</style>
             <input
               type="range" min="1" max="10" step="1"
               value={gevoelVal}
               onChange={e => setGevoelVal(Number(e.target.value))}
-              className="w-full accent-emerald-500"
+              className="gevoel-slider mt-1"
             />
-            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
               <span>Slecht (1)</span>
-              <span className="font-semibold text-gray-800 dark:text-gray-100">{gevoelVal}</span>
+              <span className="font-semibold text-gray-800 dark:text-gray-100">{gevoelVal}/10</span>
               <span>Goed (10)</span>
             </div>
             <button

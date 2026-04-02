@@ -32,7 +32,8 @@ function getGreeting(): string {
 
 function getFirstName(email: string | null | undefined): string {
   if (!email) return '';
-  return email.split('@')[0].split('.')[0];
+  const name = email.split('@')[0].split('.')[0];
+  return name.charAt(0).toUpperCase() + name.slice(1);
 }
 
 export default function DashboardPage() {
