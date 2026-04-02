@@ -11,7 +11,6 @@ import { BSROnboarding } from './BSROnboarding';
 const REFLEX_TYPES = [
   { id: 'yawn', emoji: '🥱' },
   { id: 'sigh', emoji: '😮‍💨' },
-  { id: 'both', emoji: '🔄' },
 ];
 
 const CONTEXTS = [
@@ -99,8 +98,8 @@ export function BSRWidget() {
     : '';
 
   const labels: Record<string, string> = locale === 'nl'
-    ? { yawn: 'Gaap', sigh: 'Zucht', both: 'Beide', rest: 'Rust', work: 'Werk', social: 'Sociaal', walk: 'Beweging', eat: 'Eten', session: 'Ademsessie' }
-    : { yawn: 'Yawn', sigh: 'Sigh', both: 'Both', rest: 'Rest', work: 'Work', social: 'Social', walk: 'Movement', eat: 'Eating', session: 'Session' };
+    ? { yawn: 'Gaap', sigh: 'Zucht', rest: 'Rust', work: 'Werk', social: 'Sociaal', walk: 'Beweging', eat: 'Eten', session: 'Ademsessie' }
+    : { yawn: 'Yawn', sigh: 'Sigh', rest: 'Rest', work: 'Work', social: 'Social', walk: 'Movement', eat: 'Eating', session: 'Session' };
 
   const scoreOptions = [
     { s: 2, e: '😌', l: locale === 'nl' ? 'Ja' : 'Yes', ring: 'hover:border-green-400 dark:hover:border-green-500' },
@@ -113,7 +112,7 @@ export function BSRWidget() {
       {showOnboarding && <BSROnboarding onComplete={completeOnboarding} />}
 
       {open && (
-        <div className="fixed z-[60] bottom-24 md:bottom-6 right-4 w-[272px] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 shadow-xl dark:shadow-slate-950/60 animate-slideUp transition-colors">
+        <div className="fixed z-[60] bottom-24 md:bottom-6 right-4 w-[300px] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-5 shadow-xl dark:shadow-slate-950/60 animate-slideUp transition-colors">
 
           {phase === 'score' && (
             <>
@@ -125,9 +124,9 @@ export function BSRWidget() {
                   <button
                     key={o.s}
                     onClick={() => { setPendingScore(o.s); setPhase('context'); }}
-                    className={`w-[76px] py-2.5 bg-gray-50 dark:bg-slate-700 border-2 border-gray-200 dark:border-slate-600 rounded-xl transition-all ${o.ring}`}
+                    className={`w-[84px] py-3 bg-gray-50 dark:bg-slate-700 border-2 border-gray-200 dark:border-slate-600 rounded-xl transition-all ${o.ring}`}
                   >
-                    <div className="text-2xl">{o.e}</div>
+                    <div className="text-3xl">{o.e}</div>
                     <div className={`text-[10px] font-semibold mt-0.5 ${
                       o.s === 2 ? 'text-green-600 dark:text-green-400' :
                       o.s === 1 ? 'text-yellow-600 dark:text-yellow-400' :
@@ -147,19 +146,19 @@ export function BSRWidget() {
               <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5 transition-colors">
                 {locale === 'nl' ? 'Wat was het?' : 'What was it?'}
               </p>
-              <div className="flex gap-1.5 mb-3">
+              <div className="flex gap-2 mb-3">
                 {REFLEX_TYPES.map(r => (
                   <button
                     key={r.id}
                     onClick={() => setSelectedReflex(selectedReflex === r.id ? null : r.id)}
-                    className={`flex-1 py-1.5 rounded-lg text-center transition-colors ${
+                    className={`flex-1 py-2 rounded-lg text-center transition-colors ${
                       selectedReflex === r.id
                         ? 'bg-blue-50 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700'
                         : 'bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600'
                     }`}
                   >
-                    <div className="text-base">{r.emoji}</div>
-                    <div className={`text-[9px] mt-0.5 font-medium ${
+                    <div className="text-xl">{r.emoji}</div>
+                    <div className={`text-[10px] mt-0.5 font-medium ${
                       selectedReflex === r.id ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'
                     }`}>{labels[r.id]}</div>
                   </button>
