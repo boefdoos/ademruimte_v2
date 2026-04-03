@@ -10,6 +10,7 @@ interface MorningRecord {
   gevoel: number | null;
   cp: number | null;
   symptoomMin: number | null; // -1 = geen symptomen
+  hrv: number | null;
 }
 
 function cpColor(s: number): string {
@@ -74,6 +75,24 @@ export function MorningTrends() {
         const ref = collection(db, 'users', currentUser.uid, 'morningStrip');
         const q = query(ref, orderBy('__name__', 'desc'), limit(30));
         const snap = await getDocs(q);
+
+        // Load latest HRV per day from hrv_measurements
+        const hrvQ = query(
+          collection(db, 'hrv_measurements'),
+          where('userId', '==', currentUser.uid),
+          orderBy('timestamp', 'desc'),
+          limit(60)
+        );
+        const hrvSnap = await getDocs(hrvQ);
+        const hrvByDay: Record<string, number> = {};
+        hrvSnap.docs.forEach(d => {
+          const data = d.data();
+          const ts: Date = data.timestamp.toDate();
+          const key = `${ts.getFullYear()}-${String(ts.getMonth()+1).padStart(2,'0')}-${String(ts.getDate()).padStart(2,'0')}`;
+          const val = data.value || data.rmssd || data.hrv || data.measurement || 0;
+          if (!hrvByDay[key] && typeof val === 'number' && val > 0) hrvByDay[key] = Math.round(val);
+        });
+
         const rows: MorningRecord[] = snap.docs.map(d => {
           const data = d.data();
           return {
@@ -81,6 +100,7 @@ export function MorningTrends() {
             gevoel: data.gevoel ?? null,
             cp: data.cp ?? null,
             symptoomMin: data.symptoomMin ?? null,
+            hrv: hrvByDay[d.id] ?? null,
           };
         }).reverse(); // oudste eerst
         setRecords(rows);
@@ -107,10 +127,10 @@ export function MorningTrends() {
 
   const gevoelData = records.map(r => r.gevoel);
   const cpData = records.map(r => r.cp);
-  // symptoomMin: -1 = geen symptomen (positief, toon als hoge waarde), null = niet ingevuld
+  const hrvData = records.map(r => r.hrv);
   const symptoomData = records.map(r =>
     r.symptoomMin === null ? null :
-    r.symptoomMin === -1 ? 240 : // "geen" = beter dan 4 uur
+    r.symptoomMin === -1 ? 240 :
     r.symptoomMin
   );
 
@@ -139,7 +159,8 @@ export function MorningTrends() {
 
   const gevoelTrend = trend(gevoelData, true);
   const cpTrend = trend(cpData, true);
-  const symptoomTrend = trend(symptoomData, true); // hogere waarde = later symptoom = beter
+  const hrvTrend = trend(hrvData, true);
+  const symptoomTrend = trend(symptoomData, true);
 
   const rows = [
     {
@@ -161,6 +182,16 @@ export function MorningTrends() {
       dotColor: cpColor,
       trend: cpTrend,
       format: (v: number) => `${v}s`,
+    },
+    {
+      label: 'HRV',
+      sub: 'RMSSD in ms',
+      data: hrvData,
+      min: 0, max: Math.max(60, ...hrvData.filter(Boolean) as number[]),
+      color: '#ec4899',
+      dotColor: (v: number) => v >= 50 ? '#22c55e' : v >= 30 ? '#f97316' : '#ef4444',
+      trend: hrvTrend,
+      format: (v: number) => `${v}ms`,
     },
     {
       label: 'Symptoom timing',
