@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/firebase/config';
-import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import { collection, query, where, orderBy, limit, getDocs, documentId } from 'firebase/firestore';
 
 interface MorningRecord {
   date: string;
@@ -73,7 +73,7 @@ export function MorningTrends() {
       if (!currentUser) return;
       try {
         const ref = collection(db, 'users', currentUser.uid, 'morningStrip');
-        const q = query(ref, orderBy('__name__', 'desc'), limit(30));
+        const q = query(ref, orderBy(documentId(), 'desc'), limit(30));
         const snap = await getDocs(q);
 
         // Load latest HRV per day from hrv_measurements
