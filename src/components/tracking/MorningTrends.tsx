@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/firebase/config';
-import { collection, query, where, orderBy, limit, getDocs, documentId } from 'firebase/firestore';
+import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 
 interface MorningRecord {
   date: string;
@@ -73,8 +73,7 @@ export function MorningTrends() {
       if (!currentUser) return;
       try {
         const ref = collection(db, 'users', currentUser.uid, 'morningStrip');
-        const q = query(ref, orderBy(documentId(), 'desc'), limit(30));
-        const snap = await getDocs(q);
+        const snap = await getDocs(ref);
 
         // Load latest HRV per day from hrv_measurements
         const hrvQ = query(
@@ -102,7 +101,9 @@ export function MorningTrends() {
             symptoomMin: data.symptoomMin ?? null,
             hrv: hrvByDay[d.id] ?? null,
           };
-        }).reverse(); // oudste eerst
+        })
+          .sort((a, b) => a.date.localeCompare(b.date)) // YYYY-MM-DD: alphabetical = chronological
+          .slice(-30); // laatste 30 dagen
         setRecords(rows);
       } catch (e) {
         console.error('MorningTrends load error:', e);
