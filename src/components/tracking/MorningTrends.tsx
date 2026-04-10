@@ -34,29 +34,51 @@ function Sparkline({
   color: string;
   dotColor?: (v: number) => string;
 }) {
-  const h = 48;
-  const w = 100;
+  const VW = 400;
+  const VH = 72;
+  const PAD = 8;
   const range = max - min || 1;
   const valid = data.map((v, i) => v !== null ? { i, v: v as number } : null).filter(Boolean) as { i: number; v: number }[];
-  if (valid.length < 2) return <div style={{ height: h }} className="flex items-center justify-center text-xs text-gray-400 dark:text-gray-500">Nog onvoldoende data</div>;
+
+  if (valid.length < 2) {
+    return (
+      <div className="flex items-center justify-center text-xs text-gray-400 dark:text-gray-500 transition-colors" style={{ height: 72 }}>
+        Nog onvoldoende data
+      </div>
+    );
+  }
 
   const n = data.length;
-  const x = (i: number) => (i / (n - 1)) * w;
-  const y = (v: number) => h - ((v - min) / range) * h;
+  const x = (i: number) => PAD + (i / Math.max(n - 1, 1)) * (VW - PAD * 2);
+  const y = (v: number) => PAD + (1 - (v - min) / range) * (VH - PAD * 2);
 
-  const d = valid.map((p, idx) =>
-    idx === 0 ? `M ${x(p.i)} ${y(p.v)}` : `L ${x(p.i)} ${y(p.v)}`
+  const linePath = valid.map((p, idx) =>
+    idx === 0 ? `M ${x(p.i).toFixed(1)} ${y(p.v).toFixed(1)}` : `L ${x(p.i).toFixed(1)} ${y(p.v).toFixed(1)}`
   ).join(' ');
 
+  // Area fill path
+  const areaPath = linePath + ` L ${x(valid[valid.length - 1].i).toFixed(1)} ${VH} L ${x(valid[0].i).toFixed(1)} ${VH} Z`;
+
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full" preserveAspectRatio="none" style={{ height: h }}>
-      <path d={d} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <svg
+      viewBox={`0 0 ${VW} ${VH}`}
+      className="w-full"
+      style={{ height: 72, display: 'block' }}
+    >
+      <defs>
+        <linearGradient id={`grad-${color.replace('#', '')}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.15" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={areaPath} fill={`url(#grad-${color.replace('#', '')})`} />
+      <path d={linePath} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       {valid.map(p => (
         <circle
           key={p.i}
-          cx={x(p.i)} cy={y(p.v)} r="2"
+          cx={x(p.i)} cy={y(p.v)} r="5"
           fill={dotColor ? dotColor(p.v) : color}
-          stroke="white" strokeWidth="0.8"
+          stroke="white" strokeWidth="2"
         />
       ))}
     </svg>
