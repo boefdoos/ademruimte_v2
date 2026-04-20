@@ -248,17 +248,22 @@ export function BreathTraceSession() {
       if (dur < half) ampFirstHalfRef.current.push(amp);
       else            ampSecondHalfRef.current.push(amp);
 
-      if (amps.length >= 5) {
+      if (amps.length >= 10) {
         const sorted = [...amps].sort((a, b) => a - b);
         const med    = sorted[Math.floor(sorted.length / 2)];
-        const thresh = Math.max(med * 1.65, med + localRMSSD * 2);
+        // Gemiddelde en standaarddeviatie voor robuustere drempel
+        const mean   = amps.reduce((s, v) => s + v, 0) / amps.length;
+        const sd     = Math.sqrt(amps.reduce((s, v) => s + (v - mean) ** 2, 0) / amps.length);
+        // Sigh = minstens 2× mediaan én meer dan 2.5 SD boven gemiddelde
+        // én minimaal 50ms absolute amplitude (voorkomt trigger op vlakke basislijn)
+        const thresh = Math.max(med * 2.0, mean + sd * 2.5, 50);
 
-        if (amp > thresh && t - lastSighTRef.current > 4000) {
+        if (amp > thresh && t - lastSighTRef.current > 8000) {
           const s   = (t - sessionT0Ref.current) / 1000;
           const ts  = `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
           const ev: BreathEvent = {
             t, ts, type: 'sigh',
-            detail: `amp ${amp}ms | cyclus ${(cd / 1000).toFixed(1)}s | med ${Math.round(med)}ms`,
+            detail: `amp ${amp}ms | drempel ${Math.round(thresh)}ms | med ${Math.round(med)}ms`,
           };
           eventsRef.current.push(ev);
           buf[n - 1].anomaly = 'sigh';
@@ -751,7 +756,7 @@ function PatternMetrics({
     {
       label: 'Sigh-frequentie',
       value: `${sighRatePerMin.toFixed(2)}/min`,
-      sub: 'normaal < 0.15/min',
+      sub: 'uitschieters in RSA-amplitude',
       color: sighRatePerMin > 0.3
         ? 'text-amber-600 dark:text-amber-400'
         : 'text-gray-800 dark:text-gray-100',

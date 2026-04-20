@@ -34,14 +34,16 @@ function buildPrompt(s: BreathTraceSummary): string {
     ? s.events.map(e => `  ${e.ts}  [${e.type}]  ${e.detail}`).join('\n')
     : '  (geen sighs gedetecteerd)';
 
-  return `Je bent een expert in ademhalingspatroonanalyse bij chronische hyperventilatie (CHV). Analyseer deze hartslagtachogram-sessie. Schrijf in lopende tekst, geen bullet points. Gebruik **vetgedrukte termen** bij sleutelwoorden. Max 280 woorden.
+  return `Je analyseert een hartslagtachogram-sessie gemeten via een borstband (RSA-methode). Schrijf een objectieve, feitelijke beschrijving van wat er gemeten werd. Geen aannames over diagnoses of aandoeningen. Gebruik **vetgedrukte termen** bij sleutelbegrippen. Schrijf in lopende tekst, geen bullet points. Max 250 woorden.
 
-CONTEXT (lees aandachtig):
-- RMSSD hier = RSA-amplitude (mechanische koppeling ademhaling–hartritme). Klein ademen → lage RMSSD. Dit is GEEN marker van autonome verslechtering.
-- RSA-amplitudetrend zegt iets over of de ademhaling dieper of oppervlakkiger werd over de sessie.
-- Sigh = grote RSA-cyclus (amplitude-outlier t.o.v. de rest). Hoge sigh-rate per minuut is klinisch relevanter dan het totaal.
-- Ademregulariteit (CV van cyclusduur) is een patroonmaat: onregelmatig = wisselende cycluslengtes = mogelijk gestoord adempatroon.
-- Hoge ademfrequentie (>15 bpm in rust) wijst op hyperventilatie. Lage (<8 bpm) wijst op gedempt/bewust ademen.
+MEETMETHODE:
+RSA (Respiratory Sinus Arrhythmia): het hartritme versnelt tijdens inademing en vertraagt tijdens uitademing. Uit de RR-intervalreeks worden ademfrequentie, cyclus-regelmaat en sighs (uitzonderlijk grote RSA-cycli) afgeleid.
+
+BELANGRIJKE KANTTEKENINGEN BIJ DE INTERPRETATIE:
+- RMSSD in deze korte meting weerspiegelt primair RSA-amplitude, niet autonoom welzijn. Oppervlakkig ademen geeft lage RMSSD, diep ademen geeft hoge RMSSD — ongeacht vagale tonus.
+- Een sigh is hier gedefinieerd als een RSA-cyclus met amplitude ≥2× de mediaan én >2.5 SD boven het gemiddelde. Dit is een strenge drempel; het zijn echte uitschieters.
+- Sigh-frequentie >0.2/min wordt in de literatuur geassocieerd met verhoogde ademdrang, maar is op zichzelf geen klinische bevinding.
+- Ademregulariteit (CV van cyclusduur) beschrijft consistentie van het ritme, niet kwaliteit.
 
 SESSIEDATA:
 Duur: ${Math.floor(s.durationSec / 60)}m${s.durationSec % 60}s | HR: ${s.meanHR} bpm | BR: ${s.breathRate || '?'} bpm
@@ -53,7 +55,7 @@ RSA-amplitudetrend: ${trendLabel}
 SIGH-EVENTS:
 ${evLines}
 
-Bespreek: (1) patroon en ademfrequentie, (2) RMSSD-betekenis in context, (3) sighs en hun distributie over de sessie, (4) amplitudetrend en regulariteit als CHV-indicatoren.`;
+Beschrijf: (1) het algemene adempatroon en frequentie in neutrale termen, (2) de RMSSD in de context van de meetmethode, (3) de sigh-events feitelijk — hoe frequent, hoe verdeeld over de sessie, (4) de RSA-trend en regulariteit objectief. Sluit eventueel af met één zin over wat opvalt, zonder conclusies te trekken.`;
 }
 
 export async function POST(request: NextRequest) {
