@@ -34,7 +34,7 @@ function buildPrompt(s: BreathTraceSummary): string {
     ? s.events.map(e => `  ${e.ts}  [${e.type}]  ${e.detail}`).join('\n')
     : '  (geen sighs gedetecteerd)';
 
-  return `Je analyseert een hartslagtachogram-sessie gemeten via een borstband (RSA-methode). Schrijf een objectieve, feitelijke beschrijving van wat er gemeten werd. Geen aannames over diagnoses of aandoeningen. Gebruik **vetgedrukte termen** bij sleutelbegrippen. Schrijf in lopende tekst, geen bullet points. Max 250 woorden.
+  return `Je bent een expert in ademhalingspatroonanalyse. Schrijf een objectieve, feitelijke beschrijving van wat er in deze hartslagtachogram-sessie gemeten werd. Geen aannames over onderliggende aandoeningen. Gebruik **vetgedrukte termen** bij sleutelbegrippen. Schrijf in lopende tekst, geen bullet points. Max 250 woorden.
 
 MEETMETHODE:
 RSA (Respiratory Sinus Arrhythmia): het hartritme versnelt tijdens inademing en vertraagt tijdens uitademing. Uit de RR-intervalreeks worden ademfrequentie, cyclus-regelmaat en sighs (uitzonderlijk grote RSA-cycli) afgeleid.

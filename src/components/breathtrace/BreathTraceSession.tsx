@@ -530,13 +530,13 @@ export function BreathTraceSession() {
           </>
         )}
 
-        {!isConnected && !canAnalyse && (
+        {!isConnected && (
           <button
             onClick={doConnect}
             className="flex items-center gap-2 px-4 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-lg text-xs font-bold transition-colors"
           >
             <i className="fas fa-bluetooth text-sm" />
-            Verbinden
+            {canAnalyse ? 'Nieuwe sessie' : 'Verbinden'}
           </button>
         )}
 
@@ -696,7 +696,28 @@ export function BreathTraceSession() {
 
             {/* New session */}
             <button
-              onClick={() => { setView('live'); setCanAnalyse(false); setIsConnected(false); }}
+              onClick={() => {
+                // Full reset van alle refs
+                rrBufRef.current        = [];
+                eventsRef.current       = [];
+                lastPhaseRef.current    = null;
+                cycleAmpsRef.current    = [];
+                cycleMinRef.current     = Infinity;
+                cycleMaxRef.current     = -Infinity;
+                breathTimesRef.current  = [];
+                cycleStartTRef.current  = null;
+                lastSighTRef.current    = -9999;
+                ampFirstHalfRef.current  = [];
+                ampSecondHalfRef.current = [];
+                // Reset UI state
+                setView('live');
+                setCanAnalyse(false);
+                setNSigh(0);
+                setEventLog([]);
+                setHr(null); setBr(null); setRmssd(null); setPhase(null);
+                setSessionSec(0);
+                setAiText(''); setAiError('');
+              }}
               className="w-full py-3 border border-gray-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-2xl text-sm font-semibold transition-colors"
             >
               Nieuwe meting
