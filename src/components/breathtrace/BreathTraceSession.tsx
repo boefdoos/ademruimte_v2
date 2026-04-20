@@ -337,23 +337,19 @@ export function BreathTraceSession() {
         ctx.fillRect(toX(vis[i].t), 0, toX(vis[i + 1].t) - toX(vis[i].t), H);
       }
 
-      // Envelope (smooth)
+      // Raw beats — stippen alleen, geen verbindingslijn
+      ctx.fillStyle = 'rgba(0,224,122,0.35)';
+      vis.forEach((p, i) => {
+        ctx.beginPath();
+        ctx.arc(toX(p.t), toY(vals[i]), 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Ademenvelope — hoofdlijn, vloeiende spline over brede MA
       const smAll = ma(buf, MA_DISP);
       const off   = buf.length - vis.length;
       const smVis = smAll.slice(off);
-      drawSpline(ctx, vis.map(p => toX(p.t)), smVis.map(toY), 'rgba(0,224,122,.28)', 3.5);
-
-      // Raw tachogram
-      ctx.beginPath(); ctx.strokeStyle = '#00e07a'; ctx.lineWidth = 1.5; ctx.lineJoin = 'round';
-      vis.forEach((p, i) => {
-        const x = toX(p.t), y = toY(vals[i]);
-        i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
-      });
-      ctx.stroke();
-      ctx.fillStyle = '#00e07a';
-      vis.forEach((p, i) => {
-        ctx.beginPath(); ctx.arc(toX(p.t), toY(vals[i]), 2, 0, Math.PI * 2); ctx.fill();
-      });
+      drawSpline(ctx, vis.map(p => toX(p.t)), smVis.map(toY), '#00e07a', 2.5);
 
       // Sigh markers
       for (const p of vis) {
@@ -615,19 +611,37 @@ export function BreathTraceSession() {
             )}
           </div>
 
-          {/* Event log */}
-          <div className="h-28 border-t border-slate-800 overflow-y-auto flex-shrink-0">
-            {eventLog.length === 0 ? (
-              <p className="px-4 py-3 font-mono text-xs text-slate-700">Nog geen sighs gedetecteerd…</p>
-            ) : (
-              [...eventLog].reverse().map((e, i) => (
-                <div key={i} className="flex items-baseline gap-3 px-4 py-1.5 border-b border-slate-900 font-mono text-xs">
-                  <span className="text-slate-600 w-10 flex-shrink-0">{e.ts}</span>
-                  <span className="text-amber-400 font-bold uppercase text-[9px] tracking-wider w-14 flex-shrink-0">Sigh</span>
-                  <span className="text-slate-500 text-[10px]">{e.detail}</span>
-                </div>
-              ))
-            )}
+          {/* Event log + legend */}
+          <div className="h-28 border-t border-slate-800 flex flex-shrink-0">
+            <div className="flex-1 overflow-y-auto py-1">
+              {eventLog.length === 0 ? (
+                <p className="px-4 py-3 font-mono text-xs text-slate-700">Nog geen sighs gedetecteerd…</p>
+              ) : (
+                [...eventLog].reverse().map((e, i) => (
+                  <div key={i} className="flex items-baseline gap-3 px-4 py-1.5 border-b border-slate-900 font-mono text-xs">
+                    <span className="text-slate-600 w-10 flex-shrink-0">{e.ts}</span>
+                    <span className="text-amber-400 font-bold uppercase text-[9px] tracking-wider w-14 flex-shrink-0">Sigh</span>
+                    <span className="text-slate-500 text-[10px]">{e.detail}</span>
+                  </div>
+                ))
+              )}
+            </div>
+            {/* Legenda */}
+            <div className="flex flex-col justify-center gap-2 px-4 border-l border-slate-800 flex-shrink-0">
+              <p className="text-[8px] font-bold tracking-widest uppercase text-slate-700 mb-1">Legenda</p>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-0.5 bg-emerald-400 rounded" />
+                <span className="text-[10px] text-slate-500 whitespace-nowrap">Ademenvelope</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-500/40" />
+                <span className="text-[10px] text-slate-500 whitespace-nowrap">RR-interval</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-amber-400" />
+                <span className="text-[10px] text-slate-500 whitespace-nowrap">Sigh</span>
+              </div>
+            </div>
           </div>
         </div>
       )}
