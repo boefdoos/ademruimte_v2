@@ -38,6 +38,8 @@ export function BSRWidget() {
   const [flash, setFlash] = useState<number | null>(null);
   const timer = useRef<NodeJS.Timeout | null>(null);
 
+  const [minimised, setMinimised] = useState(false);
+
   useEffect(() => { setIsMounted(true); }, []);
 
   useEffect(() => {
@@ -84,7 +86,7 @@ export function BSRWidget() {
   };
 
   if (!currentUser || !isMounted) return null;
-  if (pathname === '/' || pathname === '/auth' || pathname === '/privacy') return null;
+  if (pathname === '/' || pathname === '/auth' || pathname === '/privacy' || pathname === '/breathtrace') return null;
 
   const bsr = bsr4h;
   const bsrColor = bsr === null ? 'text-gray-400 dark:text-gray-500'
@@ -212,26 +214,51 @@ export function BSRWidget() {
         </div>
       )}
 
-      <button
-        onClick={handleFABClick}
-        className={`fixed z-[60] bottom-20 md:bottom-6 right-4 w-14 h-14 rounded-full shadow-lg dark:shadow-slate-950/50 flex flex-col items-center justify-center transition-all duration-300 ${
-          flash !== null
-            ? `${flashBg} scale-110`
-            : 'bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-600 scale-100'
-        }`}
-        aria-label="BSR Tracker"
-      >
-        {flash !== null ? (
-          <span className="text-xl">{flash === 2 ? '😌' : flash === 1 ? '😐' : '😣'}</span>
-        ) : (
-          <>
-            <span className={`text-base font-extrabold leading-none ${bsrColor}`}>
-              {bsr !== null ? bsr : '—'}
-            </span>
-            <span className="text-[7px] text-gray-400 dark:text-gray-500 mt-px">BSR</span>
-          </>
-        )}
-      </button>
+      {/* Minimised pill */}
+      {minimised ? (
+        <button
+          onClick={() => setMinimised(false)}
+          className="fixed z-[60] bottom-20 md:bottom-6 right-4 h-7 px-3 rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 shadow flex items-center gap-1.5 transition-colors hover:border-blue-300 dark:hover:border-blue-600"
+          aria-label="BSR tonen"
+        >
+          <span className={`text-xs font-bold leading-none ${bsrColor}`}>
+            {bsr !== null ? bsr : '—'}
+          </span>
+          <span className="text-[8px] text-gray-400 dark:text-gray-500">BSR</span>
+        </button>
+      ) : (
+        <div className="fixed z-[60] bottom-20 md:bottom-6 right-4 flex items-end gap-1">
+          {/* Minimise button */}
+          <button
+            onClick={() => { setOpen(false); setMinimised(true); }}
+            className="w-5 h-5 mb-px rounded-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 shadow flex items-center justify-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            aria-label="BSR minimaliseren"
+          >
+            <svg width="8" height="8" viewBox="0 0 8 2" fill="currentColor"><rect y="0.5" width="8" height="1.5" rx="0.75"/></svg>
+          </button>
+          {/* Main FAB */}
+          <button
+            onClick={handleFABClick}
+            className={`w-14 h-14 rounded-full shadow-lg dark:shadow-slate-950/50 flex flex-col items-center justify-center transition-all duration-300 ${
+              flash !== null
+                ? `${flashBg} scale-110`
+                : 'bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-600 scale-100'
+            }`}
+            aria-label="BSR Tracker"
+          >
+            {flash !== null ? (
+              <span className="text-xl">{flash === 2 ? '😌' : flash === 1 ? '😐' : '😣'}</span>
+            ) : (
+              <>
+                <span className={`text-base font-extrabold leading-none ${bsrColor}`}>
+                  {bsr !== null ? bsr : '—'}
+                </span>
+                <span className="text-[7px] text-gray-400 dark:text-gray-500 mt-px">BSR</span>
+              </>
+            )}
+          </button>
+        </div>
+      )}
     </>,
     document.body
   );
