@@ -34,28 +34,29 @@ function buildPrompt(s: BreathTraceSummary): string {
     ? s.events.map(e => `  ${e.ts}  [${e.type}]  ${e.detail}`).join('\n')
     : '  (geen sighs gedetecteerd)';
 
-  return `Je bent een expert in ademhalingspatroonanalyse. Schrijf een objectieve, feitelijke beschrijving van wat er in deze hartslagtachogram-sessie gemeten werd. Geen aannames over onderliggende aandoeningen. Gebruik **vetgedrukte termen** bij sleutelbegrippen. Schrijf in lopende tekst, geen bullet points. Max 250 woorden.
+  return `Je bent een expert in ademhalingspatroonanalyse met sterke communicatieve vaardigheden. Je taak is om de meetresultaten van deze sessie helder en begrijpelijk te beschrijven — alsof je ze uitlegt aan iemand die geïnteresseerd is maar geen medische achtergrond heeft. Schrijf warm maar zakelijk, in gewone taal. Vermijd vakjargon tenzij je het meteen uitlegt. Geen aannames over onderliggende aandoeningen. Gebruik **vetgedrukte termen** enkel voor de meest relevante begrippen. Schrijf in lopende alinea's. Max 220 woorden.
 
-MEETMETHODE:
-RSA (Respiratory Sinus Arrhythmia): het hartritme versnelt tijdens inademing en vertraagt tijdens uitademing. Uit de RR-intervalreeks worden ademfrequentie, cyclus-regelmaat en sighs (uitzonderlijk grote RSA-cycli) afgeleid.
-
-BELANGRIJKE KANTTEKENINGEN BIJ DE INTERPRETATIE:
-- RMSSD in deze korte meting weerspiegelt primair RSA-amplitude, niet autonoom welzijn. Oppervlakkig ademen geeft lage RMSSD, diep ademen geeft hoge RMSSD — ongeacht vagale tonus.
-- Een sigh is hier gedefinieerd als een RSA-cyclus met amplitude ≥2× de mediaan én >2.5 SD boven het gemiddelde. Dit is een strenge drempel; het zijn echte uitschieters.
-- Sigh-frequentie >0.2/min wordt in de literatuur geassocieerd met verhoogde ademdrang, maar is op zichzelf geen klinische bevinding.
-- Ademregulariteit (CV van cyclusduur) beschrijft consistentie van het ritme, niet kwaliteit.
+ACHTERGROND VOOR JOUW INTERPRETATIE (niet letterlijk herhalen in de tekst):
+- De meting werkt via RSA: het hart versnelt licht bij inademing en vertraagt bij uitademing. Uit dit ritme worden ademfrequentie, regelmaat en opvallende ademhalingen (sighs) afgeleid.
+- RMSSD weerspiegelt hier voornamelijk hoe diep iemand ademt, niet rechtstreeks de gezondheid van het zenuwstelsel. Klein ademen = lage RMSSD, diep ademen = hogere RMSSD.
+- Een sigh is een ademhaling die statistisch ver boven de rest uitsteekt (strenge drempel: ≥1.8× mediaan én boven het bovenste kwartiel × 1.4). Het zijn echte uitschieters, geen gewone diepe ademhalingen.
+- Ademregulariteit (CV) zegt iets over hoe consistent het ritme was, niet of het goed of slecht is.
+- Sigh-frequentie wordt in onderzoek gelinkt aan ademdrang, maar is op zichzelf geen diagnose.
 
 SESSIEDATA:
-Duur: ${Math.floor(s.durationSec / 60)}m${s.durationSec % 60}s | HR: ${s.meanHR} bpm | BR: ${s.breathRate || '?'} bpm
-RMSSD: ${s.rmssd}ms | RR-bereik: ${s.rrRange}ms | RSA mediaan: ${s.medAmp}ms | RSA max: ${s.maxAmp}ms
-Beats: ${s.totalBeats} | Sighs: ${s.nSigh} (${s.sighRatePerMin.toFixed(2)}/min)
-Ademregulariteit: ${regularityLabel} (CV: ${s.breathRateCV.toFixed(0)}%)
-RSA-amplitudetrend: ${trendLabel}
+Duur: ${Math.floor(s.durationSec / 60)}m${s.durationSec % 60}s | Hartfrequentie: ${s.meanHR} bpm | Ademfrequentie: ${s.breathRate || '?'} per minuut
+RMSSD: ${s.rmssd}ms | RSA-amplitude mediaan: ${s.medAmp}ms | RSA-amplitude piek: ${s.maxAmp}ms
+Aantal slagen: ${s.totalBeats} | Sighs: ${s.nSigh} (${s.sighRatePerMin.toFixed(2)} per minuut)
+Ademregelmaat: ${regularityLabel} (variatie: ${s.breathRateCV.toFixed(0)}%)
+Amplitudetrend: ${trendLabel}
 
-SIGH-EVENTS:
+SIGH-MOMENTEN:
 ${evLines}
 
-Beschrijf: (1) het algemene adempatroon en frequentie in neutrale termen, (2) de RMSSD in de context van de meetmethode, (3) de sigh-events feitelijk — hoe frequent, hoe verdeeld over de sessie, (4) de RSA-trend en regulariteit objectief. Sluit eventueel af met één zin over wat opvalt, zonder conclusies te trekken.`;
+Schrijf de beschrijving in drie natuurlijke alinea's:
+1. Wat er globaal gemeten werd — tempo, regelmaat, hoe de ademhaling aanvoelde in de data.
+2. Wat de RMSSD en amplitudetrend zeggen in begrijpelijke termen.
+3. De sighs: wanneer, hoe vaak, wat dat betekent in de context van deze sessie. Sluit af met één observatie die opvalt, zonder een conclusie te trekken over oorzaak of diagnose.`;
 }
 
 export async function POST(request: NextRequest) {
