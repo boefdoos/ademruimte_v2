@@ -7,21 +7,7 @@ import { Navigation } from '@/components/layout/Navigation';
 import { OnboardingModal } from '@/components/onboarding/OnboardingModal';
 import { MorningStrip } from '@/components/dashboard/MorningStrip';
 import { db } from '@/lib/firebase/config';
-import {
-  doc, getDoc,
-  collection, query, where, orderBy, limit, getDocs,
-} from 'firebase/firestore';
-
-const getTodayString = () => {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
-
-const getYesterdayString = () => {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
+import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -36,49 +22,44 @@ function getFirstName(email: string | null | undefined): string {
   return name.charAt(0).toUpperCase() + name.slice(1);
 }
 
+interface LastSession {
+  durationSec: number;
+  breathRate: string | null;
+  nSigh: number;
+  breathRateCV: number;
+  createdAt: Date | null;
+}
+
 export default function DashboardPage() {
   const { currentUser, loading: authLoading } = useAuth();
   const router = useRouter();
 
-  const [lastCP, setLastCP] = useState<number | null>(null);
-  const [prevCP, setPrevCP] = useState<number | null>(null);
-  const [lastHRV, setLastHRV] = useState<number | null>(null);
+  const [lastSession, setLastSession] = useState<LastSession | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && !currentUser) router.push('/auth');
+  }, [currentUser, authLoading, router]);
 
   useEffect(() => {
     const load = async () => {
       if (!currentUser) return;
       try {
-        // Latest 2 CP measurements for delta
-        const cpQ = query(
-          collection(db, 'cpMeasurements'),
-          where('userId', '==', currentUser.uid),
-          orderBy('timestamp', 'desc'),
-          limit(2)
-        );
-        const cpSnap = await getDocs(cpQ);
-        const cpDocs = cpSnap.docs;
-        if (cpDocs.length > 0) {
-          const latest = cpDocs[0].data();
-          setLastCP(latest.seconds || latest.score || null);
-        }
-        if (cpDocs.length > 1) {
-          const prev = cpDocs[1].data();
-          setPrevCP(prev.seconds || prev.score || null);
-        }
-
-        // Latest HRV
-        const hrvQ = query(
-          collection(db, 'hrv_measurements'),
-          where('userId', '==', currentUser.uid),
-          orderBy('timestamp', 'desc'),
+        const q = query(
+          collection(db, 'users', currentUser.uid, 'breathtraceSessions'),
+          orderBy('createdAt', 'desc'),
           limit(1)
         );
-        const hrvSnap = await getDocs(hrvQ);
-        if (!hrvSnap.empty) {
-          const d = hrvSnap.docs[0].data();
-          const val = d.value || d.rmssd || d.hrv || d.measurement || 0;
-          setLastHRV(typeof val === 'number' && val > 0 ? Math.round(val) : null);
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          const d = snap.docs[0].data();
+          setLastSession({
+            durationSec:  d.durationSec  ?? 0,
+            breathRate:   d.breathRate   ?? null,
+            nSigh:        d.nSigh        ?? 0,
+            breathRateCV: d.breathRateCV ?? 0,
+            createdAt:    d.createdAt?.toDate?.() ?? null,
+          });
         }
       } catch (e) {
         console.error('Dashboard load error:', e);
@@ -91,14 +72,13 @@ export default function DashboardPage() {
     return (
       <>
         <Navigation />
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900 transition-colors">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 dark:border-blue-400" />
         </div>
       </>
     );
   }
 
-  const cpDelta = lastCP !== null && prevCP !== null ? lastCP - prevCP : null;
   const firstName = getFirstName(currentUser?.email);
 
   return (
@@ -111,23 +91,42 @@ export default function DashboardPage() {
 
           {/* Greeting */}
           <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 transition-colors">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {new Date().toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long' })}
             </p>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-0.5 transition-colors">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-0.5">
               {getGreeting()}{firstName ? `, ${firstName}` : ''}
             </h1>
           </div>
 
           {/* Morning strip */}
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm transition-colors">
-            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3 transition-colors">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm">
+            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
               Ochtendbasislijn
             </p>
             <MorningStrip />
           </div>
 
-          {/* Primary CTA */}
+          {/* BreathTrace CTA */}
+          <a
+            href="/breathtrace"
+            className="flex items-center gap-4 bg-slate-900 dark:bg-slate-950 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all group"
+          >
+            <div className="w-11 h-11 rounded-xl bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
+              <i className="fas fa-wave-square text-emerald-400 text-lg" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-bold text-white">Ademhalingsmeting</div>
+              <div className="text-xs text-slate-500 mt-0.5">
+                {lastSession
+                  ? `Laatste sessie: ${Math.floor(lastSession.durationSec / 60)}m · ${lastSession.nSigh} sigh${lastSession.nSigh !== 1 ? 's' : ''} · BR ${lastSession.breathRate ?? '?'} bpm`
+                  : 'Verbind Polar H10 voor patroonanalyse'}
+              </div>
+            </div>
+            <i className="fas fa-chevron-right text-slate-600 group-hover:text-emerald-400 transition-colors text-sm flex-shrink-0" />
+          </a>
+
+          {/* Oefeningen CTA */}
           <a
             href="/exercises"
             className="block w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-center font-semibold text-lg transition-colors shadow-sm"
@@ -136,99 +135,54 @@ export default function DashboardPage() {
             Start ademsessie
           </a>
 
-          {/* Metrics */}
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm transition-colors">
-            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3 transition-colors">
-              Vandaag
-            </p>
-            <div className="grid grid-cols-3 gap-3">
-
-              {/* BSR — live from widget */}
-              <div className="bg-gray-50 dark:bg-slate-700 rounded-xl p-3 text-center transition-colors">
-                <div className="text-xl font-bold text-gray-800 dark:text-gray-100 transition-colors" id="bsr-dashboard-val">
-                  —
-                </div>
-                <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 transition-colors">BSR 4u</div>
-              </div>
-
-              {/* Control Pause */}
-              <div className="bg-gray-50 dark:bg-slate-700 rounded-xl p-3 text-center transition-colors">
-                <div className="text-xl font-bold text-gray-800 dark:text-gray-100 transition-colors">
-                  {lastCP !== null ? `${lastCP}s` : '—'}
-                </div>
-                {cpDelta !== null && (
-                  <div className={`text-[10px] font-semibold mt-0.5 transition-colors ${
-                    cpDelta > 0 ? 'text-emerald-600 dark:text-emerald-400' :
-                    cpDelta < 0 ? 'text-red-500 dark:text-red-400' :
-                    'text-gray-400 dark:text-gray-500'
-                  }`}>
-                    {cpDelta > 0 ? `+${cpDelta}s ↑` : cpDelta < 0 ? `${cpDelta}s ↓` : '= gelijk'}
-                  </div>
-                )}
-                <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 transition-colors">
-                  Control Pause
-                </div>
-              </div>
-
-              {/* HRV */}
-              <div className="bg-gray-50 dark:bg-slate-700 rounded-xl p-3 text-center transition-colors">
-                <div className="text-xl font-bold text-gray-800 dark:text-gray-100 transition-colors">
-                  {lastHRV !== null ? `${lastHRV}ms` : '—'}
-                </div>
-                <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 transition-colors">HRV</div>
-              </div>
-            </div>
-          </div>
-
           {/* Quick actions */}
           <div>
-            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3 transition-colors">
+            <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">
               Acties
             </p>
             <div className="grid grid-cols-2 gap-3">
               <a href="/insights" className="flex items-center gap-3 bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
-                <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0 transition-colors">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
                   <i className="fas fa-chart-line text-blue-600 dark:text-blue-400 text-sm" />
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-gray-800 dark:text-gray-100 transition-colors">Inzichten</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Trends & patronen</div>
+                  <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">Inzichten</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Trends & patronen</div>
                 </div>
               </a>
 
               <a href="/journal?tab=symptomen" className="flex items-center gap-3 bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
-                <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0 transition-colors">
+                <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
                   <i className="fas fa-notes-medical text-amber-600 dark:text-amber-400 text-sm" />
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-gray-800 dark:text-gray-100 transition-colors">Journal</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Symptomen loggen</div>
-                </div>
-              </a>
-
-              <a href="/journal?tab=hrv" className="flex items-center gap-3 bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0 transition-colors">
-                  <i className="fas fa-heart-pulse text-emerald-600 dark:text-emerald-400 text-sm" />
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-gray-800 dark:text-gray-100 transition-colors">HRV loggen</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors">RMSSD meting</div>
+                  <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">Journal</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Symptomen loggen</div>
                 </div>
               </a>
 
               <a href="/journal?tab=cp" className="flex items-center gap-3 bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
-                <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0 transition-colors">
+                <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
                   <i className="fas fa-stopwatch text-purple-600 dark:text-purple-400 text-sm" />
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-gray-800 dark:text-gray-100 transition-colors">Control Pause</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 transition-colors">Meting loggen</div>
+                  <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">Control Pause</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Meting loggen</div>
+                </div>
+              </a>
+
+              <a href="/journal?tab=bsr" className="flex items-center gap-3 bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all">
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0">
+                  <i className="fas fa-circle-half-stroke text-emerald-600 dark:text-emerald-400 text-sm" />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-gray-800 dark:text-gray-100">BSR</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Breath Satisfaction</div>
                 </div>
               </a>
             </div>
           </div>
 
-          {/* Onboarding link — discreet */}
           <div className="text-center pt-2">
             <button
               onClick={() => setShowOnboarding(true)}
@@ -241,33 +195,6 @@ export default function DashboardPage() {
 
         </div>
       </div>
-
-      {/* BSR live sync — reads from BSR widget state via localStorage */}
-      <BsrDashboardSync />
     </>
   );
-}
-
-function BsrDashboardSync() {
-  useEffect(() => {
-    const update = () => {
-      try {
-        const raw = localStorage.getItem('bsr_entries');
-        if (!raw) return;
-        const entries: Array<{ score: number; timestamp: number }> = JSON.parse(raw);
-        const fourHoursAgo = Date.now() - 4 * 60 * 60 * 1000;
-        const recent = entries.filter(e => e.timestamp > fourHoursAgo);
-        const el = document.getElementById('bsr-dashboard-val');
-        if (!el) return;
-        if (recent.length === 0) { el.textContent = '—'; return; }
-        const bsr = Math.round(recent.reduce((s, e) => s + e.score, 0) / (recent.length * 2) * 100);
-        el.textContent = `${bsr}%`;
-        el.style.color = bsr >= 60 ? '#0F6E56' : bsr >= 30 ? '#BA7517' : '#A32D2D';
-      } catch {}
-    };
-    update();
-    const interval = setInterval(update, 10000);
-    return () => clearInterval(interval);
-  }, []);
-  return null;
 }
