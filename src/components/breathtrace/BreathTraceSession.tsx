@@ -339,15 +339,18 @@ export function BreathTraceSession() {
         ctx.fillRect(toX(vis[i].t), 0, toX(vis[i + 1].t) - toX(vis[i].t), H);
       }
 
-      // Raw beats — stippen alleen, geen verbindingslijn
-      ctx.fillStyle = 'rgba(0,224,122,0.35)';
+      // Ruwe tachogram — dunne verbonden lijn op de achtergrond
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(0,224,122,0.25)';
+      ctx.lineWidth = 1;
+      ctx.lineJoin = 'round';
       vis.forEach((p, i) => {
-        ctx.beginPath();
-        ctx.arc(toX(p.t), toY(vals[i]), 2.5, 0, Math.PI * 2);
-        ctx.fill();
+        const x = toX(p.t), y = toY(vals[i]);
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       });
+      ctx.stroke();
 
-      // Ademenvelope — hoofdlijn, vloeiende spline over brede MA
+      // Ademenvelope — vloeiende spline als hoofdlijn
       const smAll = ma(buf, MA_DISP);
       const off   = buf.length - vis.length;
       const smVis = smAll.slice(off);
@@ -636,8 +639,8 @@ export function BreathTraceSession() {
                 <span className="text-[10px] text-slate-500 whitespace-nowrap">Ademenvelope</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-500/40" />
-                <span className="text-[10px] text-slate-500 whitespace-nowrap">RR-interval</span>
+                <div className="w-6 h-px bg-emerald-500/30 rounded" />
+                <span className="text-[10px] text-slate-500 whitespace-nowrap">RR-tachogram</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-amber-400" />
