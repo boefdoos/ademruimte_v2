@@ -248,22 +248,22 @@ export function BreathTraceSession() {
       if (dur < half) ampFirstHalfRef.current.push(amp);
       else            ampSecondHalfRef.current.push(amp);
 
-      if (amps.length >= 10) {
+      if (amps.length >= 7) {
         const sorted = [...amps].sort((a, b) => a - b);
         const med    = sorted[Math.floor(sorted.length / 2)];
-        // Gemiddelde en standaarddeviatie voor robuustere drempel
-        const mean   = amps.reduce((s, v) => s + v, 0) / amps.length;
-        const sd     = Math.sqrt(amps.reduce((s, v) => s + (v - mean) ** 2, 0) / amps.length);
-        // Sigh = minstens 2× mediaan én meer dan 2.5 SD boven gemiddelde
-        // én minimaal 50ms absolute amplitude (voorkomt trigger op vlakke basislijn)
-        const thresh = Math.max(med * 2.0, mean + sd * 2.5, 50);
+        // p75: bovenste kwartiel van de basislijn als referentie
+        const p75    = sorted[Math.floor(sorted.length * 0.75)];
+        // Sigh = minstens 1.8× mediaan én boven p75 × 1.4
+        // én minimaal 40ms absolute amplitude
+        // SD bewust weggelaten: te instabiel op kleine samples
+        const thresh = Math.max(med * 1.8, p75 * 1.4, 40);
 
-        if (amp > thresh && t - lastSighTRef.current > 8000) {
+        if (amp > thresh && t - lastSighTRef.current > 6000) {
           const s   = (t - sessionT0Ref.current) / 1000;
           const ts  = `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
           const ev: BreathEvent = {
             t, ts, type: 'sigh',
-            detail: `amp ${amp}ms | drempel ${Math.round(thresh)}ms | med ${Math.round(med)}ms`,
+            detail: `amp ${amp}ms | drempel ${Math.round(thresh)}ms | med ${Math.round(med)}ms | p75 ${Math.round(p75)}ms`,
           };
           eventsRef.current.push(ev);
           buf[n - 1].anomaly = 'sigh';
